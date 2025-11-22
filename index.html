@@ -41,8 +41,8 @@
                     <p class="persona-description">A creative professional navigating the modern workplace</p>
                     <div class="persona-stats">
                         <div class="stat-item">
-                            <span class="stat-label">Experience</span>
-                            <span class="stat-value">5+ years</span>
+                            <span class="stat-label">Theme</span>
+                            <span class="stat-value">Health Care</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Focus</span>
@@ -50,16 +50,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="persona-card" data-persona="catherine" id="catherine-card">
-                    <div class="persona-avatar catherine-avatar">
+                <div class="persona-card" data-persona="cathy" id="cathy-card">
+                    <div class="persona-avatar cathy-avatar">
                         <div class="avatar-circle">C</div>
                     </div>
-                    <h3>Catherine</h3>
+                    <h3>Cathy</h3>
                     <p class="persona-description">An analytical strategist building her career path</p>
                     <div class="persona-stats">
                         <div class="stat-item">
-                            <span class="stat-label">Experience</span>
-                            <span class="stat-value">8+ years</span>
+                            <span class="stat-label">Theme</span>
+                            <span class="stat-value">BA</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Focus</span>
@@ -75,7 +75,14 @@
     <section class="journey-section jamie-journey" id="jamie-journey" style="display: none;">
         <div class="journey-header">
             <button class="back-button" onclick="goBackToPersonas()">← Back to Selection</button>
-            <h2>Jamie's Journey</h2>
+            <h2>Jamie's Journey - Health Care Theme</h2>
+        </div>
+        
+        <!-- Jamie's Picture -->
+        <div class="persona-picture jamie-picture">
+            <div class="picture-placeholder">
+                <span>Jamie's Picture</span>
+            </div>
         </div>
 
         <!-- Journey Step 1 -->
@@ -173,22 +180,54 @@
         </div>
     </section>
 
-    <!-- Catherine's Journey Section -->
-    <section class="journey-section catherine-journey" id="catherine-journey" style="display: none;">
+    <!-- Cathy's Journey Section -->
+    <section class="journey-section cathy-journey" id="cathy-journey" style="display: none;">
         <div class="journey-header">
             <button class="back-button" onclick="goBackToPersonas()">← Back to Selection</button>
-            <h2>Catherine's Journey</h2>
+            <h2>Cathy's Journey - BA Theme</h2>
+            <div class="toggle-container">
+                <button class="toggle-button" id="cathy-toggle" onclick="toggleCathyView()">
+                    <span class="toggle-label">Switch View</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Cathy's Picture/Comparison View -->
+        <div class="cathy-view-container">
+            <div class="cathy-picture-view active" id="cathy-picture-view">
+                <div class="persona-picture cathy-picture">
+                    <div class="picture-placeholder">
+                        <span>Cathy's Picture</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cathy-comparison-view" id="cathy-comparison-view">
+                <div class="comparison-content">
+                    <h3>Comparison View</h3>
+                    <p>Compare Cathy's journey with Jamie's journey</p>
+                    <div class="comparison-stats">
+                        <div class="comparison-item">
+                            <h4>Cathy (BA)</h4>
+                            <p>Strategic & Analytical</p>
+                        </div>
+                        <div class="comparison-item">
+                            <h4>Jamie (Health Care)</h4>
+                            <p>Creative & Innovative</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Journey Step 1 -->
         <div class="journey-step" data-step="1">
             <div class="content-wrapper">
                 <h3 class="step-title">The Foundation</h3>
-                <p class="step-content">Catherine built her career on a foundation of strategic thinking and data-driven decision making. Her analytical approach set the stage for steady growth.</p>
+                <p class="step-content">Cathy built her career on a foundation of strategic thinking and data-driven decision making. Her analytical approach set the stage for steady growth.</p>
                 <div class="data-visualization">
                     <div class="chart-container">
                         <h4>Career Growth Over Time</h4>
-                        <div class="bar-chart" id="catherine-chart-1">
+                        <div class="bar-chart" id="cathy-chart-1">
                             <div class="bar" style="height: 25%;" data-value="25">
                                 <span class="bar-label">Year 1</span>
                             </div>
@@ -223,7 +262,7 @@
         <div class="journey-step" data-step="2">
             <div class="content-wrapper">
                 <h3 class="step-title">Strategic Decisions</h3>
-                <p class="step-content">Catherine's strategic approach led to significant organizational impact and measurable results.</p>
+                <p class="step-content">Cathy's strategic approach led to significant organizational impact and measurable results.</p>
                 <div class="data-visualization">
                     <div class="timeline-container">
                         <div class="timeline-item">
@@ -259,7 +298,7 @@
         <div class="journey-step" data-step="3">
             <div class="content-wrapper">
                 <h3 class="step-title">Results & Achievements</h3>
-                <p class="step-content">The metrics demonstrate the effectiveness of Catherine's strategic methodology.</p>
+                <p class="step-content">The metrics demonstrate the effectiveness of Cathy's strategic methodology.</p>
                 <div class="data-visualization">
                     <div class="metrics-grid">
                         <div class="metric-card">
@@ -291,7 +330,7 @@
             <div class="conclusion-content">
                 <div class="conclusion-item fade-in delay-1">
                     <h3>Different Paths, Shared Success</h3>
-                    <p>While Jamie and Catherine took different approaches—one creative and innovative, the other strategic and analytical—both achieved remarkable success in their respective domains.</p>
+                    <p>While Jamie and Cathy took different approaches—one creative and innovative in Health Care, the other strategic and analytical in BA—both achieved remarkable success in their respective domains.</p>
                 </div>
                 <div class="conclusion-item fade-in delay-2">
                     <h3>Data Tells the Story</h3>

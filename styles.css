@@ -165,7 +165,7 @@ p {
     border-radius: 20px;
     padding: 3rem;
     text-align: center;
-    cursor: default;
+    cursor: pointer;
     transition: var(--transition);
     border: 2px solid transparent;
     backdrop-filter: blur(10px);
@@ -201,7 +201,7 @@ p {
     box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
 }
 
-.persona-card.catherine-card:hover {
+.persona-card.cathy-card:hover {
     border-color: var(--catherine-color);
     box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
 }
@@ -228,7 +228,7 @@ p {
     color: white;
 }
 
-.catherine-avatar .avatar-circle {
+.cathy-avatar .avatar-circle {
     background: linear-gradient(135deg, var(--catherine-color), #f472b6);
     color: white;
 }
@@ -279,7 +279,7 @@ p {
     color: var(--jamie-color);
 }
 
-.catherine-card .stat-value {
+.cathy-card .stat-value {
     color: var(--catherine-color);
 }
 
@@ -389,7 +389,7 @@ p {
     background: linear-gradient(180deg, var(--jamie-color), #60a5fa);
 }
 
-.catherine-journey .bar {
+.cathy-journey .bar {
     background: linear-gradient(180deg, var(--catherine-color), #f472b6);
 }
 
@@ -453,7 +453,7 @@ p {
     background: var(--jamie-color);
 }
 
-.catherine-journey .timeline-marker {
+.cathy-journey .timeline-marker {
     background: var(--catherine-color);
 }
 
@@ -501,7 +501,7 @@ p {
     background: var(--jamie-color);
 }
 
-.catherine-journey .timeline-date {
+.cathy-journey .timeline-date {
     background: var(--catherine-color);
 }
 
@@ -546,7 +546,7 @@ p {
     background-clip: text;
 }
 
-.catherine-journey .metric-value {
+.cathy-journey .metric-value {
     background: linear-gradient(135deg, var(--catherine-color), #f472b6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -663,5 +663,107 @@ p {
 /* Smooth Scrolling */
 html {
     scroll-behavior: smooth;
+}
+
+/* Toggle Button for Cathy's Journey */
+.toggle-container {
+    margin-left: auto;
+}
+
+.toggle-button {
+    background: rgba(30, 41, 59, 0.8);
+    border: 2px solid var(--catherine-color);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: var(--transition);
+    backdrop-filter: blur(10px);
+}
+
+.toggle-button:hover {
+    background: var(--catherine-color);
+    transform: translateY(-2px);
+}
+
+/* Persona Pictures */
+.persona-picture {
+    width: 100%;
+    max-width: 400px;
+    margin: 2rem auto;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.picture-placeholder {
+    width: 100%;
+    padding-top: 100%;
+    background: rgba(30, 41, 59, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+}
+
+/* Cathy's View Container */
+.cathy-view-container {
+    position: relative;
+    width: 100%;
+    min-height: 300px;
+}
+
+.cathy-picture-view,
+.cathy-comparison-view {
+    display: none;
+    padding: 2rem;
+}
+
+.cathy-picture-view.active,
+.cathy-comparison-view.active {
+    display: block;
+}
+
+.comparison-content {
+    background: rgba(30, 41, 59, 0.8);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.comparison-content h3 {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.comparison-content p {
+    color: var(--text-secondary);
+}
+
+.comparison-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.comparison-item {
+    background: rgba(30, 41, 59, 0.6);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.comparison-item h4 {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+.comparison-item p {
+    color: var(--text-secondary);
+    font-size: 1rem;
 }
 
