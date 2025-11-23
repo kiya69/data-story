@@ -88,7 +88,14 @@
     <section class="journey-section jamie-journey" id="jamie-journey" style="display: none;">
         <div class="journey-header">
             <button class="back-button" onclick="goBackToPersonas()">← Back to Selection</button>
-            <h2>Jamie's Journey</h2>
+            <h2>Jamie's Journey - Health Care Theme</h2>
+        </div>
+        
+        <!-- Jamie's Picture -->
+        <div class="persona-picture jamie-picture">
+            <div class="picture-placeholder">
+                <span>Jamie's Picture</span>
+            </div>
         </div>
 
         <!-- Journey Step 1 -->
@@ -186,11 +193,43 @@
         </div>
     </section>
 
-    <!-- Catherine's Journey Section -->
-    <section class="journey-section catherine-journey" id="catherine-journey" style="display: none;">
+    <!-- Cathy's Journey Section -->
+    <section class="journey-section cathy-journey" id="cathy-journey" style="display: none;">
         <div class="journey-header">
             <button class="back-button" onclick="goBackToPersonas()">← Back to Selection</button>
-            <h2>Catherine's Journey</h2>
+            <h2>Cathy's Journey - BA Theme</h2>
+            <div class="toggle-container">
+                <button class="toggle-button" id="cathy-toggle" onclick="toggleCathyView()">
+                    <span class="toggle-label">Switch View</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Cathy's Picture/Comparison View -->
+        <div class="cathy-view-container">
+            <div class="cathy-picture-view active" id="cathy-picture-view">
+                <div class="persona-picture cathy-picture">
+                    <div class="picture-placeholder">
+                        <span>Cathy's Picture</span>
+                    </div>
+                </div>
+            </div>
+            <div class="cathy-comparison-view" id="cathy-comparison-view">
+                <div class="comparison-content">
+                    <h3>Comparison View</h3>
+                    <p>Compare Cathy's journey with Jamie's journey</p>
+                    <div class="comparison-stats">
+                        <div class="comparison-item">
+                            <h4>Cathy (BA)</h4>
+                            <p>Strategic & Analytical</p>
+                        </div>
+                        <div class="comparison-item">
+                            <h4>Jamie (Health Care)</h4>
+                            <p>Creative & Innovative</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Journey Step 1 -->
@@ -205,7 +244,7 @@
                 <div class="data-visualization">
                     <div class="chart-container">
                         <h4>Career Growth Over Time</h4>
-                        <div class="bar-chart" id="catherine-chart-1">
+                        <div class="bar-chart" id="cathy-chart-1">
                             <div class="bar" style="height: 25%;" data-value="25">
                                 <span class="bar-label">Year 1</span>
                             </div>

@@ -37,9 +37,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const personaCards = document.querySelectorAll('.persona-card');
     
     personaCards.forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             const persona = card.getAttribute('data-persona');
+            console.log('Persona clicked:', persona); // Debug log
             if (!personaSelected) {
+                personaSelected = true;
+                selectedPersona = persona;
+                scrollTriggered = true;
+                showPersonaJourney(persona, true);
+            } else {
+                // Allow clicking even if already selected (to switch)
                 personaSelected = true;
                 selectedPersona = persona;
                 scrollTriggered = true;
@@ -57,11 +66,37 @@ function setupPersonaScrollObserver() {
     if (!personasSection) return;
     
     let autoSelectTimeout = null;
+    let hasScrolled = false;
+    let wasInitiallyVisible = false;
+    
+    // Check if section is initially visible on page load
+    const checkInitialVisibility = () => {
+        const rect = personasSection.getBoundingClientRect();
+        wasInitiallyVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    };
+    
+    checkInitialVisibility();
+    
+    // Track if user has scrolled
+    let scrollTracked = false;
+    const trackScroll = () => {
+        if (!scrollTracked && window.scrollY > 0) {
+            hasScrolled = true;
+            scrollTracked = true;
+            window.removeEventListener('scroll', trackScroll);
+        }
+    };
+    window.addEventListener('scroll', trackScroll, { passive: true });
     
     const scrollObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            // When persona section enters viewport, automatically select after a short delay
+            // Only trigger if user has scrolled to this section (not on initial load)
             if (entry.isIntersecting && !personaSelected && !scrollTriggered) {
+                // If section was initially visible, wait for user to scroll first
+                if (wasInitiallyVisible && !hasScrolled) {
+                    return;
+                }
+                
                 // Clear any existing timeout
                 if (autoSelectTimeout) {
                     clearTimeout(autoSelectTimeout);
@@ -72,7 +107,7 @@ function setupPersonaScrollObserver() {
                     if (!personaSelected && !scrollTriggered) {
                         scrollTriggered = true;
                         // Randomly select a persona
-                        const personas = ['jamie', 'catherine'];
+                        const personas = ['jamie', 'cathy'];
                         const randomPersona = personas[Math.floor(Math.random() * personas.length)];
                         personaSelected = true;
                         selectedPersona = randomPersona;
@@ -91,15 +126,15 @@ function setupPersonaScrollObserver() {
                             }, 800);
                         }
                         
-                        // Show journey and continue scrolling
+                        // Show journey
                         setTimeout(() => {
                             showPersonaJourney(randomPersona, false);
                         }, 1200);
                     }
-                }, 1500);
+                }, 800);
             } else if (!entry.isIntersecting && !personaSelected && !scrollTriggered) {
-                // If user scrolls past without waiting, select immediately
-                if (entry.boundingClientRect.top < -50) {
+                // If user scrolls past without waiting, select immediately (only if they've scrolled)
+                if (entry.boundingClientRect.top < -50 && hasScrolled) {
                     if (autoSelectTimeout) {
                         clearTimeout(autoSelectTimeout);
                     }
@@ -121,25 +156,55 @@ function setupPersonaScrollObserver() {
 }
 
 function showPersonaJourney(persona, fromClick = true) {
-    // Show selected persona's journey (but don't hide other sections yet for smooth scroll)
+    console.log('showPersonaJourney called with:', persona); // Debug log
+    
+    // Hide all journey sections first
+    document.getElementById('jamie-journey').style.display = 'none';
+    document.getElementById('cathy-journey').style.display = 'none';
+    
+    // Show selected persona's journey and scroll to it
     if (persona === 'jamie') {
-        document.getElementById('jamie-journey').style.display = 'flex';
+        const jamieJourney = document.getElementById('jamie-journey');
+        jamieJourney.style.display = 'flex';
         animateJourneySteps('jamie-journey');
+        console.log('Jamie journey shown');
         
-        // Scroll smoothly to the journey section
-        setTimeout(() => {
-            const journeySection = document.getElementById('jamie-journey');
-            journeySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, fromClick ? 100 : 300);
-    } else if (persona === 'catherine') {
-        document.getElementById('catherine-journey').style.display = 'flex';
-        animateJourneySteps('catherine-journey');
+        // Scroll to Jamie's journey
+        if (fromClick) {
+            setTimeout(() => {
+                jamieJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    } else if (persona === 'cathy' || persona === 'catherine') {
+        const cathyJourney = document.getElementById('cathy-journey');
+        cathyJourney.style.display = 'flex';
+        animateJourneySteps('cathy-journey');
+        console.log('Cathy journey shown');
         
-        // Scroll smoothly to the journey section
-        setTimeout(() => {
-            const journeySection = document.getElementById('catherine-journey');
-            journeySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, fromClick ? 100 : 300);
+        // Scroll to Cathy's journey
+        if (fromClick) {
+            setTimeout(() => {
+                cathyJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    } else {
+        console.error('Unknown persona:', persona);
+    }
+}
+
+function toggleCathyView() {
+    const pictureView = document.getElementById('cathy-picture-view');
+    const comparisonView = document.getElementById('cathy-comparison-view');
+    const toggleButton = document.getElementById('cathy-toggle');
+    
+    if (pictureView.classList.contains('active')) {
+        pictureView.classList.remove('active');
+        comparisonView.classList.add('active');
+        toggleButton.querySelector('.toggle-label').textContent = 'Show Picture';
+    } else {
+        pictureView.classList.add('active');
+        comparisonView.classList.remove('active');
+        toggleButton.querySelector('.toggle-label').textContent = 'Switch View';
     }
 }
 
@@ -156,6 +221,9 @@ function animateJourneySteps(journeyId) {
     if (steps.length > 0) {
         steps[0].classList.add('active');
     }
+    
+    // Re-initialize scroll animations for info blocks in this journey
+    reinitializeScrollAnimations();
     
     // Set up scroll-based step activation
     let currentStep = 0;
@@ -189,6 +257,8 @@ function animateJourneySteps(journeyId) {
                 // Show conclusion after a delay
                 setTimeout(() => {
                     showConclusion();
+                    // Re-initialize animations for conclusion items
+                    reinitializeScrollAnimations();
                 }, 2000);
             }
         });
@@ -211,12 +281,7 @@ function animateBars(container) {
 
 function showConclusion() {
     document.getElementById('conclusion').style.display = 'flex';
-    setTimeout(() => {
-        window.scrollTo({
-            top: document.getElementById('conclusion').offsetTop,
-            behavior: 'smooth'
-        });
-    }, 500);
+    // User will scroll manually to see the conclusion
 }
 
 function goBackToPersonas() {
@@ -227,7 +292,7 @@ function goBackToPersonas() {
     
     // Hide all journey sections
     document.getElementById('jamie-journey').style.display = 'none';
-    document.getElementById('catherine-journey').style.display = 'none';
+    document.getElementById('cathy-journey').style.display = 'none';
     document.getElementById('conclusion').style.display = 'none';
     
     // Show initial sections
@@ -315,7 +380,47 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.transformOrigin = 'bottom';
         bar.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
     });
+    
+    // Set up scroll animations for info blocks
+    setupScrollAnimations();
 });
+
+// Scroll-triggered animations for info blocks
+function setupScrollAnimations() {
+    // Get all elements that need animation, but only those not already animated
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-item:not(.animate-in)');
+    
+    if (animatedElements.length === 0) return;
+    
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                // Add small delay for staggered effect, especially for metric cards
+                const delay = entry.target.classList.contains('metric-card') ? index * 100 : 0;
+                setTimeout(() => {
+                    entry.target.classList.add('animate-in');
+                }, delay);
+                // Stop observing once animated
+                animationObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    animatedElements.forEach(element => {
+        animationObserver.observe(element);
+    });
+}
+
+// Re-initialize animations when journeys are shown (for dynamically loaded content)
+function reinitializeScrollAnimations() {
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+        setupScrollAnimations();
+    }, 100);
+}
 
 // Add keyboard navigation
 document.addEventListener('keydown', (e) => {
