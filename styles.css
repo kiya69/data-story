@@ -5,15 +5,16 @@
 }
 
 :root {
-    --primary-color: #6366f1;
-    --secondary-color: #8b5cf6;
-    --jamie-color: #3b82f6;
-    --catherine-color: #ec4899;
-    --bg-dark: #0f172a;
-    --bg-light: #1e293b;
-    --text-primary: #f1f5f9;
-    --text-secondary: #cbd5e1;
-    --accent: #10b981;
+    /* Pastel and Earth Colors */
+    --primary-color: #a8c5a0; /* Soft sage green */
+    --secondary-color: #d4a574; /* Warm beige */
+    --jamie-color: #9db5b2; /* Pastel teal */
+    --catherine-color: #d4a5a5; /* Dusty rose */
+    --bg-dark: #1a1a1a; /* Dark grey */
+    --bg-light: #2a2a2a; /* Medium dark grey */
+    --text-primary: #f5f1e8; /* Cream */
+    --text-secondary: #d4c9b8; /* Light beige */
+    --accent: #b8a082; /* Muted tan */
     --transition: all 0.3s ease;
 }
 
@@ -23,6 +24,9 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(168, 197, 160, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(212, 165, 116, 0.08) 0%, transparent 50%);
 }
 
 /* Scroll Progress Indicator */
@@ -35,6 +39,7 @@ body {
     width: 0%;
     z-index: 1000;
     transition: width 0.1s ease;
+    box-shadow: 0 2px 4px rgba(168, 197, 160, 0.3);
 }
 
 /* Story Sections */
@@ -46,6 +51,7 @@ body {
     padding: 4rem 2rem;
     position: relative;
     scroll-snap-align: start;
+    background: var(--bg-dark);
 }
 
 .content-wrapper {
@@ -143,7 +149,7 @@ p {
 
 /* Persona Selection Section */
 .persona-selection {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    background: var(--bg-dark);
 }
 
 .subtitle {
@@ -161,7 +167,7 @@ p {
 }
 
 .persona-card {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     border-radius: 20px;
     padding: 3rem;
     text-align: center;
@@ -188,8 +194,8 @@ p {
 
 .persona-card:hover {
     transform: translateY(-5px) scale(1.01);
-    border-color: rgba(99, 102, 241, 0.3);
-    box-shadow: 0 15px 30px rgba(99, 102, 241, 0.2);
+    border-color: rgba(168, 197, 160, 0.3);
+    box-shadow: 0 15px 30px rgba(168, 197, 160, 0.2);
 }
 
 .persona-card:hover::before {
@@ -203,7 +209,7 @@ p {
 
 .persona-card.cathy-card:hover {
     border-color: var(--catherine-color);
-    box-shadow: 0 20px 40px rgba(236, 72, 153, 0.3);
+    box-shadow: 0 20px 40px rgba(212, 165, 165, 0.3);
 }
 
 .persona-avatar {
@@ -224,13 +230,13 @@ p {
 }
 
 .jamie-avatar .avatar-circle {
-    background: linear-gradient(135deg, var(--jamie-color), #60a5fa);
-    color: white;
+    background: linear-gradient(135deg, var(--jamie-color), #b8c9c6);
+    color: var(--bg-dark);
 }
 
 .cathy-avatar .avatar-circle {
-    background: linear-gradient(135deg, var(--catherine-color), #f472b6);
-    color: white;
+    background: linear-gradient(135deg, var(--catherine-color), #e8c4c4);
+    color: var(--bg-dark);
 }
 
 .persona-card:hover .avatar-circle {
@@ -289,6 +295,7 @@ p {
     padding: 2rem;
     display: flex;
     flex-direction: column;
+    background: var(--bg-dark);
 }
 
 .journey-header {
@@ -301,7 +308,7 @@ p {
 }
 
 .back-button {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     border: 2px solid var(--primary-color);
     color: var(--text-primary);
     padding: 0.75rem 1.5rem;
@@ -350,7 +357,7 @@ p {
 .data-visualization {
     margin-top: 3rem;
     padding: 2rem;
-    background: rgba(30, 41, 59, 0.6);
+    background: rgba(42, 42, 42, 0.6);
     border-radius: 15px;
     backdrop-filter: blur(10px);
 }
@@ -386,16 +393,16 @@ p {
 }
 
 .jamie-journey .bar {
-    background: linear-gradient(180deg, var(--jamie-color), #60a5fa);
+    background: linear-gradient(180deg, var(--jamie-color), #b8c9c6);
 }
 
 .cathy-journey .bar {
-    background: linear-gradient(180deg, var(--catherine-color), #f472b6);
+    background: linear-gradient(180deg, var(--catherine-color), #e8c4c4);
 }
 
 .bar:hover {
     transform: scaleY(1.05);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 10px 30px rgba(168, 197, 160, 0.4);
 }
 
 .bar-label {
@@ -459,12 +466,20 @@ p {
 
 .timeline-content {
     flex: 1;
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     padding: 2rem;
     border-radius: 15px;
     margin: 0 3rem;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.timeline-content.animate-in {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .timeline-item:nth-child(odd) .timeline-content {
@@ -514,18 +529,25 @@ p {
 }
 
 .metric-card {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     padding: 2rem;
     border-radius: 15px;
     text-align: center;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: var(--transition);
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.6s ease, transform 0.6s ease, var(--transition);
 }
 
-.metric-card:hover {
+.metric-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.metric-card.animate-in:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 10px 30px rgba(168, 197, 160, 0.3);
     border-color: var(--primary-color);
 }
 
@@ -540,14 +562,14 @@ p {
 }
 
 .jamie-journey .metric-value {
-    background: linear-gradient(135deg, var(--jamie-color), #60a5fa);
+    background: linear-gradient(135deg, var(--jamie-color), #b8c9c6);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .cathy-journey .metric-value {
-    background: linear-gradient(135deg, var(--catherine-color), #f472b6);
+    background: linear-gradient(135deg, var(--catherine-color), #e8c4c4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -560,7 +582,7 @@ p {
 
 /* Conclusion Section */
 .conclusion-section {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    background: var(--bg-dark);
 }
 
 .conclusion-content {
@@ -570,11 +592,19 @@ p {
 }
 
 .conclusion-item {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     padding: 2.5rem;
     border-radius: 15px;
     backdrop-filter: blur(10px);
     border-left: 4px solid var(--primary-color);
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.conclusion-item.animate-in {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .conclusion-item h3 {
@@ -597,19 +627,20 @@ p {
 .restart-button {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     border: none;
-    color: white;
+    color: var(--bg-dark);
     padding: 1rem 2.5rem;
     border-radius: 50px;
     font-size: 1.2rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 10px 30px rgba(168, 197, 160, 0.3);
 }
 
 .restart-button:hover {
     transform: translateY(-3px);
-    box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 15px 40px rgba(168, 197, 160, 0.4);
+    background: linear-gradient(135deg, #b8d4b0, #e4b884);
 }
 
 /* Responsive Design */
@@ -671,7 +702,7 @@ html {
 }
 
 .toggle-button {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     border: 2px solid var(--catherine-color);
     color: var(--text-primary);
     padding: 0.75rem 1.5rem;
@@ -699,11 +730,11 @@ html {
 .picture-placeholder {
     width: 100%;
     padding-top: 100%;
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border: 2px dashed rgba(168, 197, 160, 0.3);
     color: var(--text-secondary);
     font-size: 1.2rem;
 }
@@ -727,7 +758,7 @@ html {
 }
 
 .comparison-content {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(42, 42, 42, 0.8);
     padding: 2rem;
     border-radius: 15px;
     text-align: center;
@@ -750,7 +781,7 @@ html {
 }
 
 .comparison-item {
-    background: rgba(30, 41, 59, 0.6);
+    background: rgba(42, 42, 42, 0.6);
     padding: 1.5rem;
     border-radius: 10px;
     text-align: center;

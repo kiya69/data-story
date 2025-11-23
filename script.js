@@ -222,6 +222,9 @@ function animateJourneySteps(journeyId) {
         steps[0].classList.add('active');
     }
     
+    // Re-initialize scroll animations for info blocks in this journey
+    reinitializeScrollAnimations();
+    
     // Set up scroll-based step activation
     let currentStep = 0;
     const stepObserver = new IntersectionObserver((entries) => {
@@ -254,6 +257,8 @@ function animateJourneySteps(journeyId) {
                 // Show conclusion after a delay
                 setTimeout(() => {
                     showConclusion();
+                    // Re-initialize animations for conclusion items
+                    reinitializeScrollAnimations();
                 }, 2000);
             }
         });
@@ -375,7 +380,47 @@ document.addEventListener('DOMContentLoaded', () => {
         bar.style.transformOrigin = 'bottom';
         bar.style.transition = 'transform 0.8s ease, opacity 0.8s ease';
     });
+    
+    // Set up scroll animations for info blocks
+    setupScrollAnimations();
 });
+
+// Scroll-triggered animations for info blocks
+function setupScrollAnimations() {
+    // Get all elements that need animation, but only those not already animated
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-item:not(.animate-in)');
+    
+    if (animatedElements.length === 0) return;
+    
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                // Add small delay for staggered effect, especially for metric cards
+                const delay = entry.target.classList.contains('metric-card') ? index * 100 : 0;
+                setTimeout(() => {
+                    entry.target.classList.add('animate-in');
+                }, delay);
+                // Stop observing once animated
+                animationObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    animatedElements.forEach(element => {
+        animationObserver.observe(element);
+    });
+}
+
+// Re-initialize animations when journeys are shown (for dynamically loaded content)
+function reinitializeScrollAnimations() {
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+        setupScrollAnimations();
+    }, 100);
+}
 
 // Add keyboard navigation
 document.addEventListener('keydown', (e) => {
