@@ -1868,7 +1868,7 @@ function createBubbleChart() {
         .attr('fill', 'currentColor')
         .style('font-size', '18px')
         .style('font-weight', 'bold')
-        .text('Most Affected Industries');
+        .text('Least Affected Industries');
 
     let currentState = 'most'; // 'most' or 'least'
     let allData = [];
@@ -2010,7 +2010,7 @@ function createBubbleChart() {
             currentState = newState;
 
             const sizeScale = newState === 'most' ? sizeScaleMost : sizeScaleLeast;
-            const title = newState === 'most' ? 'Most Affected Industries' : 'Least Affected Industries';
+            const title = newState === 'most' ? 'Least Affected Industries' : 'Most Affected Industries';
 
             // Update title
             titleText.text(title);
