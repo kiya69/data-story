@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Scroll-triggered animations for info blocks
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
-    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in)');
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in), .problem-item:not(.animate-in)');
     
     if (animatedElements.length === 0) return;
     
@@ -511,6 +511,9 @@ function setupScrollAnimations() {
                 } else if (entry.target.classList.contains('point-item')) {
                     const pointNumber = parseInt(entry.target.getAttribute('data-point')) || 1;
                     delay = (pointNumber - 1) * 200; // 200ms delay between each point
+                } else if (entry.target.classList.contains('problem-item')) {
+                    const problemNumber = parseInt(entry.target.getAttribute('data-problem')) || 1;
+                    delay = (problemNumber - 1) * 200; // 200ms delay between each problem item
                 }
                 setTimeout(() => {
                     entry.target.classList.add('animate-in');
