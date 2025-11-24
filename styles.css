@@ -10,6 +10,11 @@
     --secondary-color: #d4a574; /* Warm beige */
     --jamie-color: #9db5b2; /* Pastel teal */
     --catherine-color: #d4a5a5; /* Dusty rose */
+    --catherine-bg: rgba(212, 165, 165, 0.15); /* Light rose background */
+    --catherine-bg-gradient: linear-gradient(135deg, rgba(212, 165, 165, 0.2) 0%, rgba(200, 145, 145, 0.15) 100%);
+    --christina-color: #c9a882; /* Muted gold/amber for finance */
+    --christina-bg: rgba(201, 168, 130, 0.15); /* Light amber background */
+    --christina-bg-gradient: linear-gradient(135deg, rgba(201, 168, 130, 0.2) 0%, rgba(185, 150, 110, 0.15) 100%);
     --bg-dark: #1a1a1a; /* Dark grey */
     --bg-light: #2a2a2a; /* Medium dark grey */
     --text-primary: #f5f1e8; /* Cream */
@@ -212,6 +217,11 @@ p {
     box-shadow: 0 20px 40px rgba(212, 165, 165, 0.3);
 }
 
+.persona-card.christina-card:hover {
+    border-color: var(--christina-color);
+    box-shadow: 0 20px 40px rgba(201, 168, 130, 0.3);
+}
+
 .persona-avatar {
     margin-bottom: 1.5rem;
 }
@@ -236,6 +246,11 @@ p {
 
 .cathy-avatar .avatar-circle {
     background: linear-gradient(135deg, var(--catherine-color), #e8c4c4);
+    color: var(--bg-dark);
+}
+
+.christina-avatar .avatar-circle {
+    background: linear-gradient(135deg, var(--christina-color), #d4b89a);
     color: var(--bg-dark);
 }
 
@@ -400,6 +415,10 @@ p {
     background: linear-gradient(180deg, var(--catherine-color), #e8c4c4);
 }
 
+.christina-journey .bar {
+    background: linear-gradient(180deg, var(--christina-color), #d4b89a);
+}
+
 .bar:hover {
     transform: scaleY(1.05);
     box-shadow: 0 10px 30px rgba(168, 197, 160, 0.4);
@@ -464,6 +483,10 @@ p {
     background: var(--catherine-color);
 }
 
+.christina-journey .timeline-marker {
+    background: var(--christina-color);
+}
+
 .timeline-content {
     flex: 1;
     background: rgba(42, 42, 42, 0.8);
@@ -520,6 +543,10 @@ p {
     background: var(--catherine-color);
 }
 
+.christina-journey .timeline-date {
+    background: var(--christina-color);
+}
+
 /* Metrics Grid */
 .metrics-grid {
     display: grid;
@@ -570,6 +597,13 @@ p {
 
 .cathy-journey .metric-value {
     background: linear-gradient(135deg, var(--catherine-color), #e8c4c4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.christina-journey .metric-value {
+    background: linear-gradient(135deg, var(--christina-color), #d4b89a);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
