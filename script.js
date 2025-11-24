@@ -318,6 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedPersona = persona;
                 scrollTriggered = true;
                 showPersonaJourney(persona, true);
+                // Show conversation section after persona selection
+                showConversationAfterPersona();
             }
         });
     });
@@ -437,6 +439,8 @@ function setupPersonaScrollObserver() {
                         // Show journey
                         setTimeout(() => {
                             showPersonaJourney(randomPersona, false);
+                            // Show conversation section after persona selection
+                            showConversationAfterPersona();
                         }, 1200);
                     }
                 }, 800);
@@ -461,6 +465,8 @@ function setupPersonaScrollObserver() {
                     selectedPersona = randomPersona;
                     collapseAllPersonaDetails();
                     showPersonaJourney(randomPersona, false);
+                    // Show conversation section after persona selection
+                    showConversationAfterPersona();
                 }
             }
         });
@@ -474,6 +480,9 @@ function setupPersonaScrollObserver() {
 
 function showPersonaJourney(persona, fromClick = true) {
     console.log('showPersonaJourney called with:', persona); // Debug log
+    
+    // Show conversation section when persona journey starts
+    showConversationAfterPersona();
     
     // Collapse all persona details when journey starts
     const personas = ['jamie', 'catherine', 'christina'];
@@ -618,8 +627,467 @@ function animateBars(container) {
     });
 }
 
+// Text-to-Speech with AI voices
+let currentSpeech = null;
+const personaVoices = {
+    christina: { voice: 'Google UK English Female', pitch: 1.1, rate: 0.95 },
+    jamie: { voice: 'Google US English Female', pitch: 1.0, rate: 1.0 },
+    catherine: { voice: 'Google US English Female', pitch: 0.95, rate: 1.05 }
+};
+
+function getPersonaName(dialog) {
+    if (dialog.classList.contains('christina')) return 'christina';
+    if (dialog.classList.contains('jamie')) return 'jamie';
+    if (dialog.classList.contains('catherine')) return 'catherine';
+    return null;
+}
+
+async function speakText(text, personaName, bubbleElement) {
+    // Initialize voices if not done yet
+    initializeVoices();
+    
+    // Stop any current speech
+    if (currentSpeech) {
+        window.speechSynthesis.cancel();
+    }
+    
+    if (!('speechSynthesis' in window)) {
+        console.log('Speech synthesis not supported');
+        // Still show bubble
+        if (bubbleElement) {
+            bubbleElement.style.opacity = '1';
+            bubbleElement.style.transform = 'scale(1)';
+        }
+        return Promise.resolve();
+    }
+    
+    // Ensure voices are loaded - wait longer if needed
+    // Use the pre-loaded promise if available, otherwise wait
+    if (voicesReadyPromise) {
+        await voicesReadyPromise;
+    } else {
+        await ensureVoicesLoaded();
+    }
+    
+    // Double check voices are available
+    let voices = window.speechSynthesis.getVoices();
+    if (voices.length === 0) {
+        console.log('No voices available, retrying...');
+        // Wait and retry up to 3 times
+        for (let i = 0; i < 3; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                console.log('Voices loaded after retry:', voices.length);
+                break;
+            }
+        }
+    }
+    
+    if (voices.length === 0) {
+        console.warn('No voices available after retries');
+        // Still show bubble even without voice
+        if (bubbleElement) {
+            bubbleElement.style.opacity = '1';
+            bubbleElement.style.transform = 'scale(1)';
+        }
+        return Promise.resolve();
+    }
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voiceConfig = personaVoices[personaName] || personaVoices.jamie;
+    
+    // Use the voices we already have
+    
+    // Try to find the preferred voice, fallback to any female voice
+    let preferredVoice = voices.find(voice => 
+        voice.name.includes(voiceConfig.voice)
+    );
+    
+    if (!preferredVoice) {
+        preferredVoice = voices.find(voice => 
+            voice.name.toLowerCase().includes('female') || 
+            voice.name.toLowerCase().includes('woman')
+        );
+    }
+    
+    if (!preferredVoice && voices.length > 0) {
+        // Fallback to any available voice
+        preferredVoice = voices[0];
+    }
+    
+    if (preferredVoice) {
+        utterance.voice = preferredVoice;
+    }
+    
+    utterance.pitch = voiceConfig.pitch;
+    utterance.rate = voiceConfig.rate;
+    utterance.volume = 0.9;
+    utterance.lang = 'en-US';
+    
+    currentSpeech = utterance;
+    
+    // Show message bubble when voice starts
+    utterance.onstart = () => {
+        if (bubbleElement) {
+            bubbleElement.style.opacity = '1';
+            bubbleElement.style.transform = 'scale(1)';
+        }
+    };
+    
+    // Return a promise that resolves when speech finishes
+    return new Promise((resolve, reject) => {
+        utterance.onend = () => {
+            console.log('Voice ended:', text.substring(0, 50) + '...');
+            currentSpeech = null;
+            resolve(); // Resolve when speech finishes
+        };
+        
+        utterance.onerror = (error) => {
+            console.log('Speech error:', error);
+            currentSpeech = null;
+            // Still show bubble even if speech fails
+            if (bubbleElement) {
+                bubbleElement.style.opacity = '1';
+                bubbleElement.style.transform = 'scale(1)';
+            }
+            // Resolve anyway so next message can proceed
+            resolve();
+        };
+        
+        // Speak the text - try to speak immediately
+        try {
+            // Cancel any ongoing speech first
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                // Wait a bit before starting new speech
+                setTimeout(() => {
+                    window.speechSynthesis.speak(utterance);
+                    console.log('Speaking:', text.substring(0, 50) + '...', 'Voice:', utterance.voice?.name || 'default');
+                }, 200);
+            } else {
+                // Start speaking immediately
+                window.speechSynthesis.speak(utterance);
+                console.log('Speaking:', text.substring(0, 50) + '...', 'Voice:', utterance.voice?.name || 'default');
+            }
+        } catch (error) {
+            console.log('Speech synthesis error:', error);
+            // Fallback: show bubble even if speech fails
+            if (bubbleElement) {
+                bubbleElement.style.opacity = '1';
+                bubbleElement.style.transform = 'scale(1)';
+            }
+            resolve(); // Resolve so next message can proceed
+        }
+    });
+}
+
+// Load voices when available
+let voicesReady = false;
+const ensureVoicesLoaded = () => {
+    return new Promise((resolve) => {
+        if (!('speechSynthesis' in window)) {
+            console.log('Speech synthesis not available');
+            resolve(false);
+            return;
+        }
+        
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            voicesReady = true;
+            console.log('Voices loaded:', voices.length);
+            resolve(true);
+            return;
+        }
+        
+        // Wait for voices to load with timeout
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max wait
+        
+        const checkVoices = () => {
+            attempts++;
+            const loadedVoices = window.speechSynthesis.getVoices();
+            if (loadedVoices.length > 0) {
+                voicesReady = true;
+                console.log('Voices loaded after wait:', loadedVoices.length);
+                resolve(true);
+            } else if (attempts < maxAttempts) {
+                setTimeout(checkVoices, 100);
+            } else {
+                console.log('Timeout waiting for voices');
+                resolve(false);
+            }
+        };
+        
+        window.speechSynthesis.onvoiceschanged = checkVoices;
+        setTimeout(checkVoices, 100);
+    });
+};
+
+// Initialize voices on page load and user interaction
+let voicesInitialized = false;
+let voicesReadyPromise = null;
+
+const initializeVoices = () => {
+    if (voicesInitialized) return;
+    voicesInitialized = true;
+    
+    if ('speechSynthesis' in window) {
+        // Pre-load voices immediately
+        voicesReadyPromise = ensureVoicesLoaded();
+        // Also listen for voice changes
+        window.speechSynthesis.onvoiceschanged = () => {
+            voicesReadyPromise = ensureVoicesLoaded();
+        };
+        // Force multiple voice checks
+        setTimeout(() => {
+            voicesReadyPromise = ensureVoicesLoaded();
+        }, 300);
+        setTimeout(() => {
+            voicesReadyPromise = ensureVoicesLoaded();
+        }, 1000);
+    }
+};
+
+// Initialize on page load
+initializeVoices();
+
+// Also initialize on any user interaction (required by some browsers)
+const initOnInteraction = () => {
+    initializeVoices();
+    // Pre-load voices when user interacts
+    if (voicesReadyPromise) {
+        voicesReadyPromise.then(() => {
+            console.log('Voices ready after user interaction');
+        });
+    }
+};
+
+document.addEventListener('click', initOnInteraction, { once: true });
+document.addEventListener('scroll', initOnInteraction, { once: true });
+document.addEventListener('touchstart', initOnInteraction, { once: true });
+document.addEventListener('mousemove', initOnInteraction, { once: true });
+document.addEventListener('keydown', initOnInteraction, { once: true });
+
+async function animateConversationScene(scene) {
+    if (!scene || scene.dataset.animated === 'true') {
+        console.log('Scene already animated, skipping:', scene.getAttribute('data-scene'));
+        return;
+    }
+    scene.dataset.animated = 'true';
+    console.log('Starting animation for scene:', scene.getAttribute('data-scene'));
+    
+    // Hide all repeat buttons first
+    const allRepeatButtons = document.querySelectorAll('.repeat-conversation-btn');
+    allRepeatButtons.forEach(btn => btn.classList.remove('show'));
+    
+    const dialogs = Array.from(scene.querySelectorAll('.persona-dialog'));
+    const chatContainer = scene.querySelector('.chat-container');
+    const repeatButton = chatContainer ? chatContainer.querySelector('.repeat-conversation-btn') : scene.querySelector('.repeat-conversation-btn');
+    
+    // Hide repeat button initially
+    if (repeatButton) {
+        repeatButton.classList.remove('show');
+        repeatButton.style.opacity = '0';
+        repeatButton.style.visibility = 'hidden';
+        console.log('Repeat button found for scene:', scene.getAttribute('data-scene'));
+    } else {
+        console.log('Repeat button NOT found for scene:', scene.getAttribute('data-scene'));
+    }
+    
+    // Reset all dialogs
+    dialogs.forEach(dialog => {
+        dialog.classList.remove('active', 'fade-out');
+        dialog.style.maxHeight = '0';
+        dialog.style.opacity = '0';
+        // Remove typing indicators
+        const typingIndicators = dialog.querySelectorAll('.typing-indicator');
+        typingIndicators.forEach(indicator => indicator.remove());
+        // Reset bubble opacity
+        const bubble = dialog.querySelector('.chat-bubble');
+        if (bubble) {
+            bubble.style.opacity = '0';
+            bubble.style.transform = 'scale(0.95)';
+        }
+    });
+    
+    // Show messages sequentially with natural delays between conversations
+    for (let index = 0; index < dialogs.length; index++) {
+        const dialog = dialogs[index];
+        const chatMessage = dialog.querySelector('.chat-message');
+        const bubble = dialog.querySelector('.chat-bubble');
+        
+        // Show dialog container
+        dialog.classList.remove('fade-out');
+        dialog.style.maxHeight = '200px';
+        dialog.style.opacity = '1';
+        
+        // Add typing indicator with "Speaking..." label
+        let typingIndicator = chatMessage.querySelector('.typing-indicator');
+        if (!typingIndicator) {
+            typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            const personaName = getPersonaName(dialog);
+            const displayName = personaName === 'christina' ? 'Christina' : 
+                               personaName === 'jamie' ? 'Jamie' : 
+                               personaName === 'catherine' ? 'Catherine' : 'Someone';
+            typingIndicator.innerHTML = `
+                <span class="typing-label">${displayName} is speaking...</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            const bubbleWrapper = chatMessage.querySelector('.chat-bubble-wrapper');
+            if (bubbleWrapper) {
+                bubbleWrapper.insertBefore(typingIndicator, bubbleWrapper.firstChild);
+            }
+        }
+        typingIndicator.classList.add('active');
+        
+        // Hide bubble initially (keep it hidden)
+        if (bubble) {
+            bubble.style.opacity = '0';
+            bubble.style.transform = 'scale(0.95)';
+            bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        }
+        
+        // Show "Speaking..." indicator first (2.5 seconds)
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        
+        // Remove typing indicator
+        typingIndicator.classList.remove('active');
+        await new Promise(resolve => setTimeout(resolve, 300));
+        typingIndicator.remove();
+        
+        // NOW show the message bubble after "speaking..." is done
+        dialog.classList.add('active');
+        if (bubble) {
+            bubble.style.opacity = '1';
+            bubble.style.transform = 'scale(1)';
+        }
+        
+        // Wait a few seconds before showing next message (natural conversation pace)
+        const delayBetweenMessages = 3500; // 3.5 seconds between messages
+        await new Promise(resolve => setTimeout(resolve, delayBetweenMessages));
+        
+        // Show repeat button after last message
+        if (index === dialogs.length - 1 && repeatButton) {
+            setTimeout(() => {
+                repeatButton.classList.add('show');
+                repeatButton.style.opacity = '1';
+                repeatButton.style.visibility = 'visible';
+                repeatButton.style.display = 'flex';
+                scene.dataset.animationComplete = 'true';
+                console.log('Repeat button shown for scene:', scene.getAttribute('data-scene'));
+            }, 500);
+        }
+    }
+}
+
+function repeatConversationScene(button) {
+    const sceneNumber = button.getAttribute('data-scene');
+    const scene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
+    
+    if (scene) {
+        // Reset the scene
+        delete scene.dataset.animated;
+        delete scene.dataset.animationComplete;
+        // Reset the global flag so it can auto-start again if needed
+        if (sceneNumber === '1') {
+            conversationHasStarted = false;
+        }
+        
+        // Hide repeat button
+        button.classList.remove('show');
+        
+        // Stop any ongoing speech (if any exists, though we're not using it anymore)
+        if (currentSpeech && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            currentSpeech = null;
+        }
+        
+        // Reset all dialogs in this scene
+        const dialogs = scene.querySelectorAll('.persona-dialog');
+        dialogs.forEach(dialog => {
+            dialog.classList.remove('active', 'fade-out');
+            dialog.style.maxHeight = '0';
+            dialog.style.opacity = '0';
+            const typingIndicators = dialog.querySelectorAll('.typing-indicator');
+            typingIndicators.forEach(indicator => indicator.remove());
+            const bubble = dialog.querySelector('.chat-bubble');
+            if (bubble) {
+                bubble.style.opacity = '0';
+                bubble.style.transform = 'scale(0.95)';
+            }
+        });
+        
+        // Restart animation
+        setTimeout(() => {
+            animateConversationScene(scene);
+        }, 300);
+    }
+}
+
+// Show conversation section after persona selection
+function showConversationAfterPersona() {
+    const conversation = document.getElementById('conversation');
+    if (conversation) {
+        // Make sure it's visible (it's already in the HTML flow, just ensure display is correct)
+        conversation.style.display = 'flex';
+        reinitializeScrollAnimations();
+        
+        // Initialize Scene 1 by default when conversation section is shown
+        // Use a longer delay to ensure DOM is ready
+        setTimeout(() => {
+            const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
+            if (scene1) {
+                // Use selectScene to properly initialize Scene 1
+                selectScene(1);
+            } else {
+                console.error('Scene 1 not found when trying to show conversation');
+                // Retry after a bit more time
+                setTimeout(() => {
+                    selectScene(1);
+                }, 500);
+            }
+        }, 400);
+    }
+}
+
+function showConversationSection() {
+    const conversation = document.getElementById('conversation');
+    if (conversation && conversation.style.display === 'none') {
+        conversation.style.display = 'flex';
+        conversation.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        reinitializeScrollAnimations();
+        
+        // Initialize Scene 1 by default when conversation section is shown
+        setTimeout(() => {
+            const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
+            if (scene1 && !scene1.classList.contains('active')) {
+                selectScene(1);
+            }
+        }, 500);
+        
+        return true;
+    }
+    return false;
+}
+
 function showConclusion() {
-    document.getElementById('conclusion').style.display = 'flex';
+    const conversationJustShown = showConversationSection();
+    const conclusion = document.getElementById('conclusion');
+    if (conversationJustShown) {
+        setTimeout(() => {
+            conclusion.style.display = 'flex';
+            reinitializeScrollAnimations();
+        }, 800);
+    } else {
+        conclusion.style.display = 'flex';
+        reinitializeScrollAnimations();
+    }
     // User will scroll manually to see the conclusion
 }
 
@@ -642,12 +1110,46 @@ function goBackToPersonas() {
     document.getElementById('jamie-journey').style.display = 'none';
     document.getElementById('cathy-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
+    document.getElementById('conversation').style.display = 'none';
     document.getElementById('conclusion').style.display = 'none';
     
     // Show initial sections
     document.getElementById('intro').style.display = 'flex';
     document.getElementById('background').style.display = 'flex';
     document.getElementById('personas').style.display = 'flex';
+    
+    // Stop any ongoing speech
+    if (currentSpeech) {
+        window.speechSynthesis.cancel();
+        currentSpeech = null;
+    }
+    
+    // Stop any ongoing speech
+    if (currentSpeech) {
+        window.speechSynthesis.cancel();
+        currentSpeech = null;
+    }
+    
+    // Reset conversation animations
+    const conversationScenes = document.querySelectorAll('.conversation-scene');
+    conversationScenes.forEach(scene => {
+        scene.classList.remove('animate-in');
+        delete scene.dataset.animated;
+        const dialogs = scene.querySelectorAll('.persona-dialog');
+        dialogs.forEach(dialog => {
+            dialog.classList.remove('active', 'fade-out', 'speak', 'animate-in');
+            dialog.style.maxHeight = '0';
+            dialog.style.opacity = '0';
+            // Remove typing indicators
+            const typingIndicators = dialog.querySelectorAll('.typing-indicator');
+            typingIndicators.forEach(indicator => indicator.remove());
+            // Reset bubble opacity
+            const bubble = dialog.querySelector('.chat-bubble');
+            if (bubble) {
+                bubble.style.opacity = '1';
+            }
+        });
+    });
     
     // Scroll to personas section
     setTimeout(() => {
@@ -721,6 +1223,80 @@ window.addEventListener('wheel', (e) => {
     }
 }, { passive: false });
 
+// Scene selection functionality
+// Make selectScene globally accessible
+window.selectScene = function(sceneNumber) {
+    // Stop any ongoing speech (if any exists, though we're not using it anymore)
+    if (currentSpeech && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        currentSpeech = null;
+    }
+    
+    // Update toggle buttons
+    const toggleButtons = document.querySelectorAll('.scene-toggle-btn');
+    toggleButtons.forEach(btn => {
+        if (btn.getAttribute('data-scene') == sceneNumber) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Hide all scenes
+    const allScenes = document.querySelectorAll('.conversation-scene');
+    allScenes.forEach(scene => {
+        scene.classList.remove('active');
+        // Reset scene state
+        delete scene.dataset.animated;
+        delete scene.dataset.animationComplete;
+        
+        // Hide repeat buttons
+        const repeatBtn = scene.querySelector('.repeat-conversation-btn');
+        if (repeatBtn) {
+            repeatBtn.classList.remove('show');
+            repeatBtn.style.opacity = '0';
+            repeatBtn.style.visibility = 'hidden';
+        }
+        
+        // Reset all dialogs in this scene
+        const dialogs = scene.querySelectorAll('.persona-dialog');
+        dialogs.forEach(dialog => {
+            dialog.classList.remove('active', 'fade-out');
+            dialog.style.maxHeight = '0';
+            dialog.style.opacity = '0';
+            const typingIndicators = dialog.querySelectorAll('.typing-indicator');
+            typingIndicators.forEach(indicator => indicator.remove());
+            const bubble = dialog.querySelector('.chat-bubble');
+            if (bubble) {
+                bubble.style.opacity = '0';
+                bubble.style.transform = 'scale(0.95)';
+            }
+        });
+    });
+    
+    // Show selected scene
+    const selectedScene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
+    if (selectedScene) {
+        console.log('Selecting scene:', sceneNumber, selectedScene);
+        selectedScene.classList.add('active');
+        // Force display to ensure it's visible (override CSS)
+        selectedScene.style.display = 'block';
+        selectedScene.style.visibility = 'visible';
+        selectedScene.style.opacity = '1';
+        
+        // Start animation after a short delay to ensure scene is visible
+        setTimeout(async () => {
+            // Double check scene is visible before animating
+            if (selectedScene.classList.contains('active')) {
+                console.log('Starting animation for scene:', sceneNumber);
+                await animateConversationScene(selectedScene);
+            }
+        }, 300);
+    } else {
+        console.error('Scene not found:', sceneNumber);
+    }
+};
+
 // Initialize bar animations
 document.addEventListener('DOMContentLoaded', () => {
     const bars = document.querySelectorAll('.bar');
@@ -732,18 +1308,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Set up scroll animations for info blocks
     setupScrollAnimations();
+    
+    // Set up auto-start for conversation section when scrolled into view
+    setupConversationAutoStart();
 });
 
 // Scroll-triggered animations for info blocks
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
-    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in), .problem-item:not(.animate-in)');
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in), .problem-item:not(.animate-in), .conversation-scene:not(.animate-in), .persona-dialog:not(.animate-in)');
     
     if (animatedElements.length === 0) return;
     
     const animationObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
+                // Special handling for conversation scenes - now handled by manual selection buttons
+                // Auto-trigger is disabled in favor of manual scene selection via toggle buttons
+                if (entry.target.classList.contains('conversation-scene')) {
+                    // Only add animate-in class for styling, but don't auto-trigger animation
+                    // Animation is now controlled by selectScene() function
+                    entry.target.classList.add('animate-in');
+                    return; // Skip other processing for conversation scenes
+                }
+                
                 // Add small delay for staggered effect, especially for metric cards and point items
                 let delay = 0;
                 if (entry.target.classList.contains('metric-card')) {
@@ -754,6 +1342,8 @@ function setupScrollAnimations() {
                 } else if (entry.target.classList.contains('problem-item')) {
                     const problemNumber = parseInt(entry.target.getAttribute('data-problem')) || 1;
                     delay = (problemNumber - 1) * 200; // 200ms delay between each problem item
+                } else if (entry.target.classList.contains('persona-dialog')) {
+                    delay = index * 150;
                 }
                 setTimeout(() => {
                     entry.target.classList.add('animate-in');
@@ -763,8 +1353,8 @@ function setupScrollAnimations() {
             }
         });
     }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: [0, 0.1, 0.3, 0.5],
+        rootMargin: '0px 0px -100px 0px'
     });
     
     animatedElements.forEach(element => {
@@ -778,6 +1368,60 @@ function reinitializeScrollAnimations() {
     setTimeout(() => {
         setupScrollAnimations();
     }, 100);
+}
+
+// Auto-start Scene 1 when conversation section is scrolled into view
+let conversationHasStarted = false; // Track if Scene 1 has already started (global to persist across function calls)
+
+function setupConversationAutoStart() {
+    const conversationSection = document.getElementById('conversation');
+    if (!conversationSection) return;
+    
+    const conversationObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !conversationHasStarted) {
+                // When conversation section comes into view, start Scene 1
+                const intersectionRatio = entry.intersectionRatio;
+                const rect = entry.boundingClientRect;
+                const viewportHeight = window.innerHeight;
+                
+                // Only trigger when section is at least 30% visible and in the viewport
+                if (intersectionRatio >= 0.3 && rect.top < viewportHeight * 0.7) {
+                    conversationHasStarted = true;
+                    console.log('Conversation section scrolled into view, starting Scene 1');
+                    
+                    // Small delay to ensure smooth transition
+                    setTimeout(() => {
+                        const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
+                        if (scene1) {
+                            // Check if scene is already active and animated
+                            if (scene1.classList.contains('active') && scene1.dataset.animated === 'true') {
+                                // Already started, do nothing
+                                return;
+                            }
+                            
+                            // Initialize Scene 1 if not already active
+                            if (!scene1.classList.contains('active')) {
+                                selectScene(1);
+                            } else if (!scene1.dataset.animated) {
+                                // Scene 1 is active but not animated yet, start animation
+                                animateConversationScene(scene1);
+                            }
+                        }
+                    }, 300);
+                    
+                    // Stop observing once started
+                    conversationObserver.unobserve(conversationSection);
+                }
+            }
+        });
+    }, {
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
+        rootMargin: '0px 0px -50px 0px'
+    });
+    
+    // Start observing the conversation section
+    conversationObserver.observe(conversationSection);
 }
 
 // Add keyboard navigation

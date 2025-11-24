@@ -193,6 +193,170 @@
         </div>
     </section>
 
+    <!-- Conversation Section -->
+    <section class="story-section conversation-section" id="conversation">
+        <div class="content-wrapper">
+            <h2 class="fade-in">Conversation Between the Personas</h2>
+            <p class="subtitle fade-in delay-1">Before we conclude, listen in on how Christina, Jamie, and Catherine describe their shared reality—just like a live conversation panel.</p>
+
+            <!-- Scene Selector -->
+            <div class="scene-selector">
+                <button class="scene-toggle-btn active" onclick="selectScene(1)" data-scene="1">
+                    <span class="scene-toggle-icon">💬</span>
+                    <span class="scene-toggle-text">Scene 1: Shared Frustrations</span>
+                </button>
+                <button class="scene-toggle-btn" onclick="selectScene(2)" data-scene="2">
+                    <span class="scene-toggle-icon">💭</span>
+                    <span class="scene-toggle-text">Scene 2: Cost of Progress</span>
+                </button>
+            </div>
+
+            <!-- Scene 1 -->
+            <div class="conversation-scene" data-scene="1">
+                <div class="scene-header">
+                    <span class="scene-label">Scene 1</span>
+                    <h3>Shared Frustrations</h3>
+                </div>
+                <div class="conversation-stage">
+                    <div class="chat-container">
+                        <button class="repeat-conversation-btn" onclick="repeatConversationScene(this)" data-scene="1" title="Repeat Conversation"></button>
+                        <div class="persona-dialog christina" data-message="1">
+                            <div class="chat-message left">
+                                <img src="assets/images/christina.png" alt="Christina" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"Hi, I'm Christina. I'm 25 and graduated with a Masters in Finance and Accounting from Ontario University. I've been living in Oshawa for a year now, and honestly? It's been a full year since I finished grad school and I'm still chasing a real role. I learned AI tools to upskill my resume, but I still can't land a full-time job. My salary isn't covering both my living expenses and my mother's health plan, which is really stressing me out."</p>
+                                    </div>
+                                    <div class="chat-name">Christina</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog jamie" data-message="2">
+                            <div class="chat-message right">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble right-bubble">
+                                        <p>"I totally get that, Christina. I'm Jamie, 26, and I moved here from downtown Toronto after getting my Masters in AI from U of T. Same boat here—I invested in AI courses to polish my résumé and still landed nothing but patchy part-time shifts. I'm managing with a part-time job right now, but my student debt kicks in six months, and I'm worried AI is taking away all the entry-level jobs I'm qualified for."</p>
+                                    </div>
+                                    <div class="chat-name">Jamie</div>
+                                </div>
+                                <img src="assets/images/jamie.png" alt="Jamie" class="chat-avatar">
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog catherine" data-message="3">
+                            <div class="chat-message left">
+                                <img src="assets/images/catherine.png" alt="Catherine" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"I hear you both. I'm Catherine, 28. I actually did my Masters in Business Analytics and AI here in Oshawa, and I managed to get a full-time Data Analyst position at J.P. Morgan in Toronto. Learning AI tools definitely helped me get in the door, but here's the thing—moving up feels impossible when algorithms are vying for the same promotions I want. I can't pay off all my debt with my current package, and I'm stuck choosing between professional growth and financial stability."</p>
+                                    </div>
+                                    <div class="chat-name">Catherine</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog christina" data-message="4">
+                            <div class="chat-message left">
+                                <img src="assets/images/christina.png" alt="Christina" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"It's frustrating how we all did everything 'right'—got degrees, learned AI, moved to a supposedly more affordable city—and we're still struggling. The job market feels like it's working against us."</p>
+                                    </div>
+                                    <div class="chat-name">Christina</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog jamie" data-message="5">
+                            <div class="chat-message right">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble right-bubble">
+                                        <p>"Exactly. And the worst part is watching opportunities slip away because companies want AI experience, but then those same AI tools are replacing the roles we're trying to fill. It's a catch-22."</p>
+                                    </div>
+                                    <div class="chat-name">Jamie</div>
+                                </div>
+                                <img src="assets/images/jamie.png" alt="Jamie" class="chat-avatar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scene 2 -->
+            <div class="conversation-scene" data-scene="2">
+                <div class="scene-header">
+                    <span class="scene-label">Scene 2</span>
+                    <h3>Cost of Progress</h3>
+                </div>
+                <div class="conversation-stage">
+                    <div class="chat-container">
+                        <button class="repeat-conversation-btn" onclick="repeatConversationScene(this)" data-scene="2" title="Repeat Conversation"></button>
+                        <div class="persona-dialog christina" data-message="1">
+                            <div class="chat-message left">
+                                <img src="assets/images/christina.png" alt="Christina" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"You've got steady work, Catherine. Does that make covering rent and bills even a little easier? I'm genuinely curious because I can't even imagine what that stability feels like right now."</p>
+                                    </div>
+                                    <div class="chat-name">Christina</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog catherine" data-message="2">
+                            <div class="chat-message right">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble right-bubble">
+                                        <p>"Honestly? Not really. I keep signing up for AI workshops and certifications because I know I need to stay ahead, but every course competes with rent hikes. I'm constantly choosing between professional growth and keeping the lights on. My current salary barely covers my debt payments, let alone allows me to save or help my parents like I want to."</p>
+                                    </div>
+                                    <div class="chat-name">Catherine</div>
+                                </div>
+                                <img src="assets/images/catherine.png" alt="Catherine" class="chat-avatar">
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog jamie" data-message="3">
+                            <div class="chat-message left">
+                                <img src="assets/images/jamie.png" alt="Jamie" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"That's the thing—even when you're working, the cost of staying relevant keeps climbing. I'm looking at healthcare roles now, and every extra license or certification feels like a choice between groceries or helping my roommates. The math just doesn't add up, and it feels like we're all running on a treadmill that's getting faster."</p>
+                                    </div>
+                                    <div class="chat-name">Jamie</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog catherine" data-message="4">
+                            <div class="chat-message right">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble right-bubble">
+                                        <p>"The worst part is knowing that if I don't keep up with these AI skills, I'll fall behind. But every workshop costs money I don't have, and every certification takes time I could be using to earn more. It's exhausting trying to balance it all."</p>
+                                    </div>
+                                    <div class="chat-name">Catherine</div>
+                                </div>
+                                <img src="assets/images/catherine.png" alt="Catherine" class="chat-avatar">
+                            </div>
+                        </div>
+                        
+                        <div class="persona-dialog christina" data-message="5">
+                            <div class="chat-message left">
+                                <img src="assets/images/christina.png" alt="Christina" class="chat-avatar">
+                                <div class="chat-bubble-wrapper">
+                                    <div class="chat-bubble left-bubble">
+                                        <p>"At least you have that choice, though. I can't even afford the workshops because I don't have steady income. I'm stuck in this cycle where I need skills to get a job, but I need a job to afford the skills. Something's got to give."</p>
+                                    </div>
+                                    <div class="chat-name">Christina</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Jamie's Journey Section -->
     <section class="journey-section jamie-journey" id="jamie-journey" style="display: none;">
         <div class="journey-header">
