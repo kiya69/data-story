@@ -52,18 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (details) {
             // Expand on hover
             card.addEventListener('mouseenter', () => {
-                if (!details.classList.contains('expanded')) {
-                    details.classList.add('expanded');
-                }
+                details.classList.add('expanded');
             });
             
-            // Keep expanded on hover, but allow collapse when not hovered (unless auto-expanded)
+            // Collapse when mouse leaves
             card.addEventListener('mouseleave', () => {
-                // Only collapse if not auto-expanded
-                const cardHasAutoExpanded = card.classList.contains('has-expanded-details');
-                if (!cardHasAutoExpanded && details.classList.contains('expanded')) {
-                    details.classList.remove('expanded');
-                }
+                details.classList.remove('expanded');
             });
         }
         
@@ -102,16 +96,14 @@ function setupPersonaScrollObserver() {
     let wasInitiallyVisible = false;
     let detailsExpanded = false;
     
-    // Function to expand all persona details
+    // Function to expand all persona details (auto-expand on scroll)
     function expandAllPersonaDetails() {
         if (areAnyDetailsExpanded()) return;
         const personas = ['jamie', 'catherine', 'christina'];
         personas.forEach(persona => {
             const details = document.getElementById(`${persona}-details`);
-            const card = document.querySelector(`[data-persona="${persona}"]`);
             if (details && !details.classList.contains('expanded')) {
                 details.classList.add('expanded');
-                if (card) card.classList.add('has-expanded-details');
             }
         });
         detailsExpanded = true;
@@ -123,10 +115,8 @@ function setupPersonaScrollObserver() {
         const personas = ['jamie', 'catherine', 'christina'];
         personas.forEach(persona => {
             const details = document.getElementById(`${persona}-details`);
-            const card = document.querySelector(`[data-persona="${persona}"]`);
             if (details && details.classList.contains('expanded')) {
                 details.classList.remove('expanded');
-                if (card) card.classList.remove('has-expanded-details');
             }
         });
         detailsExpanded = false;
@@ -249,10 +239,8 @@ function showPersonaJourney(persona, fromClick = true) {
     const personas = ['jamie', 'catherine', 'christina'];
     personas.forEach(p => {
         const details = document.getElementById(`${p}-details`);
-        const card = document.querySelector(`[data-persona="${p}"]`);
         if (details && details.classList.contains('expanded')) {
             details.classList.remove('expanded');
-            if (card) card.classList.remove('has-expanded-details');
         }
     });
     
@@ -405,10 +393,8 @@ function goBackToPersonas() {
     const personas = ['jamie', 'catherine', 'christina'];
     personas.forEach(p => {
         const details = document.getElementById(`${p}-details`);
-        const card = document.querySelector(`[data-persona="${p}"]`);
         if (details && details.classList.contains('expanded')) {
             details.classList.remove('expanded');
-            if (card) card.classList.remove('has-expanded-details');
         }
     });
     
@@ -511,7 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Scroll-triggered animations for info blocks
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
-    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-item:not(.animate-in), .point-item:not(.animate-in)');
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in)');
     
     if (animatedElements.length === 0) return;
     
