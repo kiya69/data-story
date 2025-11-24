@@ -1699,6 +1699,12 @@ function setupMapScrollPopups() {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
 
+            // Make map sticky when starting to scroll up
+            if (mapSection.style.position !== 'sticky') {
+                mapSection.style.position = 'sticky';
+                mapSection.classList.add('sticky-active');
+            }
+
             const currentTime = Date.now();
 
             // Clear existing timeout
@@ -1723,9 +1729,14 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 1;
                     } else if (nextPopupToOpenReverse === 1) {
                         window.mapMarkers.jamie.openPopup();
-                        // All popups opened in reverse
+                        // All popups opened in reverse - remove sticky positioning
                         allPopupsShownReverse = true;
                         nextPopupToOpenReverse = 0; // Prevent further popup opening
+                        // Remove sticky positioning after a short delay
+                        setTimeout(() => {
+                            mapSection.style.position = 'relative';
+                            mapSection.classList.remove('sticky-active');
+                        }, 500);
                     }
                 }
             });
@@ -1778,6 +1789,12 @@ function setupMapScrollPopups() {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
 
+            // Make map sticky when starting to scroll up
+            if (mapSection.style.position !== 'sticky') {
+                mapSection.style.position = 'sticky';
+                mapSection.classList.add('sticky-active');
+            }
+
             const currentTime = Date.now();
 
             if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownReverse) {
@@ -1795,9 +1812,14 @@ function setupMapScrollPopups() {
                     nextPopupToOpenReverse = 1;
                 } else if (nextPopupToOpenReverse === 1) {
                     window.mapMarkers.jamie.openPopup();
-                    // All popups opened in reverse
+                    // All popups opened in reverse - remove sticky positioning
                     allPopupsShownReverse = true;
                     nextPopupToOpenReverse = 0; // Prevent further popup opening
+                    // Remove sticky positioning after a short delay
+                    setTimeout(() => {
+                        mapSection.style.position = 'relative';
+                        mapSection.classList.remove('sticky-active');
+                    }, 500);
                 }
             }
         }
@@ -1805,6 +1827,150 @@ function setupMapScrollPopups() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
+}
+
+// Create bubble chart for Industry data
+function createBubbleChart() {
+    const container = document.getElementById('bubble-chart-container');
+    if (!container || typeof d3 === 'undefined') return;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Set up dimensions
+    const width = Math.min(800, window.innerWidth - 100);
+    const height = 600;
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+
+    // Create SVG
+    const svg = d3.select('#bubble-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Load and process data
+    d3.csv('assets/csv/Industry.csv').then(data => {
+        // Filter out "Grand Total" row
+        data = data.filter(d => d.Industry !== 'Grand Total');
+
+        // Convert automation risk to number
+        data.forEach(d => {
+            d.automationRisk = +d['AVERAGE of Automation Risk (%)'];
+        });
+
+        // Set up scales
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(data, d => d.automationRisk))
+            .range([margin.left, width - margin.right])
+            .nice();
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.automationRisk)])
+            .range([height - margin.bottom, margin.top])
+            .nice();
+
+        const sizeScale = d3.scaleSqrt()
+            .domain(d3.extent(data, d => d.automationRisk))
+            .range([20, 80]);
+
+        const colorScale = d3.scaleSequential(d3.interpolateViridis)
+            .domain(d3.extent(data, d => d.automationRisk));
+
+        // Add X axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale))
+            .append('text')
+            .attr('x', width / 2)
+            .attr('y', 35)
+            .attr('fill', 'currentColor')
+            .style('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text('Automation Risk (%)');
+
+        // Add Y axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale))
+            .append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', -30)
+            .attr('x', -height / 2)
+            .attr('fill', 'currentColor')
+            .style('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text('Automation Risk (%)');
+
+        // Create force simulation for bubble positioning
+        const simulation = d3.forceSimulation(data)
+            .force('x', d3.forceX(d => xScale(d.automationRisk)).strength(0.8))
+            .force('y', d3.forceY(height / 2).strength(0.2))
+            .force('collision', d3.forceCollide().radius(d => sizeScale(d.automationRisk) + 10))
+            .stop();
+
+        // Run simulation
+        for (let i = 0; i < 150; ++i) simulation.tick();
+
+        // Create bubbles
+        const bubbles = svg.selectAll('.bubble')
+            .data(data)
+            .enter()
+            .append('g')
+            .attr('class', 'bubble')
+            .attr('transform', d => `translate(${d.x || xScale(d.automationRisk)}, ${d.y || height / 2})`);
+
+        // Add circles
+        bubbles.append('circle')
+            .attr('r', d => sizeScale(d.automationRisk))
+            .attr('fill', d => colorScale(d.automationRisk))
+            .attr('opacity', 0.7)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2)
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .attr('opacity', 1)
+                    .attr('stroke-width', 3);
+                
+                // Show tooltip
+                tooltip.style('opacity', 1)
+                    .html(`<strong>${d.Industry}</strong><br>Automation Risk: ${d.automationRisk.toFixed(2)}%`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .attr('opacity', 0.7)
+                    .attr('stroke-width', 2);
+                
+                tooltip.style('opacity', 0);
+            });
+
+        // Add labels
+        bubbles.append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.35em')
+            .attr('fill', '#fff')
+            .attr('font-size', d => Math.min(sizeScale(d.automationRisk) / 3, 14))
+            .attr('font-weight', 'bold')
+            .text(d => d.Industry);
+
+        // Add tooltip
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'bubble-tooltip')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .style('background', 'rgba(0, 0, 0, 0.8)')
+            .style('color', '#fff')
+            .style('padding', '10px')
+            .style('border-radius', '5px')
+            .style('pointer-events', 'none')
+            .style('font-size', '12px')
+            .style('z-index', '1000');
+    }).catch(error => {
+        console.error('Error loading Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
 }
 
 // Initialize map when DOM is ready
@@ -1817,6 +1983,18 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             if (typeof L !== 'undefined') {
                 initializeOshawaMap();
+            }
+        }, 100);
+    }
+
+    // Initialize bubble chart when D3 is ready
+    if (typeof d3 !== 'undefined') {
+        createBubbleChart();
+    } else {
+        // Wait for D3 to load
+        setTimeout(() => {
+            if (typeof d3 !== 'undefined') {
+                createBubbleChart();
             }
         }, 100);
     }

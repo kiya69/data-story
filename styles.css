@@ -2497,6 +2497,31 @@ p {
     transition: stroke-width 0.3s ease;
 }
 
+/* Solution Section */
+.solution-section {
+    background: var(--bg-dark);
+    padding: 4rem 2rem;
+}
+
+.bubble-chart-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: rgba(42, 42, 42, 0.8);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.bubble-chart-container svg {
+    display: block;
+    margin: 0 auto;
+}
+
+.bubble-tooltip {
+    font-family: var(--font-primary);
+}
+
 /* Map Section */
 .map-section {
     background: var(--bg-dark);
