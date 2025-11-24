@@ -1525,8 +1525,16 @@ function initializeOshawaMap() {
     const oshawaLat = 43.8971;
     const oshawaLng = -78.8658;
 
-    // Initialize map centered on Oshawa
-    const map = L.map('map-container').setView([oshawaLat, oshawaLng], 12);
+    // Initialize map centered on Oshawa with zoom and scroll disabled
+    const map = L.map('map-container', {
+        zoomControl: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        dragging: false,
+        touchZoom: false
+    }).setView([oshawaLat, oshawaLng], 12);
 
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1591,11 +1599,14 @@ function setupMapScrollPopups() {
     const mapSection = document.getElementById('map');
     if (!mapSection || !window.mapMarkers) return;
 
-    let nextPopupToOpen = 1; // Track which popup to open next (1=jamie, 2=cathy, 3=christina)
+    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina)
+    let nextPopupToOpenReverse = 3; // Track which popup to open next when scrolling up (3=christina, 2=cathy, 1=jamie)
     let isMapInView = false;
     let lastScrollTime = 0;
+    let lastScrollY = window.scrollY; // Track last scroll position to detect direction
     const scrollCooldown = 600; // Minimum time between scroll actions (ms)
-    let allPopupsShown = false; // Track if all 3 popups have been shown
+    let allPopupsShownForward = false; // Track if all 3 popups have been shown when scrolling down
+    let allPopupsShownReverse = false; // Track if all 3 popups have been shown when scrolling up
 
     // Check if map section top has reached the top of viewport (equals 0)
     const isMapAtTop = () => {
@@ -1604,13 +1615,24 @@ function setupMapScrollPopups() {
         return mapTop <= 5 && mapTop >= -5;
     };
 
+    // Check if a popup is currently open
+    const isPopupOpen = (popupNumber) => {
+        if (popupNumber === 1) return window.mapMarkers.jamie.isPopupOpen();
+        if (popupNumber === 2) return window.mapMarkers.cathy.isPopupOpen();
+        if (popupNumber === 3) return window.mapMarkers.christina.isPopupOpen();
+        return false;
+    };
+
     // Use IntersectionObserver to detect when map section is in view
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             isMapInView = entry.isIntersecting;
-            // Reset when map leaves view (only if all popups haven't been shown)
-            if (!entry.isIntersecting && !allPopupsShown) {
-                nextPopupToOpen = 1;
+            // Reset when map leaves view
+            if (!entry.isIntersecting) {
+                nextPopupToOpenForward = 1;
+                nextPopupToOpenReverse = 3;
+                allPopupsShownForward = false;
+                allPopupsShownReverse = false;
             }
         });
     }, {
@@ -1620,40 +1642,129 @@ function setupMapScrollPopups() {
 
     observer.observe(mapSection);
 
-    // Handle scroll events to open popups one at a time
+    // Handle scroll events to open popups in forward or reverse order
     let scrollTimeout = null;
     const handleScroll = () => {
-        if (allPopupsShown) return;
+        const currentScrollY = window.scrollY;
+        const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
+        lastScrollY = currentScrollY;
 
-        // For the first popup, only proceed if map section top is at 0 (top of viewport)
-        if (nextPopupToOpen === 1 && !isMapAtTop()) return;
-        // For subsequent popups, check if map is in view
-        if (nextPopupToOpen > 1 && !isMapInView) return;
+        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
+        if (scrollDirection === 'down') {
+            if (allPopupsShownForward) return;
 
-        const currentTime = Date.now();
+            // For the first popup, only proceed if map section top is at 0 (top of viewport)
+            if (nextPopupToOpenForward === 1 && !isMapAtTop()) return;
+            // For subsequent popups, check if map is in view
+            if (nextPopupToOpenForward > 1 && !isMapInView) return;
 
-        // Clear existing timeout
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
+            const currentTime = Date.now();
+
+            // Clear existing timeout
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+
+            // Use requestAnimationFrame for smoother handling
+            scrollTimeout = requestAnimationFrame(() => {
+                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
+                    lastScrollTime = currentTime;
+
+                    // Open next popup in forward sequence
+                    if (nextPopupToOpenForward === 1) {
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenForward = 2;
+                        // Reset reverse counter when starting forward
+                        nextPopupToOpenReverse = 3;
+                        allPopupsShownReverse = false;
+                    } else if (nextPopupToOpenForward === 2) {
+                        window.mapMarkers.cathy.openPopup();
+                        nextPopupToOpenForward = 3;
+                    } else if (nextPopupToOpenForward === 3) {
+                        window.mapMarkers.christina.openPopup();
+                        // All popups opened forward - remove sticky positioning
+                        allPopupsShownForward = true;
+                        nextPopupToOpenForward = 4; // Prevent further popup opening
+                        // Remove sticky positioning after a short delay
+                        setTimeout(() => {
+                            mapSection.style.position = 'relative';
+                            mapSection.classList.remove('sticky-active');
+                        }, 500);
+                    }
+                }
+            });
+        } 
+        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
+        else if (scrollDirection === 'up') {
+            if (!isMapInView) return;
+            if (allPopupsShownReverse) return;
+
+            const currentTime = Date.now();
+
+            // Clear existing timeout
+            if (scrollTimeout) {
+                clearTimeout(scrollTimeout);
+            }
+
+            // Use requestAnimationFrame for smoother handling
+            scrollTimeout = requestAnimationFrame(() => {
+                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownReverse) {
+                    lastScrollTime = currentTime;
+
+                    // Open next popup in reverse sequence
+                    if (nextPopupToOpenReverse === 3) {
+                        window.mapMarkers.christina.openPopup();
+                        nextPopupToOpenReverse = 2;
+                        // Reset forward counter when starting reverse
+                        nextPopupToOpenForward = 1;
+                        allPopupsShownForward = false;
+                    } else if (nextPopupToOpenReverse === 2) {
+                        window.mapMarkers.cathy.openPopup();
+                        nextPopupToOpenReverse = 1;
+                    } else if (nextPopupToOpenReverse === 1) {
+                        window.mapMarkers.jamie.openPopup();
+                        // All popups opened in reverse
+                        allPopupsShownReverse = true;
+                        nextPopupToOpenReverse = 0; // Prevent further popup opening
+                    }
+                }
+            });
         }
+    };
 
-        // Use requestAnimationFrame for smoother handling
-        scrollTimeout = requestAnimationFrame(() => {
-            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShown) {
+    // Also handle wheel events for better responsiveness
+    const handleWheel = (e) => {
+        const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
+
+        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
+        if (scrollDirection === 'down') {
+            if (allPopupsShownForward) return;
+
+            // For the first popup, only proceed if map section top is at 0 (top of viewport)
+            if (nextPopupToOpenForward === 1 && !isMapAtTop()) return;
+            // For subsequent popups, check if map is in view
+            if (nextPopupToOpenForward > 1 && !isMapInView) return;
+
+            const currentTime = Date.now();
+
+            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
                 lastScrollTime = currentTime;
 
-                // Open next popup in sequence
-                if (nextPopupToOpen === 1) {
+                // Open next popup in forward sequence
+                if (nextPopupToOpenForward === 1) {
                     window.mapMarkers.jamie.openPopup();
-                    nextPopupToOpen = 2;
-                } else if (nextPopupToOpen === 2) {
+                    nextPopupToOpenForward = 2;
+                    // Reset reverse counter when starting forward
+                    nextPopupToOpenReverse = 3;
+                    allPopupsShownReverse = false;
+                } else if (nextPopupToOpenForward === 2) {
                     window.mapMarkers.cathy.openPopup();
-                    nextPopupToOpen = 3;
-                } else if (nextPopupToOpen === 3) {
+                    nextPopupToOpenForward = 3;
+                } else if (nextPopupToOpenForward === 3) {
                     window.mapMarkers.christina.openPopup();
-                    // All popups opened - remove sticky positioning
-                    allPopupsShown = true;
-                    nextPopupToOpen = 4; // Prevent further popup opening
+                    // All popups opened forward - remove sticky positioning
+                    allPopupsShownForward = true;
+                    nextPopupToOpenForward = 4; // Prevent further popup opening
                     // Remove sticky positioning after a short delay
                     setTimeout(() => {
                         mapSection.style.position = 'relative';
@@ -1661,42 +1772,32 @@ function setupMapScrollPopups() {
                     }, 500);
                 }
             }
-        });
-    };
+        }
+        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
+        else if (scrollDirection === 'up') {
+            if (!isMapInView) return;
+            if (allPopupsShownReverse) return;
 
-    // Also handle wheel events for better responsiveness
-    const handleWheel = (e) => {
-        if (allPopupsShown) return;
-
-        // For the first popup, only proceed if map section top is at 0 (top of viewport)
-        if (nextPopupToOpen === 1 && !isMapAtTop()) return;
-        // For subsequent popups, check if map is in view
-        if (nextPopupToOpen > 1 && !isMapInView) return;
-
-        // Only process scroll down
-        if (e.deltaY > 0) {
             const currentTime = Date.now();
 
-            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShown) {
+            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownReverse) {
                 lastScrollTime = currentTime;
 
-                // Open next popup in sequence
-                if (nextPopupToOpen === 1) {
-                    window.mapMarkers.jamie.openPopup();
-                    nextPopupToOpen = 2;
-                } else if (nextPopupToOpen === 2) {
-                    window.mapMarkers.cathy.openPopup();
-                    nextPopupToOpen = 3;
-                } else if (nextPopupToOpen === 3) {
+                // Open next popup in reverse sequence
+                if (nextPopupToOpenReverse === 3) {
                     window.mapMarkers.christina.openPopup();
-                    // All popups opened - remove sticky positioning
-                    allPopupsShown = true;
-                    nextPopupToOpen = 4; // Prevent further popup opening
-                    // Remove sticky positioning after a short delay
-                    setTimeout(() => {
-                        mapSection.style.position = 'relative';
-                        mapSection.classList.remove('sticky-active');
-                    }, 500);
+                    nextPopupToOpenReverse = 2;
+                    // Reset forward counter when starting reverse
+                    nextPopupToOpenForward = 1;
+                    allPopupsShownForward = false;
+                } else if (nextPopupToOpenReverse === 2) {
+                    window.mapMarkers.cathy.openPopup();
+                    nextPopupToOpenReverse = 1;
+                } else if (nextPopupToOpenReverse === 1) {
+                    window.mapMarkers.jamie.openPopup();
+                    // All popups opened in reverse
+                    allPopupsShownReverse = true;
+                    nextPopupToOpenReverse = 0; // Prevent further popup opening
                 }
             }
         }
