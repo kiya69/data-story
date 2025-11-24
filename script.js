@@ -1535,34 +1535,40 @@ function initializeOshawaMap() {
     }).addTo(map);
 
     // Create custom icon function
-    function createPersonaIcon(imagePath, className) {
+    function createPersonaIcon(imagePath, className, popupAnchor) {
         return L.divIcon({
             className: `persona-marker ${className}`,
             html: `<img src="${imagePath}" style="width: 120px; height: 120px; object-fit: contain; cursor: move; cursor: grab;" />`,
             iconSize: [120, 120],
             iconAnchor: [60, 60],
-            popupAnchor: [0, -60]
+            popupAnchor: popupAnchor || [0, -60]
         });
     }
 
-    // Place markers at different locations around Oshawa
-    // Jamie - slightly north
-    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker');
-    const jamieMarker = L.marker([oshawaLat + 0.02, oshawaLng - 0.01], { icon: jamieIcon, draggable: true })
+    // Place markers horizontally side by side
+    // Jamie - leftmost, popup above and to the right
+    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [-80, -80]);
+    const jamieMarker = L.marker([oshawaLat, oshawaLng - 0.03], { icon: jamieIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Jamie</b><br>University graduate looking for employment');
+        .bindPopup('<b>Jamie</b><br>University graduate looking for employment', {
+            className: 'jamie-popup'
+        });
 
-    // Cathy - slightly south
-    const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker');
-    const cathyMarker = L.marker([oshawaLat - 0.02, oshawaLng + 0.01], { icon: cathyIcon, draggable: true })
+    // Cathy (Catherine) - middle, popup above center
+    const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
+    const cathyMarker = L.marker([oshawaLat, oshawaLng], { icon: cathyIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes');
+        .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes', {
+            className: 'cathy-popup'
+        });
 
-    // Christina - slightly east
-    const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker');
-    const christinaMarker = L.marker([oshawaLat, oshawaLng + 0.02], { icon: christinaIcon, draggable: true })
+    // Christina - rightmost, popup above and to the left (90px left of marker)
+    const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker', [-10, -80]);
+    const christinaMarker = L.marker([oshawaLat, oshawaLng + 0.03], { icon: christinaIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Christina</b><br>Adapting to the changing job market');
+        .bindPopup('<b>Christina</b><br>Adapting to the changing job market', {
+            className: 'christina-popup'
+        });
 
     // Disable click to open popup (we'll open on scroll instead)
     jamieMarker.off('click');
