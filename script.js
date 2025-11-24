@@ -1841,7 +1841,7 @@ function setupMapScrollPopups() {
     window.addEventListener('wheel', handleWheel, { passive: true });
 }
 
-// Create bubble chart for Industry data
+// Create scroll-triggered bubble chart for Industry data
 function createBubbleChart() {
     const container = document.getElementById('bubble-chart-container');
     if (!container || typeof d3 === 'undefined') return;
@@ -1860,6 +1860,19 @@ function createBubbleChart() {
         .attr('width', width)
         .attr('height', height);
 
+    // Add title text that changes
+    const titleText = svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 30)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'currentColor')
+        .style('font-size', '18px')
+        .style('font-weight', 'bold')
+        .text('Most Affected Industries');
+
+    let currentState = 'most'; // 'most' or 'least'
+    let allData = [];
+
     // Load and process data
     d3.csv('assets/csv/Industry.csv').then(data => {
         // Filter out "Grand Total" row
@@ -1869,6 +1882,9 @@ function createBubbleChart() {
         data.forEach(d => {
             d.automationRisk = +d['AVERAGE of Automation Risk (%)'];
         });
+
+        // Sort by automation risk (highest first)
+        allData = data.sort((a, b) => b.automationRisk - a.automationRisk);
 
         // Set up scales
         const xScale = d3.scaleLinear()
@@ -1881,9 +1897,14 @@ function createBubbleChart() {
             .range([height - margin.bottom, margin.top])
             .nice();
 
-        const sizeScale = d3.scaleSqrt()
+        // Size scales for most and least affected
+        const sizeScaleMost = d3.scaleSqrt()
             .domain(d3.extent(data, d => d.automationRisk))
-            .range([20, 80]);
+            .range([80, 20]); // Most affected = larger bubbles
+
+        const sizeScaleLeast = d3.scaleSqrt()
+            .domain(d3.extent(data, d => d.automationRisk))
+            .range([20, 80]); // Least affected = larger bubbles
 
         const colorScale = d3.scaleSequential(d3.interpolateViridis)
             .domain(d3.extent(data, d => d.automationRisk));
@@ -1913,27 +1934,30 @@ function createBubbleChart() {
             .style('font-size', '14px')
             .text('Automation Risk (%)');
 
-        // Create force simulation for bubble positioning
-        const simulation = d3.forceSimulation(data)
-            .force('x', d3.forceX(d => xScale(d.automationRisk)).strength(0.8))
-            .force('y', d3.forceY(height / 2).strength(0.2))
-            .force('collision', d3.forceCollide().radius(d => sizeScale(d.automationRisk) + 10))
-            .stop();
+        // Create initial force simulation for bubble positioning
+        const createSimulation = (dataToSimulate, sizeScaleFunc) => {
+            return d3.forceSimulation(dataToSimulate)
+                .force('x', d3.forceX(d => xScale(d.automationRisk)).strength(0.8))
+                .force('y', d3.forceY(height / 2).strength(0.2))
+                .force('collision', d3.forceCollide().radius(d => sizeScaleFunc(d.automationRisk) + 10))
+                .stop();
+        };
 
-        // Run simulation
+        // Initial simulation with most affected (larger bubbles)
+        let simulation = createSimulation([...allData], sizeScaleMost);
         for (let i = 0; i < 150; ++i) simulation.tick();
 
         // Create bubbles
         const bubbles = svg.selectAll('.bubble')
-            .data(data)
+            .data(allData)
             .enter()
             .append('g')
             .attr('class', 'bubble')
             .attr('transform', d => `translate(${d.x || xScale(d.automationRisk)}, ${d.y || height / 2})`);
 
         // Add circles
-        bubbles.append('circle')
-            .attr('r', d => sizeScale(d.automationRisk))
+        const circles = bubbles.append('circle')
+            .attr('r', d => sizeScaleMost(d.automationRisk))
             .attr('fill', d => colorScale(d.automationRisk))
             .attr('opacity', 0.7)
             .attr('stroke', '#fff')
@@ -1958,11 +1982,11 @@ function createBubbleChart() {
             });
 
         // Add labels
-        bubbles.append('text')
+        const labels = bubbles.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
             .attr('fill', '#fff')
-            .attr('font-size', d => Math.min(sizeScale(d.automationRisk) / 3, 14))
+            .attr('font-size', d => Math.min(sizeScaleMost(d.automationRisk) / 3, 14))
             .attr('font-weight', 'bold')
             .text(d => d.Industry);
 
@@ -1979,8 +2003,278 @@ function createBubbleChart() {
             .style('pointer-events', 'none')
             .style('font-size', '12px')
             .style('z-index', '1000');
+
+        // Function to transition between states
+        const transitionToState = (newState, removeStickyCallback = null) => {
+            if (newState === currentState) return;
+            currentState = newState;
+
+            const sizeScale = newState === 'most' ? sizeScaleMost : sizeScaleLeast;
+            const title = newState === 'most' ? 'Most Affected Industries' : 'Least Affected Industries';
+
+            // Update title
+            titleText.text(title);
+
+            // Re-run simulation with new sizes first
+            simulation = createSimulation([...allData], sizeScale);
+            for (let i = 0; i < 150; ++i) simulation.tick();
+
+            // Track transition completion
+            let transitionCount = 0;
+            const totalTransitions = 3; // circles, labels, bubbles
+            const onTransitionEnd = () => {
+                transitionCount++;
+                if (transitionCount === totalTransitions) {
+                    // All transitions complete
+                    if (newState === 'least' && removeStickyCallback) {
+                        removeStickyCallback();
+                    }
+                }
+            };
+
+            // Update bubble sizes with animation
+            circles.transition()
+                .duration(1000)
+                .ease(d3.easeCubicInOut)
+                .attr('r', d => sizeScale(d.automationRisk))
+                .on('end', onTransitionEnd);
+
+            // Update label sizes
+            labels.transition()
+                .duration(1000)
+                .ease(d3.easeCubicInOut)
+                .attr('font-size', d => Math.min(sizeScale(d.automationRisk) / 3, 14))
+                .on('end', onTransitionEnd);
+
+            // Update positions with animation
+            bubbles.transition()
+                .duration(1000)
+                .ease(d3.easeCubicInOut)
+                .attr('transform', d => `translate(${d.x || xScale(d.automationRisk)}, ${d.y || height / 2})`)
+                .on('end', onTransitionEnd);
+        };
+
+        // Set up scroll observer for the solution section
+        const solutionSection = document.getElementById('solution');
+        if (solutionSection) {
+            let hasSeenMost = false; // Track if user has seen the initial state
+            let isSticky = false; // Track if section is sticky
+            let lastScrollY = window.scrollY;
+            let lastTransitionTime = 0;
+            const transitionCooldown = 800; // Minimum time between transitions (ms)
+            let transitionTriggered = false; // Track if transition has been triggered
+            
+            // Function to remove sticky state
+            const removeSticky = () => {
+                if (isSticky) {
+                    solutionSection.style.position = 'relative';
+                    solutionSection.style.top = 'auto';
+                    solutionSection.style.zIndex = 'auto';
+                    isSticky = false;
+                }
+            };
+            
+            // Check if solution section top has reached the top of viewport
+            const isSolutionAtTop = () => {
+                const sectionTop = solutionSection.getBoundingClientRect().top;
+                // Allow a small tolerance (within 5px) to account for rounding
+                return sectionTop <= 5 && sectionTop >= -5;
+            };
+            
+            // Wait a bit before allowing transitions to ensure initial state is visible
+            setTimeout(() => {
+                hasSeenMost = true;
+            }, 2000); // 2 second delay before allowing transition
+
+            // Listen to scroll events
+            let scrollTimeout = null;
+            window.addEventListener('scroll', () => {
+                if (!hasSeenMost) return;
+                
+                const currentScrollY = window.scrollY;
+                const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
+                lastScrollY = currentScrollY;
+
+                // Check if section top has reached viewport top - make it sticky
+                if (isSolutionAtTop() && !isSticky && !transitionTriggered) {
+                    solutionSection.style.position = 'sticky';
+                    solutionSection.style.top = '0';
+                    solutionSection.style.zIndex = '10';
+                    isSticky = true;
+                }
+
+                // If sticky and scrolling down, trigger transition
+                if (isSticky && scrollDirection === 'down' && !transitionTriggered) {
+                    if (scrollTimeout) clearTimeout(scrollTimeout);
+                    scrollTimeout = setTimeout(() => {
+                        const currentTime = Date.now();
+                        if (currentTime - lastTransitionTime > transitionCooldown && currentState === 'most') {
+                            // Transition to least affected on scroll down
+                            transitionTriggered = true;
+                            transitionToState('least', removeSticky);
+                            lastTransitionTime = currentTime;
+                        }
+                    }, 100);
+                }
+
+                // Reset if section leaves viewport
+                const rect = solutionSection.getBoundingClientRect();
+                if (rect.bottom < 0 || rect.top > window.innerHeight) {
+                    if (isSticky) {
+                        removeSticky();
+                    }
+                    // Reset state when leaving viewport
+                    if (currentState === 'least') {
+                        transitionToState('most');
+                        transitionTriggered = false;
+                    }
+                }
+            }, { passive: true });
+        }
     }).catch(error => {
         console.error('Error loading Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Create bubble chart for Age_Industry data
+function createAgeIndustryBubbleChart() {
+    const container = document.getElementById('age-industry-chart-container');
+    if (!container || typeof d3 === 'undefined') return;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Set up dimensions
+    const width = Math.min(800, window.innerWidth - 100);
+    const height = 600;
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+
+    // Create SVG
+    const svg = d3.select('#age-industry-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Load and process data
+    d3.csv('assets/csv/Age_Industry.csv').then(data => {
+        // Convert persons to number
+        data.forEach(d => {
+            d.persons = +d['Persons in thousands'];
+        });
+
+        // Set up scales
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(data, d => d.persons))
+            .range([margin.left, width - margin.right])
+            .nice();
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.persons)])
+            .range([height - margin.bottom, margin.top])
+            .nice();
+
+        const sizeScale = d3.scaleSqrt()
+            .domain(d3.extent(data, d => d.persons))
+            .range([15, 100]);
+
+        const colorScale = d3.scaleSequential(d3.interpolatePlasma)
+            .domain(d3.extent(data, d => d.persons));
+
+        // Add X axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale))
+            .append('text')
+            .attr('x', width / 2)
+            .attr('y', 35)
+            .attr('fill', 'currentColor')
+            .style('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text('Persons (in thousands)');
+
+        // Add Y axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale))
+            .append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', -30)
+            .attr('x', -height / 2)
+            .attr('fill', 'currentColor')
+            .style('text-anchor', 'middle')
+            .style('font-size', '14px')
+            .text('Persons (in thousands)');
+
+        // Create force simulation for bubble positioning
+        const simulation = d3.forceSimulation(data)
+            .force('x', d3.forceX(d => xScale(d.persons)).strength(0.8))
+            .force('y', d3.forceY(height / 2).strength(0.2))
+            .force('collision', d3.forceCollide().radius(d => sizeScale(d.persons) + 10))
+            .stop();
+
+        // Run simulation
+        for (let i = 0; i < 150; ++i) simulation.tick();
+
+        // Create bubbles
+        const bubbles = svg.selectAll('.bubble')
+            .data(data)
+            .enter()
+            .append('g')
+            .attr('class', 'bubble')
+            .attr('transform', d => `translate(${d.x || xScale(d.persons)}, ${d.y || height / 2})`);
+
+        // Add circles
+        bubbles.append('circle')
+            .attr('r', d => sizeScale(d.persons))
+            .attr('fill', d => colorScale(d.persons))
+            .attr('opacity', 0.7)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2)
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .attr('opacity', 1)
+                    .attr('stroke-width', 3);
+                
+                // Show tooltip
+                tooltip.style('opacity', 1)
+                    .html(`<strong>${d.Industry}</strong><br>Persons: ${d.persons.toFixed(1)} thousand`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .attr('opacity', 0.7)
+                    .attr('stroke-width', 2);
+                
+                tooltip.style('opacity', 0);
+            });
+
+        // Add labels (only for larger bubbles to avoid clutter)
+        bubbles.filter(d => sizeScale(d.persons) > 30)
+            .append('text')
+            .attr('text-anchor', 'middle')
+            .attr('dy', '.35em')
+            .attr('fill', '#fff')
+            .attr('font-size', d => Math.min(sizeScale(d.persons) / 4, 12))
+            .attr('font-weight', 'bold')
+            .text(d => d.Industry.length > 20 ? d.Industry.substring(0, 20) + '...' : d.Industry);
+
+        // Add tooltip
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'bubble-tooltip age-industry-tooltip')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .style('background', 'rgba(0, 0, 0, 0.8)')
+            .style('color', '#fff')
+            .style('padding', '10px')
+            .style('border-radius', '5px')
+            .style('pointer-events', 'none')
+            .style('font-size', '12px')
+            .style('z-index', '1000');
+    }).catch(error => {
+        console.error('Error loading Age_Industry.csv:', error);
         container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
     });
 }

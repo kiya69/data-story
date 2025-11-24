@@ -2503,6 +2503,25 @@ p {
     padding: 4rem 2rem;
 }
 
+.solution-title.sticky-title {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-dark);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.solution-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.bubble-chart-section {
+    width: 100%;
+}
+
 .bubble-chart-container {
     width: 100%;
     max-width: 900px;
