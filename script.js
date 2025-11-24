@@ -1599,14 +1599,14 @@ function setupMapScrollPopups() {
     const mapSection = document.getElementById('map');
     if (!mapSection || !window.mapMarkers) return;
 
-    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina)
-    let nextPopupToOpenReverse = 3; // Track which popup to open next when scrolling up (3=christina, 2=cathy, 1=jamie)
+    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina, 4=jamie2, 5=cathy2, 6=christina2, 7=jamie3, 8=christina3)
+    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=cathy2, 4=jamie2, 3=christina, 2=cathy, 1=jamie)
     let isMapInView = false;
     let lastScrollTime = 0;
     let lastScrollY = window.scrollY; // Track last scroll position to detect direction
     const scrollCooldown = 600; // Minimum time between scroll actions (ms)
-    let allPopupsShownForward = false; // Track if all 3 popups have been shown when scrolling down
-    let allPopupsShownReverse = false; // Track if all 3 popups have been shown when scrolling up
+    let allPopupsShownForward = false; // Track if all 8 popups have been shown when scrolling down
+    let allPopupsShownReverse = false; // Track if all 8 popups have been shown when scrolling up
 
     // Check if map section is 80% visible
     const isMap80PercentVisible = () => {
@@ -1642,9 +1642,32 @@ function setupMapScrollPopups() {
             // Reset when map leaves view
             if (!entry.isIntersecting) {
                 nextPopupToOpenForward = 1;
-                nextPopupToOpenReverse = 3;
+                nextPopupToOpenReverse = 8;
                 allPopupsShownForward = false;
                 allPopupsShownReverse = false;
+                // Reset popups to original content
+                if (window.mapMarkers && window.mapMarkers.jamie) {
+                    window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
+                }
+                if (window.mapMarkers && window.mapMarkers.cathy) {
+                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                }
+                if (window.mapMarkers && window.mapMarkers.christina) {
+                    window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                }
+                // Hide charts
+                const unemploymentChart = document.getElementById('unemployment-chart-container');
+                if (unemploymentChart) {
+                    unemploymentChart.classList.remove('show');
+                }
+                const treemapChart = document.getElementById('age-industry-treemap-container');
+                if (treemapChart) {
+                    treemapChart.classList.remove('show');
+                }
+                const rentChart = document.getElementById('rent-chart-container');
+                if (rentChart) {
+                    rentChart.classList.remove('show');
+                }
             }
         });
     }, {
@@ -1663,7 +1686,23 @@ function setupMapScrollPopups() {
 
         // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
         if (scrollDirection === 'down') {
-            if (allPopupsShownForward) return;
+            // If all popups are shown, close popup 4 when user scrolls down
+            if (allPopupsShownForward) {
+                const currentTime = Date.now();
+                if (currentTime - lastScrollTime > scrollCooldown) {
+                    lastScrollTime = currentTime;
+                    // Close Jamie's 4th popup
+                    if (window.mapMarkers && window.mapMarkers.jamie && window.mapMarkers.jamie.isPopupOpen()) {
+                        window.mapMarkers.jamie.closePopup();
+                        // Hide unemployment chart
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.remove('show');
+                        }
+                    }
+                }
+                return;
+            }
 
             // For the first popup, only proceed if map section is 80% visible
             if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
@@ -1687,16 +1726,65 @@ function setupMapScrollPopups() {
                         window.mapMarkers.jamie.openPopup();
                         nextPopupToOpenForward = 2;
                         // Reset reverse counter when starting forward
-                        nextPopupToOpenReverse = 3;
+                        nextPopupToOpenReverse = 8;
                         allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
+                        nextPopupToOpenForward = 4;
+                    } else if (nextPopupToOpenForward === 4) {
+                        // Update Jamie's popup content for the 4th popup
+                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        window.mapMarkers.jamie.openPopup();
+                        // Create and show unemployment chart
+                        createUnemploymentChart();
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 5;
+                    } else if (nextPopupToOpenForward === 5) {
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.cathy.openPopup();
+                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
+                        setTimeout(() => {
+                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
+                                window.mapMarkers.jamie.openPopup();
+                            }
+                        }, 100);
+                        nextPopupToOpenForward = 6;
+                    } else if (nextPopupToOpenForward === 6) {
+                        // Update Christina's popup content for the 6th popup
+                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show age-industry treemap
+                        createAgeIndustryTreemap();
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 7;
+                    } else if (nextPopupToOpenForward === 7) {
+                        // Update Jamie's popup content for the 7th popup
+                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenForward = 8;
+                    } else if (nextPopupToOpenForward === 8) {
+                        // Update Christina's popup content for the 8th popup
+                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show rent chart
+                        createRentChart();
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.add('show');
+                        }
                         // All popups opened forward - remove sticky positioning
                         allPopupsShownForward = true;
-                        nextPopupToOpenForward = 4; // Prevent further popup opening
+                        nextPopupToOpenForward = 9; // Prevent further popup opening
                         // Remove sticky positioning after a short delay
                         setTimeout(() => {
                             mapSection.style.position = 'relative';
@@ -1730,17 +1818,77 @@ function setupMapScrollPopups() {
                     lastScrollTime = currentTime;
 
                     // Open next popup in reverse sequence
-                    if (nextPopupToOpenReverse === 3) {
+                    if (nextPopupToOpenReverse === 8) {
+                        // Update Christina's popup content for the 8th popup
+                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                         window.mapMarkers.christina.openPopup();
-                        nextPopupToOpenReverse = 2;
+                        // Show rent chart
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.add('show');
+                        }
+                        nextPopupToOpenReverse = 7;
                         // Reset forward counter when starting reverse
                         nextPopupToOpenForward = 1;
                         allPopupsShownForward = false;
+                    } else if (nextPopupToOpenReverse === 7) {
+                        // Update Jamie's popup content for the 7th popup
+                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenReverse = 6;
+                    } else if (nextPopupToOpenReverse === 6) {
+                        // Update Christina's popup content for the 6th popup
+                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        window.mapMarkers.christina.openPopup();
+                        // Show age-industry treemap
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.add('show');
+                        }
+                        nextPopupToOpenReverse = 5;
+                    } else if (nextPopupToOpenReverse === 5) {
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.cathy.openPopup();
+                        nextPopupToOpenReverse = 4;
+                    } else if (nextPopupToOpenReverse === 4) {
+                        // Update Jamie's popup content for the 4th popup
+                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        window.mapMarkers.jamie.openPopup();
+                        // Show unemployment chart
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.add('show');
+                        }
+                        nextPopupToOpenReverse = 3;
+                    } else if (nextPopupToOpenReverse === 3) {
+                        // Reset Christina's popup to original content
+                        window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                        window.mapMarkers.christina.openPopup();
+                        // Hide treemap and rent chart
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.remove('show');
+                        }
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.remove('show');
+                        }
+                        nextPopupToOpenReverse = 2;
                     } else if (nextPopupToOpenReverse === 2) {
+                        // Reset Cathy's popup to original content
+                        window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenReverse = 1;
                     } else if (nextPopupToOpenReverse === 1) {
+                        // Reset Jamie's popup to original content
+                        window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
                         window.mapMarkers.jamie.openPopup();
+                        // Hide unemployment chart
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.remove('show');
+                        }
                         // All popups opened in reverse - remove sticky positioning
                         allPopupsShownReverse = true;
                         nextPopupToOpenReverse = 0; // Prevent further popup opening
@@ -1761,7 +1909,23 @@ function setupMapScrollPopups() {
 
         // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
         if (scrollDirection === 'down') {
-            if (allPopupsShownForward) return;
+            // If all popups are shown, close popup 4 when user scrolls down
+            if (allPopupsShownForward) {
+                const currentTime = Date.now();
+                if (currentTime - lastScrollTime > scrollCooldown) {
+                    lastScrollTime = currentTime;
+                    // Close Jamie's 4th popup
+                    if (window.mapMarkers && window.mapMarkers.jamie && window.mapMarkers.jamie.isPopupOpen()) {
+                        window.mapMarkers.jamie.closePopup();
+                        // Hide unemployment chart
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.remove('show');
+                        }
+                    }
+                }
+                return;
+            }
 
             // For the first popup, only proceed if map section is 80% visible
             if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
@@ -1778,25 +1942,74 @@ function setupMapScrollPopups() {
                     window.mapMarkers.jamie.openPopup();
                     nextPopupToOpenForward = 2;
                     // Reset reverse counter when starting forward
-                    nextPopupToOpenReverse = 3;
+                    nextPopupToOpenReverse = 5;
                     allPopupsShownReverse = false;
                 } else if (nextPopupToOpenForward === 2) {
                     window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenForward = 3;
                 } else if (nextPopupToOpenForward === 3) {
-                    window.mapMarkers.christina.openPopup();
-                    // All popups opened forward - remove sticky positioning
-                    allPopupsShownForward = true;
-                    nextPopupToOpenForward = 4; // Prevent further popup opening
-                    // Remove sticky positioning after a short delay
-                    setTimeout(() => {
-                        mapSection.style.position = 'relative';
-                        mapSection.classList.remove('sticky-active');
-                    }, 500);
-                }
+                        window.mapMarkers.christina.openPopup();
+                        nextPopupToOpenForward = 4;
+                    } else if (nextPopupToOpenForward === 4) {
+                        // Update Jamie's popup content for the 4th popup
+                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        window.mapMarkers.jamie.openPopup();
+                        // Create and show unemployment chart
+                        createUnemploymentChart();
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 5;
+                    } else if (nextPopupToOpenForward === 5) {
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.cathy.openPopup();
+                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
+                        setTimeout(() => {
+                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
+                                window.mapMarkers.jamie.openPopup();
+                            }
+                        }, 100);
+                        nextPopupToOpenForward = 6;
+                    } else if (nextPopupToOpenForward === 6) {
+                        // Update Christina's popup content for the 6th popup
+                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show age-industry treemap
+                        createAgeIndustryTreemap();
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 7;
+                    } else if (nextPopupToOpenForward === 7) {
+                        // Update Jamie's popup content for the 7th popup
+                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenForward = 8;
+                    } else if (nextPopupToOpenForward === 8) {
+                        // Update Christina's popup content for the 8th popup
+                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show rent chart
+                        createRentChart();
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.add('show');
+                        }
+                        // All popups opened forward - remove sticky positioning
+                        allPopupsShownForward = true;
+                        nextPopupToOpenForward = 9; // Prevent further popup opening
+                        // Remove sticky positioning after a short delay
+                        setTimeout(() => {
+                            mapSection.style.position = 'relative';
+                            mapSection.classList.remove('sticky-active');
+                        }, 500);
+                    }
             }
         }
-        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
+        // For scrolling up - open popups in reverse order (Cathy2 → Jamie2 → Christina → Cathy → Jamie)
         else if (scrollDirection === 'up') {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
@@ -1813,17 +2026,73 @@ function setupMapScrollPopups() {
                 lastScrollTime = currentTime;
 
                 // Open next popup in reverse sequence
-                if (nextPopupToOpenReverse === 3) {
+                if (nextPopupToOpenReverse === 8) {
+                    // Update Christina's popup content for the 8th popup
+                    window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                     window.mapMarkers.christina.openPopup();
-                    nextPopupToOpenReverse = 2;
+                    // Show rent chart
+                    const rentChart = document.getElementById('rent-chart-container');
+                    if (rentChart) {
+                        rentChart.classList.add('show');
+                    }
+                    nextPopupToOpenReverse = 7;
                     // Reset forward counter when starting reverse
                     nextPopupToOpenForward = 1;
                     allPopupsShownForward = false;
+                } else if (nextPopupToOpenReverse === 7) {
+                    // Update Jamie's popup content for the 7th popup
+                    window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                    window.mapMarkers.jamie.openPopup();
+                    nextPopupToOpenReverse = 6;
+                } else if (nextPopupToOpenReverse === 6) {
+                    // Update Christina's popup content for the 6th popup
+                    window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                    window.mapMarkers.christina.openPopup();
+                    // Show age-industry treemap
+                    const treemapChart = document.getElementById('age-industry-treemap-container');
+                    if (treemapChart) {
+                        treemapChart.classList.add('show');
+                    }
+                    nextPopupToOpenReverse = 5;
+                } else if (nextPopupToOpenReverse === 5) {
+                    // Update Cathy's popup content for the 5th popup
+                    window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                    window.mapMarkers.cathy.openPopup();
+                    nextPopupToOpenReverse = 4;
+                } else if (nextPopupToOpenReverse === 4) {
+                    // Update Jamie's popup content for the 4th popup
+                    window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                    window.mapMarkers.jamie.openPopup();
+                    // Show unemployment chart
+                    const unemploymentChart = document.getElementById('unemployment-chart-container');
+                    if (unemploymentChart) {
+                        unemploymentChart.classList.add('show');
+                    }
+                    nextPopupToOpenReverse = 3;
+                } else if (nextPopupToOpenReverse === 3) {
+                    // Reset Christina's popup to original content
+                    window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                    window.mapMarkers.christina.openPopup();
+                        // Hide age-industry treemap
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.remove('show');
+                        }
+                    nextPopupToOpenReverse = 2;
                 } else if (nextPopupToOpenReverse === 2) {
+                    // Reset Cathy's popup to original content
+                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
                     window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenReverse = 1;
                 } else if (nextPopupToOpenReverse === 1) {
+                    // Reset Jamie's popup to original content
+                    window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
                     window.mapMarkers.jamie.openPopup();
+                    // Hide unemployment chart
+                    const unemploymentChart = document.getElementById('unemployment-chart-container');
+                    if (unemploymentChart) {
+                        unemploymentChart.classList.remove('show');
+                    }
                     // All popups opened in reverse - remove sticky positioning
                     allPopupsShownReverse = true;
                     nextPopupToOpenReverse = 0; // Prevent further popup opening
@@ -2275,6 +2544,502 @@ function createAgeIndustryBubbleChart() {
             .style('z-index', '1000');
     }).catch(error => {
         console.error('Error loading Age_Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Create unemployment line chart
+let unemploymentChartCreated = false;
+function createUnemploymentChart() {
+    const container = document.getElementById('unemployment-chart-container');
+    if (!container || typeof d3 === 'undefined') return;
+    
+    // Only create chart once
+    if (unemploymentChartCreated) return;
+    unemploymentChartCreated = true;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Set up dimensions (smaller for top-left corner)
+    const width = 450;
+    const height = 300;
+    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+    // Create SVG
+    const svg = d3.select('#unemployment-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Load and process data
+    d3.text('assets/csv/UnemploymentData.csv').then(text => {
+        // Parse CSV manually (no headers)
+        const data = d3.csvParseRows(text, (row) => {
+            const [dateStr, valueStr] = row;
+            const [year, month] = dateStr.split('-');
+            return {
+                date: new Date(year, month - 1),
+                unemployment: +valueStr
+            };
+        });
+
+        // Sort by date
+        data.sort((a, b) => a.date - b.date);
+
+        // Set up scales
+        const xScale = d3.scaleTime()
+            .domain(d3.extent(data, d => d.date))
+            .range([margin.left, width - margin.right]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.unemployment) * 1.1])
+            .range([height - margin.bottom, margin.top]);
+
+        // Create line generator
+        const line = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.unemployment))
+            .curve(d3.curveMonotoneX);
+
+        // Add the line path
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', '#4A90E2')
+            .attr('stroke-width', 2.5)
+            .attr('d', line);
+
+        // Add circles for data points
+        svg.selectAll('circle')
+            .data(data)
+            .enter()
+            .append('circle')
+            .attr('cx', d => xScale(d.date))
+            .attr('cy', d => yScale(d.unemployment))
+            .attr('r', 4)
+            .attr('fill', '#4A90E2')
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 2);
+
+        // Add x-axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale)
+                .tickFormat(d3.timeFormat('%b %Y'))
+                .ticks(6))
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('dx', '-.8em')
+            .attr('dy', '.15em')
+            .attr('transform', 'rotate(-45)')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Add y-axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale)
+                .ticks(6)
+                .tickFormat(d => d + '%'))
+            .selectAll('text')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Add axis labels
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 12)
+            .attr('x', -height / 2)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Unemployment Rate (%)');
+
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', height - 8)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Date');
+
+        // Add title
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', 15)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .text('Unemployment Rate Over Time');
+
+        // Add tooltip
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'bubble-tooltip unemployment-tooltip')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .style('background', 'rgba(0, 0, 0, 0.8)')
+            .style('color', '#fff')
+            .style('padding', '10px')
+            .style('border-radius', '5px')
+            .style('pointer-events', 'none')
+            .style('font-size', '12px')
+            .style('z-index', '1000');
+
+        // Add hover interactions
+        svg.selectAll('circle')
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .attr('r', 6)
+                    .attr('fill', '#FFD700');
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 1);
+                tooltip.html(`${d3.timeFormat('%B %Y')(d.date)}<br/>Unemployment: ${d.unemployment}%`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .attr('r', 4)
+                    .attr('fill', '#4A90E2');
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0);
+            });
+
+    }).catch(error => {
+        console.error('Error loading UnemploymentData.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Create age-industry treemap
+let ageIndustryTreemapCreated = false;
+function createAgeIndustryTreemap() {
+    const container = document.getElementById('age-industry-treemap-container');
+    if (!container || typeof d3 === 'undefined') return;
+    
+    // Only create chart once
+    if (ageIndustryTreemapCreated) return;
+    ageIndustryTreemapCreated = true;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Set up dimensions (smaller for top-right corner)
+    const width = 500;
+    const height = 400;
+    const margin = { top: 30, right: 10, bottom: 10, left: 10 };
+
+    // Create SVG
+    const svg = d3.select('#age-industry-treemap-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Add title
+    svg.append('text')
+        .attr('x', width / 2)
+        .attr('y', 20)
+        .style('text-anchor', 'middle')
+        .style('fill', '#fff')
+        .style('font-size', '14px')
+        .style('font-weight', 'bold')
+        .text('Industries by Number of People (ON)');
+
+    // Load and process data
+    d3.csv('assets/csv/Age_Industry.csv').then(data => {
+        // Filter out empty rows and parse data
+        const processedData = data
+            .filter(d => d.Industry && d.Industry.trim() !== '' && d['Persons in thousands'])
+            .map(d => {
+                // Remove commas and parse numbers
+                const persons = d['Persons in thousands'].toString().replace(/,/g, '');
+                return {
+                    name: d.Industry,
+                    value: +persons
+                };
+            })
+            .filter(d => !isNaN(d.value) && d.value > 0);
+
+        // Create hierarchical data structure for treemap
+        const root = d3.hierarchy({ children: processedData })
+            .sum(d => d.value)
+            .sort((a, b) => b.value - a.value);
+
+        // Create treemap layout
+        const treemap = d3.treemap()
+            .size([width - margin.left - margin.right, height - margin.top - margin.bottom])
+            .padding(2);
+
+        treemap(root);
+
+        // Color scale
+        const colorScale = d3.scaleSequential(d3.interpolateViridis)
+            .domain([0, d3.max(processedData, d => d.value)]);
+
+        // Create cells
+        const cells = svg.selectAll('g')
+            .data(root.leaves())
+            .enter()
+            .append('g')
+            .attr('transform', d => `translate(${d.x0 + margin.left},${d.y0 + margin.top})`);
+
+        // Add rectangles
+        cells.append('rect')
+            .attr('width', d => d.x1 - d.x0)
+            .attr('height', d => d.y1 - d.y0)
+            .attr('fill', d => colorScale(d.data.value))
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 1);
+
+        // Add text labels (only for larger cells)
+        cells.filter(d => (d.x1 - d.x0) > 60 && (d.y1 - d.y0) > 20)
+            .append('text')
+            .attr('x', d => (d.x1 - d.x0) / 2)
+            .attr('y', d => (d.y1 - d.y0) / 2)
+            .attr('dy', '0.35em')
+            .attr('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', d => Math.min((d.x1 - d.x0) / 10, 11))
+            .style('font-weight', 'bold')
+            .text(d => {
+                const name = d.data.name;
+                return name.length > 25 ? name.substring(0, 22) + '...' : name;
+            });
+
+        // Add value labels
+        cells.filter(d => (d.x1 - d.x0) > 60 && (d.y1 - d.y0) > 30)
+            .append('text')
+            .attr('x', d => (d.x1 - d.x0) / 2)
+            .attr('y', d => (d.y1 - d.y0) / 2 + 15)
+            .attr('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', d => Math.min((d.x1 - d.x0) / 12, 10))
+            .text(d => d.data.value.toLocaleString() + 'K');
+
+        // Add tooltip
+        const tooltip = d3.select('body')
+            .append('div')
+            .attr('class', 'bubble-tooltip age-industry-tooltip')
+            .style('opacity', 0)
+            .style('position', 'absolute')
+            .style('background', 'rgba(0, 0, 0, 0.8)')
+            .style('color', '#fff')
+            .style('padding', '10px')
+            .style('border-radius', '5px')
+            .style('pointer-events', 'none')
+            .style('font-size', '12px')
+            .style('z-index', '1000');
+
+        // Add hover interactions
+        cells.select('rect')
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .attr('stroke', '#FFD700')
+                    .attr('stroke-width', 2);
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 1);
+                tooltip.html(`${d.data.name}<br/>Persons: ${d.data.value.toLocaleString()}K`)
+                    .style('left', (event.pageX + 10) + 'px')
+                    .style('top', (event.pageY - 10) + 'px');
+            })
+            .on('mouseout', function() {
+                d3.select(this)
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 1);
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', 0);
+            });
+
+    }).catch(error => {
+        console.error('Error loading Age_Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Create rent line chart
+let rentChartCreated = false;
+function createRentChart() {
+    const container = document.getElementById('rent-chart-container');
+    if (!container || typeof d3 === 'undefined') return;
+    
+    // Only create chart once
+    if (rentChartCreated) return;
+    rentChartCreated = true;
+
+    // Clear any existing content
+    container.innerHTML = '';
+
+    // Set up dimensions (smaller for top-right corner)
+    const width = 450;
+    const height = 300;
+    const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+
+    // Create SVG
+    const svg = d3.select('#rent-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    // Load and process data
+    d3.csv('assets/csv/RentDataSet.csv').then(data => {
+        // Parse the data
+        data.forEach(d => {
+            // Parse quarter (format: Q1 2023)
+            const [quarter, year] = d.Quarters.split(' ');
+            const quarterNum = parseInt(quarter.substring(1));
+            d.date = new Date(year, (quarterNum - 1) * 3);
+            // Remove commas and parse numbers
+            d.oneBedroom = +d['Apartment - 1 bedroom'].replace(/,/g, '');
+            d.twoBedroom = +d['Apartment - 2 bedrooms'].replace(/,/g, '');
+            d.room = +d.Room;
+        });
+
+        // Sort by date
+        data.sort((a, b) => a.date - b.date);
+
+        // Set up scales
+        const xScale = d3.scaleTime()
+            .domain(d3.extent(data, d => d.date))
+            .range([margin.left, width - margin.right]);
+
+        const maxRent = d3.max(data, d => Math.max(d.oneBedroom, d.twoBedroom, d.room));
+        const yScale = d3.scaleLinear()
+            .domain([0, maxRent * 1.1])
+            .range([height - margin.bottom, margin.top]);
+
+        // Create line generators
+        const line1 = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.oneBedroom))
+            .curve(d3.curveMonotoneX);
+
+        const line2 = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.twoBedroom))
+            .curve(d3.curveMonotoneX);
+
+        const line3 = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d.room))
+            .curve(d3.curveMonotoneX);
+
+        // Add the line paths
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', '#4A90E2')
+            .attr('stroke-width', 2)
+            .attr('d', line1);
+
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', '#E24A4A')
+            .attr('stroke-width', 2)
+            .attr('d', line2);
+
+        svg.append('path')
+            .datum(data)
+            .attr('fill', 'none')
+            .attr('stroke', '#4AE24A')
+            .attr('stroke-width', 2)
+            .attr('d', line3);
+
+        // Add x-axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale)
+                .tickFormat(d3.timeFormat('%b %Y'))
+                .ticks(6))
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('dx', '-.8em')
+            .attr('dy', '.15em')
+            .attr('transform', 'rotate(-45)')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Add y-axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale)
+                .ticks(6)
+                .tickFormat(d => '$' + d))
+            .selectAll('text')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Add axis labels
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 12)
+            .attr('x', -height / 2)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Rent ($)');
+
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', height - 8)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Date');
+
+        // Add title
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', 15)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .text('Rent Prices Over Time');
+
+        // Add legend
+        const legend = svg.append('g')
+            .attr('transform', `translate(${width - 150}, ${margin.top + 20})`);
+
+        const legendData = [
+            { label: '1 Bedroom', color: '#4A90E2' },
+            { label: '2 Bedrooms', color: '#E24A4A' },
+            { label: 'Room', color: '#4AE24A' }
+        ];
+
+        legendData.forEach((item, i) => {
+            const legendRow = legend.append('g')
+                .attr('transform', `translate(0, ${i * 20})`);
+
+            legendRow.append('line')
+                .attr('x1', 0)
+                .attr('x2', 15)
+                .attr('y1', 0)
+                .attr('y2', 0)
+                .attr('stroke', item.color)
+                .attr('stroke-width', 2);
+
+            legendRow.append('text')
+                .attr('x', 20)
+                .attr('y', 4)
+                .style('fill', '#fff')
+                .style('font-size', '10px')
+                .text(item.label);
+        });
+
+    }).catch(error => {
+        console.error('Error loading RentDataSet.csv:', error);
         container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
     });
 }

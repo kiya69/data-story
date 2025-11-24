@@ -2541,6 +2541,96 @@ p {
     font-family: var(--font-primary);
 }
 
+/* Unemployment Chart Container */
+.unemployment-chart-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 500px;
+    max-height: 400px;
+    padding: 1.5rem;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.unemployment-chart-container.show {
+    display: block;
+}
+
+.unemployment-chart-container svg {
+    display: block;
+    margin: 0 auto;
+}
+
+.unemployment-chart-container svg .domain,
+.unemployment-chart-container svg .tick line {
+    stroke: #666;
+}
+
+.unemployment-chart-container svg .tick text {
+    fill: #fff;
+}
+
+/* Age Industry Treemap Container */
+.age-industry-treemap-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 500px;
+    max-height: 400px;
+    padding: 1.5rem;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.age-industry-treemap-container.show {
+    display: block;
+}
+
+.age-industry-treemap-container svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Rent Chart Container */
+.rent-chart-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 500px;
+    max-height: 400px;
+    padding: 1.5rem;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.rent-chart-container.show {
+    display: block;
+}
+
+.rent-chart-container svg {
+    display: block;
+    margin: 0 auto;
+}
+
+.rent-chart-container svg .domain,
+.rent-chart-container svg .tick line {
+    stroke: #666;
+}
+
+.rent-chart-container svg .tick text {
+    fill: #fff;
+}
+
 /* Map Section */
 .map-section {
     background: var(--bg-dark);
@@ -2548,6 +2638,10 @@ p {
     position: sticky;
     top: 0;
     z-index: 5;
+}
+
+.map-section .content-wrapper {
+    position: relative;
 }
 
 .map-container {
