@@ -31,12 +31,43 @@ let personaSelected = false;
 let selectedPersona = null;
 let scrollTriggered = false;
 
+// Global function to check if any details are expanded (for manual toggle tracking)
+function areAnyDetailsExpanded() {
+    const personas = ['jamie', 'catherine', 'christina'];
+    return personas.some(p => {
+        const details = document.getElementById(`${p}-details`);
+        return details && details.classList.contains('expanded');
+    });
+}
+
 // Persona selection functionality
 document.addEventListener('DOMContentLoaded', () => {
-    // Optional: Keep click functionality but make it secondary
     const personaCards = document.querySelectorAll('.persona-card');
     
+    // Add hover functionality for individual cards
     personaCards.forEach(card => {
+        const persona = card.getAttribute('data-persona');
+        const details = document.getElementById(`${persona}-details`);
+        
+        if (details) {
+            // Expand on hover
+            card.addEventListener('mouseenter', () => {
+                if (!details.classList.contains('expanded')) {
+                    details.classList.add('expanded');
+                }
+            });
+            
+            // Keep expanded on hover, but allow collapse when not hovered (unless auto-expanded)
+            card.addEventListener('mouseleave', () => {
+                // Only collapse if not auto-expanded
+                const cardHasAutoExpanded = card.classList.contains('has-expanded-details');
+                if (!cardHasAutoExpanded && details.classList.contains('expanded')) {
+                    details.classList.remove('expanded');
+                }
+            });
+        }
+        
+        // Click to view journey
         card.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -66,8 +97,40 @@ function setupPersonaScrollObserver() {
     if (!personasSection) return;
     
     let autoSelectTimeout = null;
+    let autoExpandTimeout = null;
     let hasScrolled = false;
     let wasInitiallyVisible = false;
+    let detailsExpanded = false;
+    
+    // Function to expand all persona details
+    function expandAllPersonaDetails() {
+        if (areAnyDetailsExpanded()) return;
+        const personas = ['jamie', 'catherine', 'christina'];
+        personas.forEach(persona => {
+            const details = document.getElementById(`${persona}-details`);
+            const card = document.querySelector(`[data-persona="${persona}"]`);
+            if (details && !details.classList.contains('expanded')) {
+                details.classList.add('expanded');
+                if (card) card.classList.add('has-expanded-details');
+            }
+        });
+        detailsExpanded = true;
+    }
+    
+    // Function to collapse all persona details
+    function collapseAllPersonaDetails() {
+        if (!areAnyDetailsExpanded()) return;
+        const personas = ['jamie', 'catherine', 'christina'];
+        personas.forEach(persona => {
+            const details = document.getElementById(`${persona}-details`);
+            const card = document.querySelector(`[data-persona="${persona}"]`);
+            if (details && details.classList.contains('expanded')) {
+                details.classList.remove('expanded');
+                if (card) card.classList.remove('has-expanded-details');
+            }
+        });
+        detailsExpanded = false;
+    }
     
     // Check if section is initially visible on page load
     const checkInitialVisibility = () => {
@@ -97,6 +160,18 @@ function setupPersonaScrollObserver() {
                     return;
                 }
                 
+                // Auto-expand details when section comes into view
+                if (!areAnyDetailsExpanded()) {
+                    if (autoExpandTimeout) {
+                        clearTimeout(autoExpandTimeout);
+                    }
+                    autoExpandTimeout = setTimeout(() => {
+                        if (!personaSelected && !scrollTriggered) {
+                            expandAllPersonaDetails();
+                        }
+                    }, 500); // Expand after 0.5 seconds of viewing
+                }
+                
                 // Clear any existing timeout
                 if (autoSelectTimeout) {
                     clearTimeout(autoSelectTimeout);
@@ -107,10 +182,13 @@ function setupPersonaScrollObserver() {
                     if (!personaSelected && !scrollTriggered) {
                         scrollTriggered = true;
                         // Randomly select a persona
-                        const personas = ['jamie', 'cathy'];
+                        const personas = ['jamie', 'cathy', 'christina'];
                         const randomPersona = personas[Math.floor(Math.random() * personas.length)];
                         personaSelected = true;
                         selectedPersona = randomPersona;
+                        
+                        // Collapse details when persona is selected
+                        collapseAllPersonaDetails();
                         
                         // Add visual indicator with animation
                         const selectedCard = document.querySelector(`[data-persona="${randomPersona}"]`);
@@ -133,16 +211,25 @@ function setupPersonaScrollObserver() {
                     }
                 }, 800);
             } else if (!entry.isIntersecting && !personaSelected && !scrollTriggered) {
+                // Collapse details when scrolling away
+                if (areAnyDetailsExpanded()) {
+                    collapseAllPersonaDetails();
+                }
+                
                 // If user scrolls past without waiting, select immediately (only if they've scrolled)
                 if (entry.boundingClientRect.top < -50 && hasScrolled) {
                     if (autoSelectTimeout) {
                         clearTimeout(autoSelectTimeout);
                     }
+                    if (autoExpandTimeout) {
+                        clearTimeout(autoExpandTimeout);
+                    }
                     scrollTriggered = true;
-                    const personas = ['jamie', 'catherine'];
+                    const personas = ['jamie', 'catherine', 'christina'];
                     const randomPersona = personas[Math.floor(Math.random() * personas.length)];
                     personaSelected = true;
                     selectedPersona = randomPersona;
+                    collapseAllPersonaDetails();
                     showPersonaJourney(randomPersona, false);
                 }
             }
@@ -158,9 +245,21 @@ function setupPersonaScrollObserver() {
 function showPersonaJourney(persona, fromClick = true) {
     console.log('showPersonaJourney called with:', persona); // Debug log
     
+    // Collapse all persona details when journey starts
+    const personas = ['jamie', 'catherine', 'christina'];
+    personas.forEach(p => {
+        const details = document.getElementById(`${p}-details`);
+        const card = document.querySelector(`[data-persona="${p}"]`);
+        if (details && details.classList.contains('expanded')) {
+            details.classList.remove('expanded');
+            if (card) card.classList.remove('has-expanded-details');
+        }
+    });
+    
     // Hide all journey sections first
     document.getElementById('jamie-journey').style.display = 'none';
     document.getElementById('cathy-journey').style.display = 'none';
+    document.getElementById('christina-journey').style.display = 'none';
     
     // Show selected persona's journey and scroll to it
     if (persona === 'jamie') {
@@ -185,6 +284,18 @@ function showPersonaJourney(persona, fromClick = true) {
         if (fromClick) {
             setTimeout(() => {
                 cathyJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    } else if (persona === 'christina') {
+        const christinaJourney = document.getElementById('christina-journey');
+        christinaJourney.style.display = 'flex';
+        animateJourneySteps('christina-journey');
+        console.log('Christina journey shown');
+        
+        // Scroll to Christina's journey
+        if (fromClick) {
+            setTimeout(() => {
+                christinaJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
     } else {
@@ -290,9 +401,21 @@ function goBackToPersonas() {
     selectedPersona = null;
     scrollTriggered = false;
     
+    // Collapse all persona details when going back
+    const personas = ['jamie', 'catherine', 'christina'];
+    personas.forEach(p => {
+        const details = document.getElementById(`${p}-details`);
+        const card = document.querySelector(`[data-persona="${p}"]`);
+        if (details && details.classList.contains('expanded')) {
+            details.classList.remove('expanded');
+            if (card) card.classList.remove('has-expanded-details');
+        }
+    });
+    
     // Hide all journey sections
     document.getElementById('jamie-journey').style.display = 'none';
     document.getElementById('cathy-journey').style.display = 'none';
+    document.getElementById('christina-journey').style.display = 'none';
     document.getElementById('conclusion').style.display = 'none';
     
     // Show initial sections

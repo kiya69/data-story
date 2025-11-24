@@ -34,51 +34,89 @@
             <p class="subtitle fade-in delay-1">Continue scrolling to explore a randomly selected story</p>
             <div class="persona-container">
                 <!-- Jamie Card -->
-                <div class="persona-card" data-persona="jamie" id="jamie-card">
+                <div class="persona-card jamie-card" data-persona="jamie" id="jamie-card">
                     <div class="persona-avatar jamie-avatar">
                         <img src="assets/images/jamie.png" 
                              alt="Jamie" 
                              style="width:200px; height:200px; border-radius:50%; object-fit:cover;">
                     </div>
                     <h3>Jamie</h3>
-                    <p class="persona-description">
-                        Age: 26 &nbsp;|&nbsp; Location: Ontario<br>
-                        University graduate living in Oshawa, ON, looking for employment.
+                    <div class="persona-basic-info">
+                        <span class="persona-age">Age: 26</span>
+                        <span class="persona-location">Location: Ontario</span>
+                    </div>
+                    <p class="persona-description preview">
+                        University graduate living in Oshawa, ON, looking for employment. 
+                        Jamie graduated with a Masters degree in AI from the University of Toronto.
                     </p>
-                    <p class="persona-description">
-                        Jamie graduated with a Masters degree in AI from the University of Toronto. 
-                        She moved from downtown Toronto to Oshawa after completing her degree with her friends. 
-                        She is currently managing her living expenses with a part-time job and has a student debt 
-                        that will start in six months, so she is actively looking for full-time employment to cover it.
-                    </p>
-                    <p class="persona-description">
-                        <strong>Needs:</strong> Jamie needs a decent-paying job and a student debt relief plan. 
-                        Without financial freedom she feels overwhelmed and worries that AI is taking away the jobs 
-                        of fresh graduates and junior positions.
-                    </p>
+                    <div class="persona-details" id="jamie-details">
+                        <p class="persona-description">
+                            She moved from downtown Toronto to Oshawa after completing her degree with her friends. 
+                            She is currently managing her living expenses with a part-time job and has a student debt 
+                            that will start in six months, so she is actively looking for full-time employment to cover it.
+                        </p>
+                        <p class="persona-description">
+                            <strong>Needs:</strong> Jamie needs a decent-paying job and a student debt relief plan. 
+                            Without financial freedom she feels overwhelmed and worries that AI is taking away the jobs 
+                            of fresh graduates and junior positions.
+                        </p>
+                    </div>
                 </div>
 
                 <!-- Catherine Card -->
-                <div class="persona-card" data-persona="catherine" id="catherine-card">
+                <div class="persona-card cathy-card" data-persona="catherine" id="catherine-card">
                     <div class="persona-avatar catherine-avatar">
                         <img src="assets/images/catherine.png" 
                              alt="Catherine" 
                              style="width:200px; height:200px; border-radius:50%; object-fit:cover;">
                     </div>
                     <h3>Catherine</h3>
-                    <p class="persona-description">
-                        Age: 28 &nbsp;|&nbsp; Location: Ontario
-                    </p>
-                    <p class="persona-description">
+                    <div class="persona-basic-info">
+                        <span class="persona-age">Age: 28</span>
+                        <span class="persona-location">Location: Ontario</span>
+                    </div>
+                    <p class="persona-description preview">
                         Catherine pursued her Masters in Business Analytics &amp; AI in Oshawa and secured a full-time 
-                        position as a Data Analyst at J.P. Morgan in Toronto. She took advantage of AI and strengthened 
-                        her profile by learning AI tools and agents, which helped her stand out.
+                        position as a Data Analyst at J.P. Morgan in Toronto.
                     </p>
-                    <p class="persona-description">
-                        <strong>Needs:</strong> Catherine is unable to pay off all her debt with her present package and 
-                        wants to level up and earn a promotion to Senior Analyst so she can give her parents some rest. 
-                        She actively uses AI tools to improve her skills and performance in her profession.
+                    <div class="persona-details" id="catherine-details">
+                        <p class="persona-description">
+                            She took advantage of AI and strengthened her profile by learning AI tools and agents, 
+                            which helped her stand out.
+                        </p>
+                        <p class="persona-description">
+                            <strong>Needs:</strong> Catherine is unable to pay off all her debt with her present package and 
+                            wants to level up and earn a promotion to Senior Analyst so she can give her parents some rest. 
+                            She actively uses AI tools to improve her skills and performance in her profession.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Christina Card -->
+                <div class="persona-card christina-card" data-persona="christina" id="christina-card">
+                    <div class="persona-avatar christina-avatar">
+                        <img src="assets/images/christina.png" 
+                             alt="Christina" 
+                             style="width:200px; height:200px; border-radius:50%; object-fit:cover;">
+                    </div>
+                    <h3>Christina</h3>
+                    <div class="persona-basic-info">
+                        <span class="persona-age">Age: 25</span>
+                        <span class="persona-location">Location: Ontario</span>
+                    </div>
+                    <p class="persona-description preview">
+                        University graduate living in Oshawa, ON. Christina graduated with a Masters degree in Finance 
+                        and Accounting from Ontario University.
                     </p>
+                    <div class="persona-details" id="christina-details">
+                        <p class="persona-description">
+                            Christina has learned AI to upskill her resume but still was not able to land full time job.
+                        </p>
+                        <p class="persona-description">
+                            <strong>Needs:</strong> Christina needs a job as her salary is not covering both her living expenses 
+                            as well as the health plan for her mother.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -347,6 +385,126 @@
         </div>
     </section>
 
+    <!-- Christina's Journey Section -->
+    <section class="journey-section christina-journey" id="christina-journey" style="display: none;">
+        <div class="journey-header">
+            <button class="back-button" onclick="goBackToPersonas()">← Back to Selection</button>
+            <h2>Christina's Journey - Finance Theme</h2>
+        </div>
+        
+        <!-- Christina's Picture -->
+        <div class="persona-picture christina-picture">
+            <div class="picture-placeholder">
+                <span>Christina's Picture</span>
+            </div>
+        </div>
+
+        <!-- Journey Step 1 -->
+        <div class="journey-step" data-step="1">
+            <div class="content-wrapper">
+                <h3 class="step-title">The Starting Point</h3>
+                <p class="step-content">
+                    Christina began her journey with a strong foundation in Finance and Accounting. After completing her 
+                    Masters degree, she moved to Oshawa hoping to find opportunities in the financial sector, but the 
+                    landscape had changed with the rise of AI.
+                </p>
+                <div class="data-visualization">
+                    <div class="chart-container">
+                        <h4>Career Growth Over Time</h4>
+                        <div class="bar-chart" id="christina-chart-1">
+                            <div class="bar" style="height: 20%;" data-value="20">
+                                <span class="bar-label">Year 1</span>
+                            </div>
+                            <div class="bar" style="height: 35%;" data-value="35">
+                                <span class="bar-label">Year 2</span>
+                            </div>
+                            <div class="bar" style="height: 45%;" data-value="45">
+                                <span class="bar-label">Year 3</span>
+                            </div>
+                            <div class="bar" style="height: 50%;" data-value="50">
+                                <span class="bar-label">Year 4</span>
+                            </div>
+                            <div class="bar" style="height: 55%;" data-value="55">
+                                <span class="bar-label">Year 5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey Step 2 -->
+        <div class="journey-step" data-step="2">
+            <div class="content-wrapper">
+                <h3 class="step-title">Challenges & Adaptations</h3>
+                <p class="step-content">
+                    Despite upskilling with AI tools to enhance her resume, Christina faced difficulties securing a 
+                    full-time position. The job market in finance was increasingly competitive, with many roles being 
+                    automated or requiring more specialized AI expertise.
+                </p>
+                <div class="data-visualization">
+                    <div class="timeline-container">
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Masters Completed</h4>
+                                <p>Graduated with Masters in Finance and Accounting from Ontario University</p>
+                                <span class="timeline-date">Year 1</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>AI Upskilling</h4>
+                                <p>Learned AI tools to enhance resume and stay competitive in the job market</p>
+                                <span class="timeline-date">Year 2</span>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <h4>Financial Pressure</h4>
+                                <p>Struggling to cover living expenses and mother's health plan with current salary</p>
+                                <span class="timeline-date">Year 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journey Step 3 -->
+        <div class="journey-step" data-step="3">
+            <div class="content-wrapper">
+                <h3 class="step-title">Current Situation & Needs</h3>
+                <p class="step-content">
+                    Christina's situation highlights the challenges many finance graduates face in an AI-transformed economy. 
+                    Her needs are clear: stable employment that can support both her living expenses and her family's healthcare needs.
+                </p>
+                <div class="data-visualization">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Full-Time Jobs</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">100%</div>
+                            <div class="metric-label">AI Skills Learned</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Critical Needs</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-value">1 Goal</div>
+                            <div class="metric-label">Financial Stability</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Conclusion Section -->
     <section class="story-section conclusion-section" id="conclusion" style="display: none;">
         <div class="content-wrapper">
@@ -354,7 +512,7 @@
             <div class="conclusion-content">
                 <div class="conclusion-item fade-in delay-1">
                     <h3>Different Paths, Shared Challenges</h3>
-                    <p>Jamie and Catherine are at different stages in their journeys, but both are navigating financial pressure, career uncertainty, and the rapid rise of AI in the workplace.</p>
+                    <p>Jamie, Catherine, and Christina are at different stages in their journeys, but all are navigating financial pressure, career uncertainty, and the rapid rise of AI in the workplace.</p>
                 </div>
                 <div class="conclusion-item fade-in delay-2">
                     <h3>Data Tells the Story</h3>
