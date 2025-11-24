@@ -24,7 +24,247 @@ document.addEventListener('DOMContentLoaded', () => {
     journeySteps.forEach(step => {
         observer.observe(step);
     });
+    
+    // Set up background section scroll animations
+    setupBackgroundScrollAnimations();
 });
+function randomIntFromInterval(min, max) { // min and max included 
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+// Background section scroll-triggered animations
+function setupBackgroundScrollAnimations() {
+    const backgroundSection = document.getElementById('background');
+    if (!backgroundSection) return;
+    
+    // Track which parts have been animated
+    const animatedParts = new Set();
+    let allPartsShown = false;
+    
+    // Make section sticky initially
+    backgroundSection.classList.add('fixed');
+    
+    // Position graphs randomly with overlap
+    const graph1 = document.querySelector('.background-graph-container[data-graph="1"]');
+    const graph2 = document.querySelector('.background-graph-container[data-graph="2"]');
+    const graph3 = document.querySelector('.background-graph-container[data-graph="3"]');
+    
+    // Random positions and rotations for each graph (with overlap)
+    // Position graphs in lower portion to avoid text area (text is in upper 40%)
+    if (graph1) {
+        graph1.style.left = Math.random() * 30 + 12 + '%'; // 10-40%
+        graph1.style.top = randomIntFromInterval(50, 75) + '%'; // 50-75% (below text area)
+        graph1.style.zIndex = Math.floor(Math.random() * 3) + 1; // Random z-index 1-3
+        const rotation1 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
+        graph1.style.transform = `translateY(50px) scale(0.9) rotate(${rotation1}deg)`;
+        graph1.dataset.rotation = rotation1;
+    }
+    
+    if (graph2) {
+        graph2.style.left = Math.random() * 30 + 50 + '%'; // 50-80%
+        graph2.style.top = randomIntFromInterval(55, 80) + '%'; // 55-80% (below text area)
+        graph2.style.zIndex = Math.floor(Math.random() * 3) + 1;
+        const rotation2 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
+        graph2.style.transform = `translateY(50px) scale(0.9) rotate(${rotation2}deg)`;
+        graph2.dataset.rotation = rotation2;
+    }
+    
+    if (graph3) {
+        graph3.style.left = Math.random() * 30 + 30 + '%'; // 30-60%
+        graph3.style.top =randomIntFromInterval(60, 85) + '%'; // 60-85% (below text area)
+        graph3.style.zIndex = Math.floor(Math.random() * 3) + 1;
+        const rotation3 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
+        graph3.style.transform = `translateY(50px) scale(0.9) rotate(${rotation3}deg)`;
+        graph3.dataset.rotation = rotation3;
+    }
+    
+    // Function to animate a part
+    function animatePart(partNumber) {
+        if (animatedParts.has(partNumber)) return;
+        
+        // Animate text part
+        const textPart = document.querySelector(`.background-text-part[data-part="${partNumber}"]`);
+        if (textPart) {
+            textPart.classList.add('animate-up');
+        }
+        
+        // Show and animate graph
+        const graphContainer = document.querySelector(`.background-graph-container[data-graph="${partNumber}"]`);
+        if (graphContainer) {
+            graphContainer.style.display = 'block';
+            const rotation = graphContainer.dataset.rotation || 0;
+            setTimeout(() => {
+                graphContainer.classList.add('show');
+                // Apply the stored rotation when showing
+                graphContainer.style.transform = `translateY(0) scale(1) rotate(${rotation}deg)`;
+            }, 100);
+        }
+        
+        animatedParts.add(partNumber);
+        
+        // Check if all parts are shown
+        if (animatedParts.size === 3 && !allPartsShown) {
+            allPartsShown = true;
+            allPartsShownTime = Date.now(); // Record when all parts were shown
+            // Mark as completed but keep fixed until user scrolls again
+            backgroundSection.classList.add('completed');
+        }
+    }
+    
+    // Track scroll events - one part per scroll action
+    let nextPartToShow = 1; // Track which part should be shown next (1, 2, or 3)
+    let isSectionSticky = false;
+    let lastWheelTime = 0;
+    let allPartsShownTime = 0; // Track when all parts were shown
+    const wheelCooldown = 900; // Minimum time between wheel events to count as separate scrolls (ms)
+    const completionDelay = 1500; // Delay after all parts shown before allowing fixed removal (ms)
+    
+    // Track when section becomes sticky
+    const checkStickyStatus = () => {
+        const rect = backgroundSection.getBoundingClientRect();
+        const wasSticky = isSectionSticky;
+        isSectionSticky = rect.top <= 0 && rect.top >= -50;
+        
+        // Reset when section becomes sticky
+        if (isSectionSticky && !wasSticky) {
+            nextPartToShow = 1;
+        }
+    };
+    
+    // Function to smoothly transition to next section
+    const transitionToNextSection = () => {
+        // Find the next section after background
+        const nextSection = backgroundSection.nextElementSibling;
+        if (nextSection) {
+            // Get current scroll position
+            const currentScroll = window.scrollY;
+            // Get the background section's position in the document
+            const backgroundSectionTop = backgroundSection.offsetTop;
+            // Calculate where the next section will be after fixed is removed
+            const backgroundSectionHeight = backgroundSection.offsetHeight;
+            const nextSectionTarget = backgroundSectionTop + backgroundSectionHeight;
+            
+            // Remove fixed class
+            backgroundSection.classList.remove('fixed');
+            
+            // Smoothly scroll to next section
+            // Use a small delay to let the DOM update
+            setTimeout(() => {
+                window.scrollTo({
+                    top: nextSectionTarget,
+                    behavior: 'smooth'
+                });
+            }, 50);
+        } else {
+            // If no next section, just remove fixed
+            backgroundSection.classList.remove('fixed');
+        }
+    };
+    
+    // Handle wheel events (mouse wheel, trackpad) - primary method
+    const handleWheel = (e) => {
+        // If all parts are shown and user scrolls again (after delay), remove fixed class
+        if (allPartsShown && e.deltaY > 0) {
+            const timeSinceCompletion = Date.now() - allPartsShownTime;
+            // Only remove fixed if enough time has passed since completion
+            if (timeSinceCompletion > completionDelay) {
+                transitionToNextSection();
+                window.removeEventListener('wheel', handleWheel);
+                return;
+            }
+            // If not enough time has passed, ignore this scroll
+            return;
+        }
+        
+        if (allPartsShown) {
+            return;
+        }
+        
+        checkStickyStatus();
+        
+        // Only process when section is sticky and user scrolls down
+        if (isSectionSticky && e.deltaY > 0) {
+            const currentTime = Date.now();
+            
+            // Debounce to detect distinct scroll actions
+            if (currentTime - lastWheelTime > wheelCooldown) {
+                lastWheelTime = currentTime;
+                
+                // Trigger next part in sequence
+                if (nextPartToShow === 1 && !animatedParts.has(1)) {
+                    animatePart(1);
+                    nextPartToShow = 2;
+                } else if (nextPartToShow === 2 && !animatedParts.has(2)) {
+                    animatePart(2);
+                    nextPartToShow = 3;
+                } else if (nextPartToShow === 3 && !animatedParts.has(3)) {
+                    animatePart(3);
+                }
+            }
+        }
+    };
+    
+    // Also handle scroll events as fallback for touch devices
+    let lastScrollY = window.scrollY;
+    let scrollDebounceTimer = null;
+    
+    const handleScroll = () => {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = currentScrollY - lastScrollY;
+        
+        // If all parts are shown and user scrolls again (after delay), remove fixed class
+        if (allPartsShown && scrollDelta > 80) {
+            const timeSinceCompletion = Date.now() - allPartsShownTime;
+            // Only remove fixed if enough time has passed since completion
+            if (timeSinceCompletion > completionDelay) {
+                transitionToNextSection();
+                window.removeEventListener('scroll', handleScroll);
+                return;
+            }
+            // If not enough time has passed, ignore this scroll
+            return;
+        }
+        
+        if (allPartsShown) {
+            return;
+        }
+        
+        checkStickyStatus();
+        
+        // Only process if section is sticky and user scrolled down significantly
+        if (isSectionSticky && scrollDelta > 50) {
+            // Clear existing timer
+            if (scrollDebounceTimer) {
+                clearTimeout(scrollDebounceTimer);
+            }
+            
+            // Debounce scroll events
+            scrollDebounceTimer = setTimeout(() => {
+                const currentTime = Date.now();
+                
+                if (currentTime - lastWheelTime > wheelCooldown) {
+                    lastWheelTime = currentTime;
+                    
+                    // Trigger next part in sequence
+                    if (nextPartToShow === 1 && !animatedParts.has(1)) {
+                        animatePart(1);
+                        nextPartToShow = 2;
+                    } else if (nextPartToShow === 2 && !animatedParts.has(2)) {
+                        animatePart(2);
+                        nextPartToShow = 3;
+                    } else if (nextPartToShow === 3 && !animatedParts.has(3)) {
+                        animatePart(3);
+                    }
+                }
+            }, 200);
+        }
+        
+        lastScrollY = currentScrollY;
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    checkStickyStatus();
+}
 
 // Track if persona was selected
 let personaSelected = false;

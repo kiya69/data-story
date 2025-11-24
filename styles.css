@@ -141,6 +141,108 @@ body {
     }
 }
 
+/* Background Section with Scroll Animations */
+#background {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+    transition: height 0.6s ease-out, min-height 0.6s ease-out;
+}
+
+#background.fixed {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 100vh;
+    min-height: 100vh;
+}
+
+#background.completed {
+    min-height: 100vh;
+    height: auto;
+}
+
+#background:not(.fixed) {
+    position: relative;
+}
+
+#background .content-wrapper {
+    width: 100%;
+    max-width: 1200px;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#background.completed .content-wrapper {
+    height: auto;
+    min-height: auto;
+}
+
+#background .text-content {
+    margin-top: 2rem;
+    font-size: 1.5rem;
+    line-height: 1.8;
+    min-height: 4rem;
+    position: relative;
+    z-index: 20;
+    background: rgba(26, 26, 26, 0.7);
+    padding: 1.5rem;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+.background-text-part {
+    display: inline-block;
+    position: relative;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.background-text-part.animate-up {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.background-graph-container {
+    position: absolute;
+    width: 350px;
+    max-width: 35vw;
+    opacity: 0;
+    transform: translateY(50px) scale(0.9) rotate(0deg);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    display: none;
+    z-index: 5;
+    pointer-events: none;
+    /* Ensure graphs are positioned below the text area */
+    top: auto;
+    bottom: auto;
+}
+
+.background-graph-container.show {
+    display: block;
+    opacity: 0.95;
+    /* Transform is controlled by JavaScript to preserve rotation */
+}
+
+.background-graph {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(42, 42, 42, 0.9);
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(168, 197, 160, 0.3);
+}
+
 /* Problem Statement Section */
 .problem-statement {
     background: var(--bg-dark);
