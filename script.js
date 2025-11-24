@@ -511,15 +511,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // Scroll-triggered animations for info blocks
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
-    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-item:not(.animate-in)');
+    const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-item:not(.animate-in), .point-item:not(.animate-in)');
     
     if (animatedElements.length === 0) return;
     
     const animationObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry, index) => {
             if (entry.isIntersecting) {
-                // Add small delay for staggered effect, especially for metric cards
-                const delay = entry.target.classList.contains('metric-card') ? index * 100 : 0;
+                // Add small delay for staggered effect, especially for metric cards and point items
+                let delay = 0;
+                if (entry.target.classList.contains('metric-card')) {
+                    delay = index * 100;
+                } else if (entry.target.classList.contains('point-item')) {
+                    const pointNumber = parseInt(entry.target.getAttribute('data-point')) || 1;
+                    delay = (pointNumber - 1) * 200; // 200ms delay between each point
+                }
                 setTimeout(() => {
                     entry.target.classList.add('animate-in');
                 }, delay);
