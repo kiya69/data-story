@@ -1538,7 +1538,7 @@ function initializeOshawaMap() {
     function createPersonaIcon(imagePath, className) {
         return L.divIcon({
             className: `persona-marker ${className}`,
-            html: `<img src="${imagePath}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover;" />`,
+            html: `<img src="${imagePath}" style="width: 120px; height: 120px; object-fit: contain; cursor: move; cursor: grab;" />`,
             iconSize: [120, 120],
             iconAnchor: [60, 60],
             popupAnchor: [0, -60]
@@ -1548,19 +1548,19 @@ function initializeOshawaMap() {
     // Place markers at different locations around Oshawa
     // Jamie - slightly north
     const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker');
-    const jamieMarker = L.marker([oshawaLat + 0.02, oshawaLng - 0.01], { icon: jamieIcon })
+    const jamieMarker = L.marker([oshawaLat + 0.02, oshawaLng - 0.01], { icon: jamieIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Jamie</b><br>University graduate looking for employment');
 
     // Cathy - slightly south
     const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker');
-    const cathyMarker = L.marker([oshawaLat - 0.02, oshawaLng + 0.01], { icon: cathyIcon })
+    const cathyMarker = L.marker([oshawaLat - 0.02, oshawaLng + 0.01], { icon: cathyIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes');
 
     // Christina - slightly east
     const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker');
-    const christinaMarker = L.marker([oshawaLat, oshawaLng + 0.02], { icon: christinaIcon })
+    const christinaMarker = L.marker([oshawaLat, oshawaLng + 0.02], { icon: christinaIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Christina</b><br>Adapting to the changing job market');
 
