@@ -1608,11 +1608,23 @@ function setupMapScrollPopups() {
     let allPopupsShownForward = false; // Track if all 3 popups have been shown when scrolling down
     let allPopupsShownReverse = false; // Track if all 3 popups have been shown when scrolling up
 
-    // Check if map section top has reached the top of viewport (equals 0)
-    const isMapAtTop = () => {
-        const mapTop = mapSection.getBoundingClientRect().top;
-        // Allow a small tolerance (within 5px) to account for rounding
-        return mapTop <= 5 && mapTop >= -5;
+    // Check if map section is 80% visible
+    const isMap80PercentVisible = () => {
+        const rect = mapSection.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+        
+        // Calculate visible area
+        const visibleTop = Math.max(0, -rect.top);
+        const visibleBottom = Math.min(rect.height, windowHeight - rect.top);
+        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+        const visibleWidth = Math.min(rect.width, windowWidth - Math.max(0, rect.left));
+        
+        const visibleArea = visibleHeight * visibleWidth;
+        const totalArea = rect.height * rect.width;
+        
+        // Check if 80% or more is visible
+        return (visibleArea / totalArea) >= 0.8;
     };
 
     // Check if a popup is currently open
@@ -1636,7 +1648,7 @@ function setupMapScrollPopups() {
             }
         });
     }, {
-        threshold: 0.3, // Trigger when 30% of section is visible
+        threshold: 0.8, // Trigger when 80% of section is visible
         rootMargin: '0px'
     });
 
@@ -1653,8 +1665,8 @@ function setupMapScrollPopups() {
         if (scrollDirection === 'down') {
             if (allPopupsShownForward) return;
 
-            // For the first popup, only proceed if map section top is at 0 (top of viewport)
-            if (nextPopupToOpenForward === 1 && !isMapAtTop()) return;
+            // For the first popup, only proceed if map section is 80% visible
+            if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
             // For subsequent popups, check if map is in view
             if (nextPopupToOpenForward > 1 && !isMapInView) return;
 
@@ -1751,8 +1763,8 @@ function setupMapScrollPopups() {
         if (scrollDirection === 'down') {
             if (allPopupsShownForward) return;
 
-            // For the first popup, only proceed if map section top is at 0 (top of viewport)
-            if (nextPopupToOpenForward === 1 && !isMapAtTop()) return;
+            // For the first popup, only proceed if map section is 80% visible
+            if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
             // For subsequent popups, check if map is in view
             if (nextPopupToOpenForward > 1 && !isMapInView) return;
 
