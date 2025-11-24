@@ -2501,6 +2501,9 @@ p {
 .map-section {
     background: var(--bg-dark);
     padding: 4rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .map-container {

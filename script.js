@@ -1595,13 +1595,21 @@ function setupMapScrollPopups() {
     let isMapInView = false;
     let lastScrollTime = 0;
     const scrollCooldown = 600; // Minimum time between scroll actions (ms)
+    let allPopupsShown = false; // Track if all 3 popups have been shown
+
+    // Check if map section top has reached the top of viewport (equals 0)
+    const isMapAtTop = () => {
+        const mapTop = mapSection.getBoundingClientRect().top;
+        // Allow a small tolerance (within 5px) to account for rounding
+        return mapTop <= 5 && mapTop >= -5;
+    };
 
     // Use IntersectionObserver to detect when map section is in view
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             isMapInView = entry.isIntersecting;
-            // Reset when map leaves view
-            if (!entry.isIntersecting) {
+            // Reset when map leaves view (only if all popups haven't been shown)
+            if (!entry.isIntersecting && !allPopupsShown) {
                 nextPopupToOpen = 1;
             }
         });
@@ -1615,7 +1623,12 @@ function setupMapScrollPopups() {
     // Handle scroll events to open popups one at a time
     let scrollTimeout = null;
     const handleScroll = () => {
-        if (!isMapInView) return;
+        if (allPopupsShown) return;
+
+        // For the first popup, only proceed if map section top is at 0 (top of viewport)
+        if (nextPopupToOpen === 1 && !isMapAtTop()) return;
+        // For subsequent popups, check if map is in view
+        if (nextPopupToOpen > 1 && !isMapInView) return;
 
         const currentTime = Date.now();
 
@@ -1626,7 +1639,7 @@ function setupMapScrollPopups() {
 
         // Use requestAnimationFrame for smoother handling
         scrollTimeout = requestAnimationFrame(() => {
-            if (currentTime - lastScrollTime > scrollCooldown) {
+            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShown) {
                 lastScrollTime = currentTime;
 
                 // Open next popup in sequence
@@ -1638,7 +1651,14 @@ function setupMapScrollPopups() {
                     nextPopupToOpen = 3;
                 } else if (nextPopupToOpen === 3) {
                     window.mapMarkers.christina.openPopup();
-                    // All popups opened, can reset if needed
+                    // All popups opened - remove sticky positioning
+                    allPopupsShown = true;
+                    nextPopupToOpen = 4; // Prevent further popup opening
+                    // Remove sticky positioning after a short delay
+                    setTimeout(() => {
+                        mapSection.style.position = 'relative';
+                        mapSection.classList.remove('sticky-active');
+                    }, 500);
                 }
             }
         });
@@ -1646,13 +1666,18 @@ function setupMapScrollPopups() {
 
     // Also handle wheel events for better responsiveness
     const handleWheel = (e) => {
-        if (!isMapInView) return;
+        if (allPopupsShown) return;
+
+        // For the first popup, only proceed if map section top is at 0 (top of viewport)
+        if (nextPopupToOpen === 1 && !isMapAtTop()) return;
+        // For subsequent popups, check if map is in view
+        if (nextPopupToOpen > 1 && !isMapInView) return;
 
         // Only process scroll down
         if (e.deltaY > 0) {
             const currentTime = Date.now();
 
-            if (currentTime - lastScrollTime > scrollCooldown) {
+            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShown) {
                 lastScrollTime = currentTime;
 
                 // Open next popup in sequence
@@ -1664,6 +1689,14 @@ function setupMapScrollPopups() {
                     nextPopupToOpen = 3;
                 } else if (nextPopupToOpen === 3) {
                     window.mapMarkers.christina.openPopup();
+                    // All popups opened - remove sticky positioning
+                    allPopupsShown = true;
+                    nextPopupToOpen = 4; // Prevent further popup opening
+                    // Remove sticky positioning after a short delay
+                    setTimeout(() => {
+                        mapSection.style.position = 'relative';
+                        mapSection.classList.remove('sticky-active');
+                    }, 500);
                 }
             }
         }
