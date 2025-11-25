@@ -1377,35 +1377,40 @@ function initializeOshawaMap() {
             className: 'christina-popup'
         });
 
-    // Disable click to open popup (we'll open on scroll instead)
-    jamieMarker.off('click');
-    cathyMarker.off('click');
-    christinaMarker.off('click');
+    // Add click handlers to show bar charts
+    jamieMarker.on('click', () => {
+        showPersonaBarCharts('jamie');
+    });
+    
+    cathyMarker.on('click', () => {
+        showPersonaBarCharts('cathy');
+    });
+    
+    christinaMarker.on('click', () => {
+        showPersonaBarCharts('christina');
+    });
 
-    // Store markers for scroll-triggered popups
+    // Store markers for spacebar-triggered popups
     window.mapMarkers = {
         jamie: jamieMarker,
         cathy: cathyMarker,
         christina: christinaMarker
     };
 
-    // Setup scroll-triggered popups
+    // Setup spacebar-triggered popups
     setupMapScrollPopups();
 }
 
-// Function to open popups when user scrolls to map section
+// Function to setup popup system for spacebar-triggered popups
 function setupMapScrollPopups() {
     const mapSection = document.getElementById('map');
     if (!mapSection || !window.mapMarkers) return;
 
-    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina, 4=jamie2, 5=cathy2, 6=christina2, 7=jamie3, 8=christina3)
-    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=cathy2, 4=jamie2, 3=christina, 2=cathy, 1=jamie)
+    let nextPopupToOpenForward = 1; // Track which popup to open next (1=jamie, 2=cathy, 3=christina, 4=jamie2, 5=cathy2, 6=christina2, 7=jamie3, 8=christina3)
     let isMapInView = false;
     let lastScrollTime = 0;
-    let lastScrollY = window.scrollY; // Track last scroll position to detect direction
     const scrollCooldown = 600; // Minimum time between scroll actions (ms)
-    let allPopupsShownForward = false; // Track if all 8 popups have been shown when scrolling down
-    let allPopupsShownReverse = false; // Track if all 8 popups have been shown when scrolling up
+    let allPopupsShownForward = false; // Track if all 8 popups have been shown
 
     // Check if top of map section has reached the top of viewport
     const isMap80PercentVisible = () => {
@@ -1431,9 +1436,7 @@ function setupMapScrollPopups() {
             // Reset when map leaves view
             if (!entry.isIntersecting) {
                 nextPopupToOpenForward = 1;
-                nextPopupToOpenReverse = 8;
                 allPopupsShownForward = false;
-                allPopupsShownReverse = false;
                 // Reset popups to original content
                 if (window.mapMarkers && window.mapMarkers.jamie && popupData) {
                     window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
@@ -1465,543 +1468,6 @@ function setupMapScrollPopups() {
     });
 
     observer.observe(mapSection);
-
-    // Handle scroll events to open popups in forward or reverse order
-    let scrollTimeout = null;
-    const handleScroll = () => {
-        const currentScrollY = window.scrollY;
-        const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
-        lastScrollY = currentScrollY;
-
-        // Update isMapInView based on current viewport position (more reliable than IntersectionObserver alone)
-        const rect = mapSection.getBoundingClientRect();
-        isMapInView = rect.top <= window.innerHeight && rect.bottom >= 0;
-
-        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
-        if (scrollDirection === 'down') {
-            // If all popups are shown, close popup 4 when user scrolls down
-            if (allPopupsShownForward) {
-                const currentTime = Date.now();
-                if (currentTime - lastScrollTime > scrollCooldown) {
-                    lastScrollTime = currentTime;
-                    // Close Jamie's 4th popup
-                    if (window.mapMarkers && window.mapMarkers.jamie && window.mapMarkers.jamie.isPopupOpen()) {
-                        window.mapMarkers.jamie.closePopup();
-                        // Hide unemployment chart
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            unemploymentChart.classList.remove('show');
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Check if top of map section has reached viewport (works for all screen sizes)
-            if (!isMap80PercentVisible()) return;
-
-            const currentTime = Date.now();
-
-            // Clear existing timeout
-            if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-            }
-
-            // Use requestAnimationFrame for smoother handling
-            scrollTimeout = requestAnimationFrame(() => {
-                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
-                    lastScrollTime = currentTime;
-
-                    // Open next popup in forward sequence
-                    if (nextPopupToOpenForward === 1) {
-                        window.mapMarkers.jamie.openPopup();
-                        nextPopupToOpenForward = 2;
-                        // Reset reverse counter when starting forward
-                        nextPopupToOpenReverse = 8;
-                        allPopupsShownReverse = false;
-                    } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.cathy.openPopup();
-                        nextPopupToOpenForward = 3;
-                    } else if (nextPopupToOpenForward === 3) {
-                        window.mapMarkers.christina.openPopup();
-                        nextPopupToOpenForward = 4;
-                    } else if (nextPopupToOpenForward === 4) {
-                        // Update Jamie's popup content for the 4th popup
-                        if (popupData && popupData.popups['4']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
-                        }
-                        // Configure popup to not auto-close so it stays open when other popups open
-                        const jamiePopup = window.mapMarkers.jamie.getPopup();
-                        if (jamiePopup) {
-                            jamiePopup.options.autoClose = false;
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Create and show unemployment chart
-                        createUnemploymentChart();
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            setTimeout(() => {
-                                unemploymentChart.classList.add('show');
-                            }, 500);
-                        }
-                        nextPopupToOpenForward = 5;
-                    } else if (nextPopupToOpenForward === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        if (popupData && popupData.popups['5']) {
-                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
-                        }
-                        // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.cathy.openPopup();
-                        nextPopupToOpenForward = 6;
-                    } else if (nextPopupToOpenForward === 6) {
-                        // Update Christina's popup content for the 6th popup
-                        if (popupData && popupData.popups['6']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Create and show age-industry treemap
-                        createAgeIndustryTreemap();
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            setTimeout(() => {
-                                treemapChart.classList.add('show');
-                            }, 1400);
-                        }
-                        nextPopupToOpenForward = 7;
-                    } else if (nextPopupToOpenForward === 7) {
-                        // Update Jamie's popup content for the 7th popup
-                        if (popupData && popupData.popups['7']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Set higher z-index for this popup to appear above unemployment chart
-                        setTimeout(() => {
-                            const jamiePopupElement = window.mapMarkers.jamie.getPopup().getElement();
-                            if (jamiePopupElement) {
-                                jamiePopupElement.style.zIndex = '1001';
-                            }
-                        }, 0);
-                        nextPopupToOpenForward = 8;
-                    } else if (nextPopupToOpenForward === 8) {
-                        // Update Christina's popup content for the 8th popup
-                        if (popupData && popupData.popups['8']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Set higher z-index for this popup to appear above other elements
-                        setTimeout(() => {
-                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
-                            if (christinaPopupElement) {
-                                christinaPopupElement.style.zIndex = '1002';
-                            }
-                        }, 0);
-                        // Create and show rent chart
-                        createRentChart();
-                        const rentChart = document.getElementById('rent-chart-container');
-                        if (rentChart) {
-                            setTimeout(() => {
-                                rentChart.classList.add('show');
-                            }, 1300);
-                        }
-                        // All popups opened forward - remove sticky positioning
-                        allPopupsShownForward = true;
-                        nextPopupToOpenForward = 9; // Prevent further popup opening
-                    }
-                }
-            });
-        } 
-        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
-        else if (scrollDirection === 'up') {
-            if (!isMapInView) return;
-            if (allPopupsShownReverse) return;
-
-            // Make map sticky when starting to scroll up
-            if (mapSection.style.position !== 'sticky') {
-                mapSection.style.position = 'sticky';
-                mapSection.classList.add('sticky-active');
-            }
-
-            const currentTime = Date.now();
-
-            // Clear existing timeout
-            if (scrollTimeout) {
-                clearTimeout(scrollTimeout);
-            }
-
-            // Use requestAnimationFrame for smoother handling
-            scrollTimeout = requestAnimationFrame(() => {
-                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownReverse) {
-                    lastScrollTime = currentTime;
-
-                    // Open next popup in reverse sequence
-                    if (nextPopupToOpenReverse === 8) {
-                        // Update Christina's popup content for the 8th popup
-                        if (popupData && popupData.popups['8']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Set higher z-index for this popup to appear above other elements
-                        setTimeout(() => {
-                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
-                            if (christinaPopupElement) {
-                                christinaPopupElement.style.zIndex = '1002';
-                            }
-                        }, 0);
-                        // Show rent chart
-                        const rentChart = document.getElementById('rent-chart-container');
-                        if (rentChart) {
-                            setTimeout(() => {
-                                rentChart.classList.add('show');
-                            }, 500);
-                        }
-                        nextPopupToOpenReverse = 7;
-                        // Reset forward counter when starting reverse
-                        nextPopupToOpenForward = 1;
-                        allPopupsShownForward = false;
-                    } else if (nextPopupToOpenReverse === 7) {
-                        // Update Jamie's popup content for the 7th popup
-                        if (popupData && popupData.popups['7']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        nextPopupToOpenReverse = 6;
-                    } else if (nextPopupToOpenReverse === 6) {
-                        // Update Christina's popup content for the 6th popup
-                        if (popupData && popupData.popups['6']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Show age-industry treemap
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            setTimeout(() => {
-                                treemapChart.classList.add('show');
-                            }, 1000);
-                        }
-                        nextPopupToOpenReverse = 5;
-                    } else if (nextPopupToOpenReverse === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        if (popupData && popupData.popups['5']) {
-                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
-                        }
-                        window.mapMarkers.cathy.openPopup();
-                        nextPopupToOpenReverse = 4;
-                    } else if (nextPopupToOpenReverse === 4) {
-                        // Update Jamie's popup content for the 4th popup
-                        if (popupData && popupData.popups['4']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Show unemployment chart
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            setTimeout(() => {
-                                unemploymentChart.classList.add('show');
-                            }, 500);
-                        }
-                        nextPopupToOpenReverse = 3;
-                    } else if (nextPopupToOpenReverse === 3) {
-                        // Reset Christina's popup to original content
-                        if (popupData) {
-                            window.mapMarkers.christina.setPopupContent(popupData.initial.christina);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Hide treemap and rent chart
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            treemapChart.classList.remove('show');
-                        }
-                        const rentChart = document.getElementById('rent-chart-container');
-                        if (rentChart) {
-                            rentChart.classList.remove('show');
-                        }
-                        nextPopupToOpenReverse = 2;
-                    } else if (nextPopupToOpenReverse === 2) {
-                        // Reset Cathy's popup to original content
-                        if (popupData) {
-                            window.mapMarkers.cathy.setPopupContent(popupData.initial.cathy);
-                        }
-                        window.mapMarkers.cathy.openPopup();
-                        nextPopupToOpenReverse = 1;
-                    } else if (nextPopupToOpenReverse === 1) {
-                        // Reset Jamie's popup to original content
-                        if (popupData) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Hide unemployment chart
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            unemploymentChart.classList.remove('show');
-                        }
-                        // All popups opened in reverse - remove sticky positioning
-                        allPopupsShownReverse = true;
-                        nextPopupToOpenReverse = 0; // Prevent further popup opening
-                        // Remove sticky positioning after a short delay
-                        setTimeout(() => {
-                            mapSection.style.position = 'relative';
-                            mapSection.classList.remove('sticky-active');
-                        }, 500);
-                    }
-                }
-            });
-        }
-    };
-
-    // Also handle wheel events for better responsiveness
-    const handleWheel = (e) => {
-        const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
-
-        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
-        if (scrollDirection === 'down') {
-            // If all popups are shown, close popup 4 when user scrolls down
-            if (allPopupsShownForward) {
-                const currentTime = Date.now();
-                if (currentTime - lastScrollTime > scrollCooldown) {
-                    lastScrollTime = currentTime;
-                    // Close Jamie's 4th popup
-                    if (window.mapMarkers && window.mapMarkers.jamie && window.mapMarkers.jamie.isPopupOpen()) {
-                        window.mapMarkers.jamie.closePopup();
-                        // Hide unemployment chart
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            unemploymentChart.classList.remove('show');
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Check if top of map section has reached viewport (works for all screen sizes)
-            if (!isMap80PercentVisible()) return;
-
-            const currentTime = Date.now();
-
-            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
-                lastScrollTime = currentTime;
-
-                // Open next popup in forward sequence
-                if (nextPopupToOpenForward === 1) {
-                    window.mapMarkers.jamie.openPopup();
-                    nextPopupToOpenForward = 2;
-                    // Reset reverse counter when starting forward
-                    nextPopupToOpenReverse = 5;
-                    allPopupsShownReverse = false;
-                } else if (nextPopupToOpenForward === 2) {
-                    window.mapMarkers.cathy.openPopup();
-                    nextPopupToOpenForward = 3;
-                } else if (nextPopupToOpenForward === 3) {
-                        window.mapMarkers.christina.openPopup();
-                        nextPopupToOpenForward = 4;
-                    } else if (nextPopupToOpenForward === 4) {
-                        // Update Jamie's popup content for the 4th popup
-                        if (popupData && popupData.popups['4']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
-                        }
-                        // Configure popup to not auto-close so it stays open when other popups open
-                        const jamiePopup = window.mapMarkers.jamie.getPopup();
-                        if (jamiePopup) {
-                            jamiePopup.options.autoClose = false;
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Create and show unemployment chart
-                        createUnemploymentChart();
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            setTimeout(() => {
-                                unemploymentChart.classList.add('show');
-                            }, 500);
-                        }
-                        nextPopupToOpenForward = 5;
-                    } else if (nextPopupToOpenForward === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        if (popupData && popupData.popups['5']) {
-                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
-                        }
-                        // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.cathy.openPopup();
-                        nextPopupToOpenForward = 6;
-                    } else if (nextPopupToOpenForward === 6) {
-                        // Update Christina's popup content for the 6th popup
-                        if (popupData && popupData.popups['6']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Create and show age-industry treemap
-                        createAgeIndustryTreemap();
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            setTimeout(() => {
-                                treemapChart.classList.add('show');
-                            }, 1000);
-                        }
-                        nextPopupToOpenForward = 7;
-                    } else if (nextPopupToOpenForward === 7) {
-                        // Update Jamie's popup content for the 7th popup
-                        if (popupData && popupData.popups['7']) {
-                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
-                        }
-                        window.mapMarkers.jamie.openPopup();
-                        // Set higher z-index for this popup to appear above unemployment chart
-                        setTimeout(() => {
-                            const jamiePopupElement = window.mapMarkers.jamie.getPopup().getElement();
-                            if (jamiePopupElement) {
-                                jamiePopupElement.style.zIndex = '1001';
-                            }
-                        }, 0);
-                        nextPopupToOpenForward = 8;
-                    } else if (nextPopupToOpenForward === 8) {
-                        // Update Christina's popup content for the 8th popup
-                        if (popupData && popupData.popups['8']) {
-                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
-                        }
-                        window.mapMarkers.christina.openPopup();
-                        // Set higher z-index for this popup to appear above other elements
-                        setTimeout(() => {
-                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
-                            if (christinaPopupElement) {
-                                christinaPopupElement.style.zIndex = '1002';
-                            }
-                        }, 0);
-                        // Create and show rent chart
-                        createRentChart();
-                        const rentChart = document.getElementById('rent-chart-container');
-                        if (rentChart) {
-                            setTimeout(() => {
-                                rentChart.classList.add('show');
-                            }, 500);
-                        }
-                        // All popups opened forward - remove sticky positioning
-                        allPopupsShownForward = true;
-                        nextPopupToOpenForward = 9; // Prevent further popup opening
-                    }
-            }
-        }
-        // For scrolling up - open popups in reverse order (Cathy2 → Jamie2 → Christina → Cathy → Jamie)
-        else if (scrollDirection === 'up') {
-            if (!isMapInView) return;
-            if (allPopupsShownReverse) return;
-
-            // Make map sticky when starting to scroll up
-            if (mapSection.style.position !== 'sticky') {
-                mapSection.style.position = 'sticky';
-                mapSection.classList.add('sticky-active');
-            }
-
-            const currentTime = Date.now();
-
-            if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownReverse) {
-                lastScrollTime = currentTime;
-
-                // Open next popup in reverse sequence
-                if (nextPopupToOpenReverse === 8) {
-                    // Update Christina's popup content for the 8th popup
-                    if (popupData && popupData.popups['8']) {
-                        window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
-                    }
-                    window.mapMarkers.christina.openPopup();
-                    // Set higher z-index for this popup to appear above other elements
-                    setTimeout(() => {
-                        const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
-                        if (christinaPopupElement) {
-                            christinaPopupElement.style.zIndex = '1002';
-                        }
-                    }, 0);
-                    // Show rent chart
-                    const rentChart = document.getElementById('rent-chart-container');
-                    if (rentChart) {
-                        setTimeout(() => {
-                            rentChart.classList.add('show');
-                        }, 500);
-                    }
-                    nextPopupToOpenReverse = 7;
-                    // Reset forward counter when starting reverse
-                    nextPopupToOpenForward = 1;
-                    allPopupsShownForward = false;
-                } else if (nextPopupToOpenReverse === 7) {
-                    // Update Jamie's popup content for the 7th popup
-                    if (popupData && popupData.popups['7']) {
-                        window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
-                    }
-                    window.mapMarkers.jamie.openPopup();
-                    nextPopupToOpenReverse = 6;
-                } else if (nextPopupToOpenReverse === 6) {
-                    // Update Christina's popup content for the 6th popup
-                    if (popupData && popupData.popups['6']) {
-                        window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
-                    }
-                    window.mapMarkers.christina.openPopup();
-                    // Show age-industry treemap
-                    const treemapChart = document.getElementById('age-industry-treemap-container');
-                    if (treemapChart) {
-                        setTimeout(() => {
-                            treemapChart.classList.add('show');
-                        }, 500);
-                    }
-                    nextPopupToOpenReverse = 5;
-                } else if (nextPopupToOpenReverse === 5) {
-                    // Update Cathy's popup content for the 5th popup
-                    if (popupData && popupData.popups['5']) {
-                        window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
-                    }
-                    window.mapMarkers.cathy.openPopup();
-                    nextPopupToOpenReverse = 4;
-                } else if (nextPopupToOpenReverse === 4) {
-                    // Update Jamie's popup content for the 4th popup
-                    if (popupData && popupData.popups['4']) {
-                        window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
-                    }
-                    window.mapMarkers.jamie.openPopup();
-                    // Show unemployment chart
-                    const unemploymentChart = document.getElementById('unemployment-chart-container');
-                    if (unemploymentChart) {
-                        setTimeout(() => {
-                            unemploymentChart.classList.add('show');
-                        }, 500);
-                    }
-                    nextPopupToOpenReverse = 3;
-                } else if (nextPopupToOpenReverse === 3) {
-                    // Reset Christina's popup to original content
-                    if (popupData) {
-                        window.mapMarkers.christina.setPopupContent(popupData.initial.christina);
-                    }
-                    window.mapMarkers.christina.openPopup();
-                        // Hide age-industry treemap
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            treemapChart.classList.remove('show');
-                        }
-                    nextPopupToOpenReverse = 2;
-                } else if (nextPopupToOpenReverse === 2) {
-                    // Reset Cathy's popup to original content
-                    if (popupData) {
-                        window.mapMarkers.cathy.setPopupContent(popupData.initial.cathy);
-                    }
-                    window.mapMarkers.cathy.openPopup();
-                    nextPopupToOpenReverse = 1;
-                } else if (nextPopupToOpenReverse === 1) {
-                    // Reset Jamie's popup to original content
-                    if (popupData) {
-                        window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
-                    }
-                    window.mapMarkers.jamie.openPopup();
-                    // Hide unemployment chart
-                    const unemploymentChart = document.getElementById('unemployment-chart-container');
-                    if (unemploymentChart) {
-                        unemploymentChart.classList.remove('show');
-                    }
-                    // All popups opened in reverse - remove sticky positioning
-                    allPopupsShownReverse = true;
-                    nextPopupToOpenReverse = 0; // Prevent further popup opening
-                    // Remove sticky positioning after a short delay
-                    setTimeout(() => {
-                        mapSection.style.position = 'relative';
-                        mapSection.classList.remove('sticky-active');
-                    }, 500);
-                }
-            }
-        }
-    };
 
     const cleanupMapSectionAndScrollToConclusion = () => {
         const mapSectionElement = document.getElementById('map');
@@ -2102,6 +1568,11 @@ function setupMapScrollPopups() {
             
             // Check if we're in map section and should trigger popups
             // Allow when not all popups shown, OR when nextPopupToOpenForward === 9 (cleanup phase)
+            // Update isMapInView based on current viewport position
+            if (mapRect) {
+                isMapInView = mapRect.top <= window.innerHeight && mapRect.bottom >= 0;
+            }
+            
             const shouldTriggerPopup = isMapInView && 
                 (!allPopupsShownForward || nextPopupToOpenForward === 9) &&
                 (isMap80PercentVisible() || nextPopupToOpenForward === 9);
@@ -2116,9 +1587,6 @@ function setupMapScrollPopups() {
                     if (nextPopupToOpenForward === 1) {
                         window.mapMarkers.jamie.openPopup();
                         nextPopupToOpenForward = 2;
-                        // Reset reverse counter when starting forward
-                        nextPopupToOpenReverse = 8;
-                        allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
@@ -2336,8 +1804,6 @@ function setupMapScrollPopups() {
         }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('wheel', handleWheel, { passive: true });
     window.addEventListener('keydown', handleSpacebar);
     window.addEventListener('keydown', handleEnterKey);
 }
@@ -3335,6 +2801,454 @@ function createRentChart() {
         console.error('Error loading RentDataSet.csv:', error);
         container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
     });
+}
+
+// Global variables for bar charts
+let industryBarChartData = null;
+let ageIndustryBarChartData = null;
+let currentHighlightedPersona = null;
+let industryChartCreated = false;
+let ageIndustryChartCreated = false;
+
+// Persona to industry mapping
+const personaIndustries = {
+    jamie: {
+        industry: 'Entertainment',
+        ageIndustry: 'Information, culture and recreation'
+    },
+    cathy: {
+        industry: 'Finance',
+        ageIndustry: 'Finance and insurance'
+    },
+    christina: {
+        industry: 'Healthcare',
+        ageIndustry: 'Health care and social assistance'
+    }
+};
+
+// Create bar chart from Industry.csv
+function createIndustryBarChart() {
+    const container = document.getElementById('industry-bar-chart-container');
+    // Ensure D3 and container exist
+    if (!container || typeof d3 === 'undefined') return;
+
+    // Only create chart once
+    if (industryChartCreated) {
+        if (currentHighlightedPersona) {
+            highlightIndustryBars(currentHighlightedPersona);
+        }
+        return;
+    }
+    // Assuming these are defined in the outer scope
+    industryChartCreated = true;
+    // container.innerHTML = ''; // Keep this line if you want to clear the container every time
+
+    const width = 450;
+    const height = 350;
+    const margin = { top: 40, right: 20, bottom: 80, left: 60 };
+
+    const svg = d3.select('#industry-bar-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    d3.csv('assets/csv/Industry.csv').then(data => {
+        data = data.filter(d => d.Industry !== 'Grand Total');
+        
+        const columnName = 'AVERAGE of Automation Risk (%)';
+        
+        data.forEach(d => {
+            // Robustly find the correct value column, handling potential BOM (\ufeff) or missing exact name
+            const valueStr = d[columnName] || d['\ufeff' + columnName] || Object.keys(d).find(key => key.includes('Automation Risk')) && d[Object.keys(d).find(key => key.includes('Automation Risk'))];
+            d.value = +valueStr;
+        });
+
+        data = data.filter(d => !isNaN(d.value) && d.value > 0);
+        data.sort((a, b) => b.value - a.value);
+        console.log(data);
+        // Assuming industryBarChartData is defined globally
+        industryBarChartData = data; 
+
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.Industry))
+            .range([margin.left, width - margin.right])
+            .padding(0.2);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, 100])
+            .range([height - margin.bottom, margin.top]);
+
+        const bars = svg.selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.Industry))
+            .attr('width', xScale.bandwidth())
+            .attr('fill', '#4A90E2')
+            .attr('rx', 4)
+            .attr('ry', 4)
+            
+            // --- FIX 1: Set initial Y position to the bottom of the chart ---
+            .attr('y', height - margin.bottom) 
+            // --- FIX 2: Set initial height to zero ---
+            .attr('height', 0); 
+
+        bars.transition()
+            .duration(800)
+            .ease(d3.easeCubicOut)
+            // --- FIX 3: Transition Y position to the mapped data value ---
+            .attr('y', d => yScale(d.value))
+            // --- FIX 4: Transition height to the calculated final height ---
+            .attr('height', d => height - margin.bottom - yScale(d.value));
+
+        // X-Axis
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('dx', '-.8em')
+            .attr('dy', '.15em')
+            .attr('transform', 'rotate(-45)')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Y-Axis
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale)
+                .ticks(6)
+                .tickFormat(d => d + '%'))
+            .selectAll('text')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        // Title
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', 20)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .text('Automation Risk by Industry');
+
+        // Y-Axis Label
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 15)
+            .attr('x', -height / 2)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Automation Risk (%)');
+
+        // Highlight bars if a persona is set (assuming highlightIndustryBars exists)
+        if (currentHighlightedPersona) {
+            // Assuming highlightIndustryBars is defined elsewhere
+            highlightIndustryBars(currentHighlightedPersona);
+        }
+
+    }).catch(error => {
+        console.error('Error loading Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Create bar chart from Age_Industry.csv
+function createAgeIndustryBarChart() {
+    const container = document.getElementById('age-industry-bar-chart-container');
+    if (!container || typeof d3 === 'undefined') return;
+
+    if (ageIndustryChartCreated) {
+        if (currentHighlightedPersona) {
+            highlightAgeIndustryBars(currentHighlightedPersona);
+        }
+        return;
+    }
+    ageIndustryChartCreated = true;
+
+    container.innerHTML = '';
+
+    const width = 450;
+    const height = 350;
+    const margin = { top: 40, right: 20, bottom: 80, left: 60 };
+
+    const svg = d3.select('#age-industry-bar-chart-container')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    d3.csv('assets/csv/Age_Industry.csv').then(data => {
+        data = data.filter(d => {
+            const value = d['Persons in thousands'];
+            return value && value.trim() !== '' && !isNaN(+value);
+        });
+
+        data.forEach(d => {
+            d.value = +d['Persons in thousands'];
+            d.Industry = d.Industry.replace(/^"|"$/g, '');
+        });
+
+        data.sort((a, b) => b.value - a.value);
+        ageIndustryBarChartData = data;
+
+        const xScale = d3.scaleBand()
+            .domain(data.map(d => d.Industry))
+            .range([margin.left, width - margin.right])
+            .padding(0.2);
+
+        const maxValue = d3.max(data, d => d.value);
+        const yScale = d3.scaleLinear()
+            .domain([0, maxValue * 1.1])
+            .range([height - margin.bottom, margin.top]);
+
+        const bars = svg.selectAll('.bar')
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr('class', 'bar')
+            .attr('x', d => xScale(d.Industry))
+            .attr('y', height - margin.bottom)
+            .attr('width', xScale.bandwidth())
+            .attr('height', 0)
+            .attr('fill', '#4A90E2')
+            .attr('rx', 4)
+            .attr('ry', 4);
+
+        bars.transition()
+            .duration(800)
+            .ease(d3.easeCubicOut)
+            .attr('y', d => yScale(d.value))
+            .attr('height', d => height - margin.bottom - yScale(d.value));
+
+        svg.append('g')
+            .attr('transform', `translate(0, ${height - margin.bottom})`)
+            .call(d3.axisBottom(xScale))
+            .selectAll('text')
+            .style('text-anchor', 'end')
+            .attr('dx', '-.8em')
+            .attr('dy', '.15em')
+            .attr('transform', 'rotate(-45)')
+            .style('fill', '#fff')
+            .style('font-size', '9px');
+
+        svg.append('g')
+            .attr('transform', `translate(${margin.left}, 0)`)
+            .call(d3.axisLeft(yScale)
+                .ticks(6)
+                .tickFormat(d => d + 'k'))
+            .selectAll('text')
+            .style('fill', '#fff')
+            .style('font-size', '10px');
+
+        svg.append('text')
+            .attr('x', width / 2)
+            .attr('y', 20)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '14px')
+            .style('font-weight', 'bold')
+            .text('Employment by Industry');
+
+        svg.append('text')
+            .attr('transform', 'rotate(-90)')
+            .attr('y', 15)
+            .attr('x', -height / 2)
+            .style('text-anchor', 'middle')
+            .style('fill', '#fff')
+            .style('font-size', '11px')
+            .style('font-weight', 'bold')
+            .text('Persons (thousands)');
+
+        if (currentHighlightedPersona) {
+            highlightAgeIndustryBars(currentHighlightedPersona);
+        }
+
+    }).catch(error => {
+        console.error('Error loading Age_Industry.csv:', error);
+        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+    });
+}
+
+// Helper function to check if industry matches
+function industryMatches(industryName, dataIndustry) {
+    const normalized = dataIndustry.toLowerCase().trim();
+    const target = industryName.toLowerCase().trim();
+    
+    if (normalized === target) return true;
+    if (normalized.includes(target) || target.includes(normalized)) return true;
+    
+    if (target === 'entertainment' && normalized.includes('entertainment')) return true;
+    if (target === 'finance' && (normalized.includes('finance') || normalized.includes('insurance'))) return true;
+    if (target === 'healthcare' && (normalized.includes('health') || normalized.includes('care'))) return true;
+    
+    return false;
+}
+
+// Highlight bars in Industry chart based on persona
+function highlightIndustryBars(persona) {
+    // Check if data is loaded and variables are defined
+    if (!industryBarChartData || !personaIndustries) {
+        console.error("Data or persona lookup object is missing.");
+        return;
+    }
+
+    const industryNameRaw = personaIndustries[persona]?.industry;
+    if (!industryNameRaw) return;
+
+    // Standardize the target industry name for comparison
+    const targetIndustry = industryNameRaw.trim().toLowerCase();
+
+    const svg = d3.select('#industry-bar-chart-container svg');
+    if (svg.empty()) return;
+
+    // Recalculate the scale using existing data (less efficient, but ensures X position works)
+    // It's better to reuse the scale from createIndustryBarChart if possible.
+    const width = 450;
+    const margin = { top: 40, right: 20, bottom: 80, left: 60 };
+
+    const xScale = d3.scaleBand()
+        .domain(industryBarChartData.map(d => d.Industry))
+        .range([margin.left, width - margin.right])
+        .padding(0.2);
+
+    const bars = svg.selectAll('.bar');
+
+    bars.transition()
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .attr('fill', d => {
+            // 💡 FIX APPLIED: Robust comparison
+            const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
+            if (dataIndustry === targetIndustry) {
+                return '#FFD700'; // Highlight color
+            }
+            return '#4A90E2'; // Default color
+        })
+        .attr('opacity', d => {
+            // 💡 FIX APPLIED: Robust comparison
+            const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
+            if (dataIndustry === targetIndustry) {
+                return 1;
+            }
+            return 0.4;
+        })
+        .attr('x', d => {
+            const originalX = xScale(d.Industry);
+            const originalWidth = xScale.bandwidth();
+            
+            // 💡 FIX APPLIED: Robust comparison
+            const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
+            if (dataIndustry === targetIndustry) {
+                return originalX - (originalWidth * 0.1);
+            }
+            return originalX;
+        })
+        .attr('width', d => {
+            const originalWidth = xScale.bandwidth();
+            
+            // 💡 FIX APPLIED: Robust comparison
+            const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
+            if (dataIndustry === targetIndustry) {
+                return originalWidth * 1.2;
+            }
+            return originalWidth;
+        });
+}
+
+// Highlight bars in Age_Industry chart based on persona
+function highlightAgeIndustryBars(persona) {
+    if (!ageIndustryBarChartData) return;
+
+    const industryName = personaIndustries[persona]?.ageIndustry;
+    if (!industryName) return;
+
+    const svg = d3.select('#age-industry-bar-chart-container svg');
+    if (svg.empty()) return;
+
+    const width = 450;
+    const height = 350;
+    const margin = { top: 40, right: 20, bottom: 80, left: 60 };
+
+    const xScale = d3.scaleBand()
+        .domain(ageIndustryBarChartData.map(d => d.Industry))
+        .range([margin.left, width - margin.right])
+        .padding(0.2);
+
+    const bars = svg.selectAll('.bar');
+
+    bars.transition()
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .attr('fill', d => {
+            if (industryMatches(industryName, d.Industry)) {
+                return '#FFD700';
+            }
+            return '#4A90E2';
+        })
+        .attr('opacity', d => {
+            if (industryMatches(industryName, d.Industry)) {
+                return 1;
+            }
+            return 0.4;
+        })
+        .attr('x', d => {
+            const originalX = xScale(d.Industry);
+            const originalWidth = xScale.bandwidth();
+            
+            if (industryMatches(industryName, d.Industry)) {
+                return originalX - (originalWidth * 0.1);
+            }
+            return originalX;
+        })
+        .attr('width', d => {
+            const originalWidth = xScale.bandwidth();
+            
+            if (industryMatches(industryName, d.Industry)) {
+                return originalWidth * 1.2;
+            }
+            return originalWidth;
+        });
+}
+
+// Show bar charts and highlight based on persona
+function showPersonaBarCharts(persona) {
+    currentHighlightedPersona = persona;
+
+    // Create charts if they don't exist
+    if (!industryChartCreated) {
+        createIndustryBarChart();
+    }
+    if (!ageIndustryChartCreated) {
+        createAgeIndustryBarChart();
+    }
+
+    // Show chart containers
+    const industryChart = document.getElementById('industry-bar-chart-container');
+    const ageIndustryChart = document.getElementById('age-industry-bar-chart-container');
+    
+    if (industryChart) {
+        industryChart.classList.add('show');
+    }
+    if (ageIndustryChart) {
+        ageIndustryChart.classList.add('show');
+    }
+
+    // Wait for charts to be created and rendered, then highlight
+    const highlightCharts = () => {
+        if (industryBarChartData && ageIndustryBarChartData) {
+            highlightIndustryBars(persona);
+            highlightAgeIndustryBars(persona);
+        } else {
+            // If charts aren't ready yet, wait a bit more
+            setTimeout(highlightCharts, 100);
+        }
+    };
+    
+    setTimeout(highlightCharts, 200);
 }
 
 // Initialize map when DOM is ready

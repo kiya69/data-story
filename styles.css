@@ -2727,6 +2727,75 @@ p {
     fill: #fff;
 }
 
+/* Industry Bar Chart Container */
+.industry-bar-chart-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 500px;
+    max-height: 400px;
+    padding: 1.5rem;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.industry-bar-chart-container.show {
+    display: block;
+    opacity: 1;
+    animation: fadeInChart 0.5s ease-in;
+}
+
+/* Age Industry Bar Chart Container */
+.age-industry-bar-chart-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 500px;
+    max-height: 400px;
+    padding: 1.5rem;
+    background: rgba(42, 42, 42, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1000;
+}
+
+.age-industry-bar-chart-container.show {
+    display: block;
+    opacity: 1;
+    animation: fadeInChart 0.5s ease-in;
+}
+
+@keyframes fadeInChart {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.industry-bar-chart-container svg,
+.age-industry-bar-chart-container svg {
+    display: block;
+    margin: 0 auto;
+}
+
+.industry-bar-chart-container svg .domain,
+.industry-bar-chart-container svg .tick line,
+.age-industry-bar-chart-container svg .domain,
+.age-industry-bar-chart-container svg .tick line {
+    stroke: #666;
+}
+
+.industry-bar-chart-container svg .tick text,
+.age-industry-bar-chart-container svg .tick text {
+    fill: #fff;
+}
+
 /* Map Section */
 .map-section {
     background: var(--bg-dark);
