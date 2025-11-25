@@ -2093,9 +2093,11 @@ function setupMapScrollPopups() {
             // Handle solution section - trigger bubble chart transition
             if (isInSolution && window.bubbleChart && window.bubbleChart.transitionToState) {
                 if (window.bubbleChart.currentState === 'most') {
-                    window.bubbleChart.transitionToState('least');
+                    // Pass removeSticky callback to remove sticky positioning after transition
+                    const removeStickyCallback = window.bubbleChart.removeSticky || null;
+                    window.bubbleChart.transitionToState('least', removeStickyCallback);
                     return;
-                }
+                }   
             }
             
             // Check if we're in map section and should trigger popups
@@ -2571,15 +2573,11 @@ function createBubbleChart() {
         }
         window.bubbleChart.transitionToState = transitionToState;
 
-        // Set up scroll observer for the solution section
+        // Set up scroll observer for the solution section (sticky positioning only, no auto-transition)
         const solutionSection = document.getElementById('solution');
         if (solutionSection) {
-            let hasSeenMost = false; // Track if user has seen the initial state
             let isSticky = false; // Track if section is sticky
-            let lastScrollY = window.scrollY;
-            let lastTransitionTime = 0;
-            const transitionCooldown = 800; // Minimum time between transitions (ms)
-            let transitionTriggered = false; // Track if transition has been triggered
+            let stickyDisabled = false; // Track if sticky should be disabled after transition
             
             // Function to remove sticky state
             const removeSticky = () => {
@@ -2588,8 +2586,15 @@ function createBubbleChart() {
                     solutionSection.style.top = 'auto';
                     solutionSection.style.zIndex = 'auto';
                     isSticky = false;
+                    stickyDisabled = true; // Prevent re-adding sticky after transition
                 }
             };
+            
+            // Expose removeSticky globally so it can be called from spacebar handler
+            if (!window.bubbleChart) {
+                window.bubbleChart = {};
+            }
+            window.bubbleChart.removeSticky = removeSticky;
             
             // Check if solution section top has reached the top of viewport
             const isSolutionAtTop = () => {
@@ -2597,41 +2602,18 @@ function createBubbleChart() {
                 // Allow a small tolerance (within 5px) to account for rounding
                 return sectionTop <= 5 && sectionTop >= -5;
             };
-            
-            // Wait a bit before allowing transitions to ensure initial state is visible
-            setTimeout(() => {
-                hasSeenMost = true;
-            }, 2000); // 2 second delay before allowing transition
 
-            // Listen to scroll events
-            let scrollTimeout = null;
+            // Listen to scroll events for sticky positioning only
             window.addEventListener('scroll', () => {
-                if (!hasSeenMost) return;
-                
-                const currentScrollY = window.scrollY;
-                const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
-                lastScrollY = currentScrollY;
-
-                // Check if section top has reached viewport top - make it sticky
-                if (isSolutionAtTop() && !isSticky && !transitionTriggered) {
-                    solutionSection.style.position = 'sticky';
-                    solutionSection.style.top = '0';
-                    solutionSection.style.zIndex = '10';
-                    isSticky = true;
-                }
-
-                // If sticky and scrolling down, trigger transition
-                if (isSticky && scrollDirection === 'down' && !transitionTriggered) {
-                    if (scrollTimeout) clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => {
-                        const currentTime = Date.now();
-                        if (currentTime - lastTransitionTime > transitionCooldown && currentState === 'most') {
-                            // Transition to least affected on scroll down
-                            transitionTriggered = true;
-                            transitionToState('least', removeSticky);
-                            lastTransitionTime = currentTime;
-                        }
-                    }, 100);
+                // Only make sticky if not disabled (i.e., before transition)
+                if (!stickyDisabled) {
+                    // Check if section top has reached viewport top - make it sticky
+                    if (isSolutionAtTop() && !isSticky) {
+                        solutionSection.style.position = 'sticky';
+                        solutionSection.style.top = '0';
+                        solutionSection.style.zIndex = '10';
+                        isSticky = true;
+                    }
                 }
 
                 // Reset if section leaves viewport
@@ -2643,7 +2625,7 @@ function createBubbleChart() {
                     // Reset state when leaving viewport
                     if (currentState === 'least') {
                         transitionToState('most');
-                        transitionTriggered = false;
+                        stickyDisabled = false; // Re-enable sticky when resetting to 'most'
                     }
                 }
             }, { passive: true });
