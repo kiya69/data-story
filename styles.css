@@ -2515,11 +2515,23 @@ p {
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     display: none;
+    opacity: 0;
     z-index: 1000;
 }
 
 .unemployment-chart-container.show {
     display: block;
+    opacity: 1;
+    animation: fadeInUnemployment 0.5s ease-in;
+}
+
+@keyframes fadeInUnemployment {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .unemployment-chart-container svg {

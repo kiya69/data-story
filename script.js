@@ -289,7 +289,7 @@ function setupPersonaScrollObserver() {
                     if (!personaSelected && !scrollTriggered) {
                         scrollTriggered = true;
                         // Randomly select a persona
-                        const personas = ['jamie', 'catherine', 'christina'];
+                        const personas = ['jamie', 'cathy', 'christina'];
                         const randomPersona = personas[Math.floor(Math.random() * personas.length)];
                         personaSelected = true;
                         selectedPersona = randomPersona;
@@ -370,7 +370,7 @@ function showPersonaJourney(persona, fromClick = true) {
 
     // Hide all journey sections first
     document.getElementById('jamie-journey').style.display = 'none';
-    document.getElementById('catherine-journey').style.display = 'none';
+    document.getElementById('cathy-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
 
     // Show selected persona's journey and scroll to it
@@ -386,16 +386,16 @@ function showPersonaJourney(persona, fromClick = true) {
                 jamieJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
-    } else if (persona === 'catherine') {
-        const catherineJourney = document.getElementById('catherine-journey');
-        catherineJourney.style.display = 'flex';
-        animateJourneySteps('catherine-journey');
-        console.log('Catherine journey shown');
+    } else if (persona === 'cathy' || persona === 'catherine') {
+        const cathyJourney = document.getElementById('cathy-journey');
+        cathyJourney.style.display = 'flex';
+        animateJourneySteps('cathy-journey');
+        console.log('Cathy journey shown');
 
-        // Scroll to Catherine's journey
+        // Scroll to Cathy's journey
         if (fromClick) {
             setTimeout(() => {
-                catherineJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                cathyJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
     } else if (persona === 'christina') {
@@ -415,10 +415,10 @@ function showPersonaJourney(persona, fromClick = true) {
     }
 }
 
-function toggleCatherineView() {
-    const pictureView = document.getElementById('catherine-picture-view');
-    const comparisonView = document.getElementById('catherine-comparison-view');
-    const toggleButton = document.getElementById('catherine-toggle');
+function toggleCathyView() {
+    const pictureView = document.getElementById('cathy-picture-view');
+    const comparisonView = document.getElementById('cathy-comparison-view');
+    const toggleButton = document.getElementById('cathy-toggle');
 
     if (pictureView.classList.contains('active')) {
         pictureView.classList.remove('active');
@@ -983,7 +983,7 @@ function goBackToPersonas() {
 
     // Hide all journey sections
     document.getElementById('jamie-journey').style.display = 'none';
-    document.getElementById('catherine-journey').style.display = 'none';
+    document.getElementById('cathy-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
     document.getElementById('conversation').style.display = 'none';
     document.getElementById('conclusion').style.display = 'none';
@@ -1384,24 +1384,24 @@ function initializeOshawaMap() {
 
     // Place markers horizontally side by side
     // Jamie - leftmost, popup above and to the right
-    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [-80, -80]);
-    const jamieMarker = L.marker([oshawaLat, oshawaLng - 0.04], { icon: jamieIcon, draggable: true })
+    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -80]);
+    const jamieMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Jamie</b><br>University graduate looking for employment', {
             className: 'jamie-popup'
         });
 
-    // Catherine - middle, popup above center
-    const catherineIcon = createPersonaIcon('assets/images/1cathy.png', 'catherine-marker', [0, -80]);
-    const catherineMarker = L.marker([oshawaLat, oshawaLng], { icon: catherineIcon, draggable: true })
+    // Cathy (Catherine) - middle, popup above center
+    const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
+    const cathyMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Catherine</b><br>Experienced professional navigating career changes', {
-            className: 'catherine-popup'
+        .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes', {
+            className: 'cathy-popup'
         });
 
     // Christina - rightmost, popup above and to the left (90px left of marker)
     const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker', [-10, -80]);
-    const christinaMarker = L.marker([oshawaLat, oshawaLng + 0.03], { icon: christinaIcon, draggable: true })
+    const christinaMarker = L.marker([oshawaLat - 0.015, oshawaLng], { icon: christinaIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Christina</b><br>Adapting to the changing job market', {
             className: 'christina-popup'
@@ -1409,13 +1409,13 @@ function initializeOshawaMap() {
 
     // Disable click to open popup (we'll open on scroll instead)
     jamieMarker.off('click');
-    catherineMarker.off('click');
+    cathyMarker.off('click');
     christinaMarker.off('click');
 
     // Store markers for scroll-triggered popups
     window.mapMarkers = {
         jamie: jamieMarker,
-        catherine: catherineMarker,
+        cathy: cathyMarker,
         christina: christinaMarker
     };
 
@@ -1428,8 +1428,8 @@ function setupMapScrollPopups() {
     const mapSection = document.getElementById('map');
     if (!mapSection || !window.mapMarkers) return;
 
-    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=catherine, 3=christina, 4=jamie2, 5=catherine2, 6=christina2, 7=jamie3, 8=christina3)
-    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=catherine2, 4=jamie2, 3=christina, 2=catherine, 1=jamie)
+    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina, 4=jamie2, 5=cathy2, 6=christina2, 7=jamie3, 8=christina3)
+    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=cathy2, 4=jamie2, 3=christina, 2=cathy, 1=jamie)
     let isMapInView = false;
     let lastScrollTime = 0;
     let lastScrollY = window.scrollY; // Track last scroll position to detect direction
@@ -1452,14 +1452,14 @@ function setupMapScrollPopups() {
         const visibleArea = visibleHeight * visibleWidth;
         const totalArea = rect.height * rect.width;
         
-        // Check if 50% or more is visible
-        return (visibleArea / totalArea) >= 0.5;
+        // Check if 80% or more is visible
+        return (visibleArea / totalArea) >= 0.8;
     };
 
     // Check if a popup is currently open
     const isPopupOpen = (popupNumber) => {
         if (popupNumber === 1) return window.mapMarkers.jamie.isPopupOpen();
-        if (popupNumber === 2) return window.mapMarkers.catherine.isPopupOpen();
+        if (popupNumber === 2) return window.mapMarkers.cathy.isPopupOpen();
         if (popupNumber === 3) return window.mapMarkers.christina.isPopupOpen();
         return false;
     };
@@ -1478,8 +1478,8 @@ function setupMapScrollPopups() {
                 if (window.mapMarkers && window.mapMarkers.jamie) {
                     window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
                 }
-                if (window.mapMarkers && window.mapMarkers.catherine) {
-                    window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
+                if (window.mapMarkers && window.mapMarkers.cathy) {
+                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
                 }
                 if (window.mapMarkers && window.mapMarkers.christina) {
                     window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
@@ -1513,7 +1513,7 @@ function setupMapScrollPopups() {
         const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
         lastScrollY = currentScrollY;
 
-        // For scrolling down - open popups in forward order (Jamie → Catherine → Christina)
+        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
         if (scrollDirection === 'down') {
             // If all popups are shown, close popup 4 when user scrolls down
             if (allPopupsShownForward) {
@@ -1558,7 +1558,7 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 8;
                         allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.catherine.openPopup();
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -1582,10 +1582,10 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Catherine's popup content for the 5th popup
-                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.catherine.openPopup();
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -1602,6 +1602,13 @@ function setupMapScrollPopups() {
                         // Update Jamie's popup content for the 7th popup
                         window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
                         window.mapMarkers.jamie.openPopup();
+                        // Set higher z-index for this popup to appear above unemployment chart
+                        setTimeout(() => {
+                            const jamiePopupElement = window.mapMarkers.jamie.getPopup().getElement();
+                            if (jamiePopupElement) {
+                                jamiePopupElement.style.zIndex = '1001';
+                            }
+                        }, 0);
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
@@ -1625,7 +1632,7 @@ function setupMapScrollPopups() {
                 }
             });
         } 
-        // For scrolling up - open popups in reverse order (Christina → Catherine → Jamie)
+        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
         else if (scrollDirection === 'up') {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
@@ -1678,9 +1685,9 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenReverse = 5;
                     } else if (nextPopupToOpenReverse === 5) {
-                        // Update Catherine's popup content for the 5th popup
-                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
-                        window.mapMarkers.catherine.openPopup();
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenReverse = 4;
                     } else if (nextPopupToOpenReverse === 4) {
                         // Update Jamie's popup content for the 4th popup
@@ -1689,7 +1696,9 @@ function setupMapScrollPopups() {
                         // Show unemployment chart
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
                         if (unemploymentChart) {
-                            unemploymentChart.classList.add('show');
+                            setTimeout(() => {
+                                unemploymentChart.classList.add('show');
+                            }, 500);
                         }
                         nextPopupToOpenReverse = 3;
                     } else if (nextPopupToOpenReverse === 3) {
@@ -1707,9 +1716,9 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenReverse = 2;
                     } else if (nextPopupToOpenReverse === 2) {
-                        // Reset Catherine's popup to original content
-                        window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
-                        window.mapMarkers.catherine.openPopup();
+                        // Reset Cathy's popup to original content
+                        window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenReverse = 1;
                     } else if (nextPopupToOpenReverse === 1) {
                         // Reset Jamie's popup to original content
@@ -1738,7 +1747,7 @@ function setupMapScrollPopups() {
     const handleWheel = (e) => {
         const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
 
-        // For scrolling down - open popups in forward order (Jamie → Catherine → Christina)
+        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
         if (scrollDirection === 'down') {
             // If all popups are shown, close popup 4 when user scrolls down
             if (allPopupsShownForward) {
@@ -1776,7 +1785,7 @@ function setupMapScrollPopups() {
                     nextPopupToOpenReverse = 5;
                     allPopupsShownReverse = false;
                 } else if (nextPopupToOpenForward === 2) {
-                    window.mapMarkers.catherine.openPopup();
+                    window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenForward = 3;
                 } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -1800,10 +1809,10 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Catherine's popup content for the 5th popup
-                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.catherine.openPopup();
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -1820,6 +1829,13 @@ function setupMapScrollPopups() {
                         // Update Jamie's popup content for the 7th popup
                         window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
                         window.mapMarkers.jamie.openPopup();
+                        // Set higher z-index for this popup to appear above unemployment chart
+                        setTimeout(() => {
+                            const jamiePopupElement = window.mapMarkers.jamie.getPopup().getElement();
+                            if (jamiePopupElement) {
+                                jamiePopupElement.style.zIndex = '1001';
+                            }
+                        }, 0);
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
@@ -1842,7 +1858,7 @@ function setupMapScrollPopups() {
                     }
             }
         }
-        // For scrolling up - open popups in reverse order (Catherine2 → Jamie2 → Christina → Catherine → Jamie)
+        // For scrolling up - open popups in reverse order (Cathy2 → Jamie2 → Christina → Cathy → Jamie)
         else if (scrollDirection === 'up') {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
@@ -1888,9 +1904,9 @@ function setupMapScrollPopups() {
                     }
                     nextPopupToOpenReverse = 5;
                 } else if (nextPopupToOpenReverse === 5) {
-                    // Update Catherine's popup content for the 5th popup
-                    window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
-                    window.mapMarkers.catherine.openPopup();
+                    // Update Cathy's popup content for the 5th popup
+                    window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                    window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenReverse = 4;
                 } else if (nextPopupToOpenReverse === 4) {
                     // Update Jamie's popup content for the 4th popup
@@ -1899,7 +1915,9 @@ function setupMapScrollPopups() {
                     // Show unemployment chart
                     const unemploymentChart = document.getElementById('unemployment-chart-container');
                     if (unemploymentChart) {
-                        unemploymentChart.classList.add('show');
+                        setTimeout(() => {
+                            unemploymentChart.classList.add('show');
+                        }, 500);
                     }
                     nextPopupToOpenReverse = 3;
                 } else if (nextPopupToOpenReverse === 3) {
@@ -1913,9 +1931,9 @@ function setupMapScrollPopups() {
                         }
                     nextPopupToOpenReverse = 2;
                 } else if (nextPopupToOpenReverse === 2) {
-                        // Reset Catherine's popup to original content
-                        window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
-                        window.mapMarkers.catherine.openPopup();
+                    // Reset Cathy's popup to original content
+                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                    window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenReverse = 1;
                 } else if (nextPopupToOpenReverse === 1) {
                     // Reset Jamie's popup to original content
@@ -2014,7 +2032,7 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 8;
                         allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.catherine.openPopup();
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -2038,10 +2056,10 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Catherine's popup content for the 5th popup
-                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.catherine.openPopup();
+                        window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -2058,6 +2076,13 @@ function setupMapScrollPopups() {
                         // Update Jamie's popup content for the 7th popup
                         window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
                         window.mapMarkers.jamie.openPopup();
+                        // Set higher z-index for this popup to appear above unemployment chart
+                        setTimeout(() => {
+                            const jamiePopupElement = window.mapMarkers.jamie.getPopup().getElement();
+                            if (jamiePopupElement) {
+                                jamiePopupElement.style.zIndex = '1001';
+                            }
+                        }, 0);
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
