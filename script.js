@@ -12,13 +12,13 @@ async function loadPopupData() {
         popupData = {
             initial: {
                 jamie: "<b>Jamie</b><br>University graduate looking for employment",
-                cathy: "<b>Cathy</b><br>Experienced professional navigating career changes",
+                cathy: "<b>Catherine</b><br>Experienced professional navigating career changes",
                 christina: "<b>Christina</b><br>Adapting to the changing job market"
             },
             popups: {
                 "4": { persona: "jamie", content: "hey, i graduated a year ago but still can't find a job." },
-                "5": { persona: "cathy", content: "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!" },
-                "6": { persona: "christina", content: "i can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we also have AI competing with us now." },
+                "5": { persona: "catherine", content: "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!" },
+                "6": { persona: "christina", content: "i can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we also have AI competing with us." },
                 "7": { persona: "jamie", content: "Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?" },
                 "8": { persona: "christina", content: "I've been trying to take more AI workshops this year… but honestly, it's been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation." }
             }
@@ -224,8 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedPersona = persona;
                 scrollTriggered = true;
                 showPersonaJourney(persona, true);
-                // Show conversation section after persona selection
-                showConversationAfterPersona();
+                // Conversation section removed
             }
         });
     });
@@ -387,8 +386,7 @@ function setupPersonaScrollObserver() {
 function showPersonaJourney(persona, fromClick = true) {
     console.log('showPersonaJourney called with:', persona); // Debug log
     
-    // Show conversation section when persona journey starts
-    showConversationAfterPersona();
+    // Conversation section removed
 
     // Collapse all persona details when journey starts
     const personas = ['jamie', 'catherine', 'christina'];
@@ -936,61 +934,19 @@ function repeatConversationScene(button) {
     }
 }
 
-// Show conversation section after persona selection
+// Conversation section removed - functions no longer needed
 function showConversationAfterPersona() {
-    const conversation = document.getElementById('conversation');
-    if (conversation) {
-        // Make sure it's visible (it's already in the HTML flow, just ensure display is correct)
-        conversation.style.display = 'flex';
-        reinitializeScrollAnimations();
-        
-        // Initialize Scene 1 by default when conversation section is shown
-        // Use a longer delay to ensure DOM is ready
-        setTimeout(() => {
-            const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
-            if (scene1) {
-                // Use selectScene to properly initialize Scene 1
-                selectScene(1);
-            } else {
-                console.error('Scene 1 not found when trying to show conversation');
-                // Retry after a bit more time
-                setTimeout(() => {
-                    selectScene(1);
-                }, 500);
-            }
-        }, 400);
-    }
+    // Conversation section removed
 }
 
 function showConversationSection() {
-    const conversation = document.getElementById('conversation');
-    if (conversation && conversation.style.display === 'none') {
-        conversation.style.display = 'flex';
-        conversation.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        reinitializeScrollAnimations();
-        
-        // Initialize Scene 1 by default when conversation section is shown
-        setTimeout(() => {
-            const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
-            if (scene1 && !scene1.classList.contains('active')) {
-                selectScene(1);
-            }
-        }, 500);
-        
-        return true;
-    }
+    // Conversation section removed
     return false;
 }
 
 function showConclusion() {
-    const conversationJustShown = showConversationSection();
     const conclusion = document.getElementById('conclusion');
-    if (conversationJustShown) {
-        setTimeout(() => {
-            conclusion.style.display = 'flex';
-            reinitializeScrollAnimations();
-        }, 800);
-    } else {
+    if (conclusion) {
         conclusion.style.display = 'flex';
         reinitializeScrollAnimations();
     }
@@ -1016,7 +972,7 @@ function goBackToPersonas() {
     document.getElementById('jamie-journey').style.display = 'none';
     document.getElementById('cathy-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
-    document.getElementById('conversation').style.display = 'none';
+    // Conversation section removed
     document.getElementById('conclusion').style.display = 'none';
 
     // Show initial sections
@@ -1182,8 +1138,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up scroll animations for info blocks
     setupScrollAnimations();
     
-    // Set up auto-start for conversation section when scrolled into view
-    setupConversationAutoStart();
+    // Conversation section removed - no longer needed
+    // setupConversationAutoStart();
 });
 
 // Scroll-triggered animations for info blocks
@@ -1243,59 +1199,9 @@ function reinitializeScrollAnimations() {
     }, 100);
 }
 
-// Auto-start Scene 1 when conversation section is scrolled into view
-let conversationHasStarted = false; // Track if Scene 1 has already started (global to persist across function calls)
-
-function setupConversationAutoStart() {
-    const conversationSection = document.getElementById('conversation');
-    if (!conversationSection) return;
-    
-    const conversationObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting && !conversationHasStarted) {
-                // When conversation section comes into view, start Scene 1
-                const intersectionRatio = entry.intersectionRatio;
-                const rect = entry.boundingClientRect;
-                const viewportHeight = window.innerHeight;
-                
-                // Only trigger when section is at least 30% visible and in the viewport
-                if (intersectionRatio >= 0.3 && rect.top < viewportHeight * 0.7) {
-                    conversationHasStarted = true;
-                    console.log('Conversation section scrolled into view, starting Scene 1');
-                    
-                    // Small delay to ensure smooth transition
-                    setTimeout(() => {
-                        const scene1 = document.querySelector('.conversation-scene[data-scene="1"]');
-                        if (scene1) {
-                            // Check if scene is already active and animated
-                            if (scene1.classList.contains('active') && scene1.dataset.animated === 'true') {
-                                // Already started, do nothing
-                                return;
-                            }
-                            
-                            // Initialize Scene 1 if not already active
-                            if (!scene1.classList.contains('active')) {
-                                selectScene(1);
-                            } else if (!scene1.dataset.animated) {
-                                // Scene 1 is active but not animated yet, start animation
-                                animateConversationScene(scene1);
-                            }
-                        }
-                    }, 300);
-                    
-                    // Stop observing once started
-                    conversationObserver.unobserve(conversationSection);
-                }
-            }
-        });
-    }, {
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5],
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    // Start observing the conversation section
-    conversationObserver.observe(conversationSection);
-}
+// Conversation section removed - functions no longer needed
+// let conversationHasStarted = false;
+// function setupConversationAutoStart() { ... }
 
 // Add keyboard navigation
 document.addEventListener('keydown', (e) => {
@@ -1379,13 +1285,13 @@ function handleLocationMapZoom() {
         });
         locationMapZoomState = 2;
         
-        // After zoom animation completes, show chart_oshawa.jpeg (start 0.2s earlier)
+        // After zoom animation completes, show chart_oshawa.jpeg
         setTimeout(() => {
             const oshawaChart = document.getElementById('chart-oshawa-container');
             if (oshawaChart) {
                 oshawaChart.classList.add('show');
             }
-        }, 800); // Start 0.2s before zoom completes (1s duration - 0.2s = 0.8s)
+        }, 500); // Wait for flyTo animation to complete (1.5 seconds)
     }
     // If already at Oshawa, do nothing (spacebar handler will scroll to next section)
 }
@@ -1436,7 +1342,7 @@ function initializeOshawaMap() {
     const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
     const cathyMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
         .addTo(map)
-        .bindPopup(popupData ? popupData.initial.cathy : '<b>Cathy</b><br>Experienced professional navigating career changes', {
+        .bindPopup(popupData ? popupData.initial.cathy : '<b>Catherine</b><br>Experienced professional navigating career changes', {
             className: 'cathy-popup'
         });
 
@@ -1485,12 +1391,12 @@ function setupMapScrollPopups() {
     };
 
     // Check if a popup is currently open
-    const isPopupOpen = (popupNumber) => {
-        if (popupNumber === 1) return window.mapMarkers.jamie.isPopupOpen();
-        if (popupNumber === 2) return window.mapMarkers.cathy.isPopupOpen();
-        if (popupNumber === 3) return window.mapMarkers.christina.isPopupOpen();
-        return false;
-    };
+    // const isPopupOpen = (popupNumber) => {
+    //     if (popupNumber === 1) return window.mapMarkers.jamie.isPopupOpen();
+    //     if (popupNumber === 2) return window.mapMarkers.cathy.isPopupOpen();
+    //     if (popupNumber === 3) return window.mapMarkers.christina.isPopupOpen();
+    //     return false;
+    // };
 
     // Use IntersectionObserver to detect when map section is in view
     // Also check if top has reached viewport for better small screen support
@@ -1634,7 +1540,9 @@ function setupMapScrollPopups() {
                         createAgeIndustryTreemap();
                         const treemapChart = document.getElementById('age-industry-treemap-container');
                         if (treemapChart) {
-                            treemapChart.classList.add('show');
+                            setTimeout(() => {
+                                treemapChart.classList.add('show');
+                            }, 1400);
                         }
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
@@ -1668,16 +1576,13 @@ function setupMapScrollPopups() {
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
                         if (rentChart) {
-                            rentChart.classList.add('show');
+                            setTimeout(() => {
+                                rentChart.classList.add('show');
+                            }, 1300);
                         }
                         // All popups opened forward - remove sticky positioning
                         allPopupsShownForward = true;
                         nextPopupToOpenForward = 9; // Prevent further popup opening
-                        // Remove sticky positioning after a short delay
-                        setTimeout(() => {
-                            mapSection.style.position = 'relative';
-                            mapSection.classList.remove('sticky-active');
-                        }, 500);
                     }
                 }
             });
@@ -1708,7 +1613,9 @@ function setupMapScrollPopups() {
                     // Open next popup in reverse sequence
                     if (nextPopupToOpenReverse === 8) {
                         // Update Christina's popup content for the 8th popup
-                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        if (popupData && popupData.popups['8']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Set higher z-index for this popup to appear above other elements
                         setTimeout(() => {
@@ -1720,7 +1627,9 @@ function setupMapScrollPopups() {
                         // Show rent chart
                         const rentChart = document.getElementById('rent-chart-container');
                         if (rentChart) {
-                            rentChart.classList.add('show');
+                            setTimeout(() => {
+                                rentChart.classList.add('show');
+                            }, 500);
                         }
                         nextPopupToOpenReverse = 7;
                         // Reset forward counter when starting reverse
@@ -1742,7 +1651,9 @@ function setupMapScrollPopups() {
                         // Show age-industry treemap
                         const treemapChart = document.getElementById('age-industry-treemap-container');
                         if (treemapChart) {
-                            treemapChart.classList.add('show');
+                            setTimeout(() => {
+                                treemapChart.classList.add('show');
+                            }, 1000);
                         }
                         nextPopupToOpenReverse = 5;
                     } else if (nextPopupToOpenReverse === 5) {
@@ -1754,7 +1665,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 4;
                     } else if (nextPopupToOpenReverse === 4) {
                         // Update Jamie's popup content for the 4th popup
-                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        if (popupData && popupData.popups['4']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Show unemployment chart
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
@@ -1887,13 +1800,17 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
-                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        if (popupData && popupData.popups['6']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Create and show age-industry treemap
                         createAgeIndustryTreemap();
                         const treemapChart = document.getElementById('age-industry-treemap-container');
                         if (treemapChart) {
-                            treemapChart.classList.add('show');
+                            setTimeout(() => {
+                                treemapChart.classList.add('show');
+                            }, 1000);
                         }
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
@@ -1927,16 +1844,13 @@ function setupMapScrollPopups() {
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
                         if (rentChart) {
-                            rentChart.classList.add('show');
+                            setTimeout(() => {
+                                rentChart.classList.add('show');
+                            }, 500);
                         }
                         // All popups opened forward - remove sticky positioning
                         allPopupsShownForward = true;
                         nextPopupToOpenForward = 9; // Prevent further popup opening
-                        // Remove sticky positioning after a short delay
-                        setTimeout(() => {
-                            mapSection.style.position = 'relative';
-                            mapSection.classList.remove('sticky-active');
-                        }, 500);
                     }
             }
         }
@@ -1959,7 +1873,9 @@ function setupMapScrollPopups() {
                 // Open next popup in reverse sequence
                 if (nextPopupToOpenReverse === 8) {
                     // Update Christina's popup content for the 8th popup
-                    window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                    if (popupData && popupData.popups['8']) {
+                        window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
+                    }
                     window.mapMarkers.christina.openPopup();
                     // Set higher z-index for this popup to appear above other elements
                     setTimeout(() => {
@@ -1971,7 +1887,9 @@ function setupMapScrollPopups() {
                     // Show rent chart
                     const rentChart = document.getElementById('rent-chart-container');
                     if (rentChart) {
-                        rentChart.classList.add('show');
+                        setTimeout(() => {
+                            rentChart.classList.add('show');
+                        }, 500);
                     }
                     nextPopupToOpenReverse = 7;
                     // Reset forward counter when starting reverse
@@ -1979,27 +1897,37 @@ function setupMapScrollPopups() {
                     allPopupsShownForward = false;
                 } else if (nextPopupToOpenReverse === 7) {
                     // Update Jamie's popup content for the 7th popup
-                    window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                    if (popupData && popupData.popups['7']) {
+                        window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
+                    }
                     window.mapMarkers.jamie.openPopup();
                     nextPopupToOpenReverse = 6;
                 } else if (nextPopupToOpenReverse === 6) {
                     // Update Christina's popup content for the 6th popup
-                    window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                    if (popupData && popupData.popups['6']) {
+                        window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
+                    }
                     window.mapMarkers.christina.openPopup();
                     // Show age-industry treemap
                     const treemapChart = document.getElementById('age-industry-treemap-container');
                     if (treemapChart) {
-                        treemapChart.classList.add('show');
+                        setTimeout(() => {
+                            treemapChart.classList.add('show');
+                        }, 500);
                     }
                     nextPopupToOpenReverse = 5;
                 } else if (nextPopupToOpenReverse === 5) {
                     // Update Cathy's popup content for the 5th popup
-                    window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                    if (popupData && popupData.popups['5']) {
+                        window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
+                    }
                     window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenReverse = 4;
                 } else if (nextPopupToOpenReverse === 4) {
                     // Update Jamie's popup content for the 4th popup
-                    window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                    if (popupData && popupData.popups['4']) {
+                        window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
+                    }
                     window.mapMarkers.jamie.openPopup();
                     // Show unemployment chart
                     const unemploymentChart = document.getElementById('unemployment-chart-container');
@@ -2109,13 +2037,15 @@ function setupMapScrollPopups() {
             }
             
             // Check if we're in map section and should trigger popups
+            // Allow when not all popups shown, OR when nextPopupToOpenForward === 9 (cleanup phase)
             const shouldTriggerPopup = isMapInView && 
-                !allPopupsShownForward &&
-                isMap80PercentVisible();
+                (!allPopupsShownForward || nextPopupToOpenForward === 9) &&
+                (isMap80PercentVisible() || nextPopupToOpenForward === 9);
 
             if (shouldTriggerPopup) {
                 const currentTime = Date.now();
-                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
+                // Allow execution if not all popups shown, OR if nextPopupToOpenForward === 9 (cleanup phase)
+                if (currentTime - lastScrollTime > scrollCooldown && (!allPopupsShownForward || nextPopupToOpenForward === 9)) {
                     lastScrollTime = currentTime;
 
                     // Open next popup in forward sequence
@@ -2161,13 +2091,17 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
-                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        if (popupData && popupData.popups['6']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Create and show age-industry treemap
                         createAgeIndustryTreemap();
                         const treemapChart = document.getElementById('age-industry-treemap-container');
                         if (treemapChart) {
-                            treemapChart.classList.add('show');
+                            setTimeout(() => {
+                                treemapChart.classList.add('show');
+                            }, 1000);
                         }
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
@@ -2201,21 +2135,152 @@ function setupMapScrollPopups() {
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
                         if (rentChart) {
-                            rentChart.classList.add('show');
+                            setTimeout(() => {
+                                rentChart.classList.add('show');
+                            }, 500);
                         }
-                        // All popups opened forward - remove sticky positioning
+                        // All popups opened forward
                         allPopupsShownForward = true;
                         nextPopupToOpenForward = 9; // Prevent further popup opening
-                        // Remove sticky positioning after a short delay
-                        setTimeout(() => {
+                    } else if (nextPopupToOpenForward === 9) {
+                        // Remove sticky positioning when user presses spacebar after all popups are shown
+                        const mapSection = document.getElementById('map');
+                        if (mapSection) {
                             mapSection.style.position = 'relative';
                             mapSection.classList.remove('sticky-active');
-                        }, 500);
+                        }
+                        // Hide all charts
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.remove('show');
+                        }
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.remove('show');
+                        }
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.remove('show');
+                        }
+                        // Close all persona popups
+                        if (window.mapMarkers) {
+                            Object.values(window.mapMarkers).forEach(marker => {
+                                if (marker && marker.closePopup) {
+                                    marker.closePopup();
+                                }
+                            });
+                        }
+                        // Then scroll to next section
+                        const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
+                        const currentScrollY = window.scrollY;
+                        const windowHeight = window.innerHeight;
+                        
+                        // Find the current section
+                        let currentSectionIndex = -1;
+                        for (let i = 0; i < sections.length; i++) {
+                            const section = document.getElementById(sections[i]);
+                            if (section) {
+                                const rect = section.getBoundingClientRect();
+                                // Check if section is in viewport (at least 50% visible)
+                                if (rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5) {
+                                    currentSectionIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // If no section found, find the closest one
+                        if (currentSectionIndex === -1) {
+                            for (let i = 0; i < sections.length; i++) {
+                                const section = document.getElementById(sections[i]);
+                                if (section) {
+                                    const rect = section.getBoundingClientRect();
+                                    if (rect.top >= 0 && rect.top < windowHeight) {
+                                        currentSectionIndex = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Scroll smoothly to the conclusion section
+                        const conclusionSection = document.getElementById('conclusion');
+                        if (conclusionSection) {
+                            const conclusionTop = conclusionSection.getBoundingClientRect().top + window.scrollY;
+                            window.scrollTo({ top: conclusionTop, behavior: 'smooth' });
+                        } else if (currentSectionIndex === -1) {
+                            // If we're at the top, scroll to first section
+                            const firstSection = document.getElementById(sections[0]);
+                            if (firstSection) {
+                                firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }
+                        nextPopupToOpenForward = 10; // Prevent repeated execution
+                    }
+                }
+            } else if (allPopupsShownForward && isInMap) {
+                // All popups shown - hide all charts when spacebar is pressed
+                const unemploymentChart = document.getElementById('unemployment-chart-container');
+                if (unemploymentChart) {
+                    unemploymentChart.classList.remove('show');
+                }
+                const treemapChart = document.getElementById('age-industry-treemap-container');
+                if (treemapChart) {
+                    treemapChart.classList.remove('show');
+                }
+                const rentChart = document.getElementById('rent-chart-container');
+                if (rentChart) {
+                    rentChart.classList.remove('show');
+                }
+                // Then scroll to next section
+                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
+                const currentScrollY = window.scrollY;
+                const windowHeight = window.innerHeight;
+                
+                // Find the current section
+                let currentSectionIndex = -1;
+                for (let i = 0; i < sections.length; i++) {
+                    const section = document.getElementById(sections[i]);
+                    if (section) {
+                        const rect = section.getBoundingClientRect();
+                        // Check if section is in viewport (at least 50% visible)
+                        if (rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5) {
+                            currentSectionIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // If no section found, find the closest one
+                if (currentSectionIndex === -1) {
+                    for (let i = 0; i < sections.length; i++) {
+                        const section = document.getElementById(sections[i]);
+                        if (section) {
+                            const rect = section.getBoundingClientRect();
+                            if (rect.top >= 0 && rect.top < windowHeight) {
+                                currentSectionIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Scroll to next section
+                if (currentSectionIndex >= 0 && currentSectionIndex < sections.length - 1) {
+                    const nextSection = document.getElementById(sections[currentSectionIndex + 1]);
+                    if (nextSection) {
+                        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (currentSectionIndex === -1) {
+                    // If we're at the top, scroll to first section
+                    const firstSection = document.getElementById(sections[0]);
+                    if (firstSection) {
+                        firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 }
             } else {
                 // Scroll to next section
-                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conversation', 'conclusion', 'final-message'];
+                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
                 
