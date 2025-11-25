@@ -1,0 +1,30 @@
+{
+  "initial": {
+    "jamie": "<b>Jamie</b><br>University graduate looking for employment",
+    "cathy": "<b>Cathy</b><br>Experienced professional navigating career changes",
+    "christina": "<b>Christina</b><br>Adapting to the changing job market"
+  },
+  "popups": {
+    "4": {
+      "persona": "jamie",
+      "content": "hey, i graduated a year ago but still can't find a job."
+    },
+    "5": {
+      "persona": "cathy",
+      "content": "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!"
+    },
+    "6": {
+      "persona": "christina",
+      "content": "i can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we also have AI competing with us now."
+    },
+    "7": {
+      "persona": "jamie",
+      "content": "Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?"
+    },
+    "8": {
+      "persona": "christina",
+      "content": "I've been trying to take more AI workshops this year… but honestly, it's been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation."
+    }
+  }
+}
+

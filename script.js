@@ -1,3 +1,31 @@
+// Global variable to store popup data
+let popupData = null;
+
+// Load popup data from JSON
+async function loadPopupData() {
+    try {
+        const response = await fetch('assets/data/popups.json');
+        popupData = await response.json();
+    } catch (error) {
+        console.error('Error loading popup data:', error);
+        // Fallback to default data if JSON fails to load
+        popupData = {
+            initial: {
+                jamie: "<b>Jamie</b><br>University graduate looking for employment",
+                cathy: "<b>Cathy</b><br>Experienced professional navigating career changes",
+                christina: "<b>Christina</b><br>Adapting to the changing job market"
+            },
+            popups: {
+                "4": { persona: "jamie", content: "hey, i graduated a year ago but still can't find a job." },
+                "5": { persona: "cathy", content: "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!" },
+                "6": { persona: "christina", content: "i can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we also have AI competing with us now." },
+                "7": { persona: "jamie", content: "Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?" },
+                "8": { persona: "christina", content: "I've been trying to take more AI workshops this year… but honestly, it's been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation." }
+            }
+        };
+    }
+}
+
 // Intersection Observer for scroll animations
 const observerOptions = {
     threshold: 0.1,
@@ -14,7 +42,10 @@ const observer = new IntersectionObserver((entries) => {
 
 
 // Observe journey steps
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load popup data first
+    await loadPopupData();
+    
     const journeySteps = document.querySelectorAll('.journey-step');
     journeySteps.forEach(step => {
         observer.observe(step);
@@ -1348,13 +1379,13 @@ function handleLocationMapZoom() {
         });
         locationMapZoomState = 2;
         
-        // After zoom animation completes, show chart_oshawa.jpeg
+        // After zoom animation completes, show chart_oshawa.jpeg (start 0.2s earlier)
         setTimeout(() => {
             const oshawaChart = document.getElementById('chart-oshawa-container');
             if (oshawaChart) {
                 oshawaChart.classList.add('show');
             }
-        }, 1500); // Wait for flyTo animation to complete (1.5 seconds)
+        }, 800); // Start 0.2s before zoom completes (1s duration - 0.2s = 0.8s)
     }
     // If already at Oshawa, do nothing (spacebar handler will scroll to next section)
 }
@@ -1397,7 +1428,7 @@ function initializeOshawaMap() {
     const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -80]);
     const jamieMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Jamie</b><br>University graduate looking for employment', {
+        .bindPopup(popupData ? popupData.initial.jamie : '<b>Jamie</b><br>University graduate looking for employment', {
             className: 'jamie-popup'
         });
 
@@ -1405,7 +1436,7 @@ function initializeOshawaMap() {
     const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
     const cathyMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes', {
+        .bindPopup(popupData ? popupData.initial.cathy : '<b>Cathy</b><br>Experienced professional navigating career changes', {
             className: 'cathy-popup'
         });
 
@@ -1413,7 +1444,7 @@ function initializeOshawaMap() {
     const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker', [-10, -80]);
     const christinaMarker = L.marker([oshawaLat - 0.015, oshawaLng], { icon: christinaIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Christina</b><br>Adapting to the changing job market', {
+        .bindPopup(popupData ? popupData.initial.christina : '<b>Christina</b><br>Adapting to the changing job market', {
             className: 'christina-popup'
         });
 
@@ -1475,14 +1506,14 @@ function setupMapScrollPopups() {
                 allPopupsShownForward = false;
                 allPopupsShownReverse = false;
                 // Reset popups to original content
-                if (window.mapMarkers && window.mapMarkers.jamie) {
-                    window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
+                if (window.mapMarkers && window.mapMarkers.jamie && popupData) {
+                    window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
                 }
-                if (window.mapMarkers && window.mapMarkers.cathy) {
-                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                if (window.mapMarkers && window.mapMarkers.cathy && popupData) {
+                    window.mapMarkers.cathy.setPopupContent(popupData.initial.cathy);
                 }
-                if (window.mapMarkers && window.mapMarkers.christina) {
-                    window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                if (window.mapMarkers && window.mapMarkers.christina && popupData) {
+                    window.mapMarkers.christina.setPopupContent(popupData.initial.christina);
                 }
                 // Hide charts
                 const unemploymentChart = document.getElementById('unemployment-chart-container');
@@ -1567,7 +1598,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 4;
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
-                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        if (popupData && popupData.popups['4']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
+                        }
                         // Configure popup to not auto-close so it stays open when other popups open
                         const jamiePopup = window.mapMarkers.jamie.getPopup();
                         if (jamiePopup) {
@@ -1585,13 +1618,17 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        if (popupData && popupData.popups['5']) {
+                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
+                        }
                         // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
-                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        if (popupData && popupData.popups['6']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Create and show age-industry treemap
                         createAgeIndustryTreemap();
@@ -1602,7 +1639,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
                         // Update Jamie's popup content for the 7th popup
-                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        if (popupData && popupData.popups['7']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Set higher z-index for this popup to appear above unemployment chart
                         setTimeout(() => {
@@ -1614,7 +1653,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
-                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        if (popupData && popupData.popups['8']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Set higher z-index for this popup to appear above other elements
                         setTimeout(() => {
@@ -1687,12 +1728,16 @@ function setupMapScrollPopups() {
                         allPopupsShownForward = false;
                     } else if (nextPopupToOpenReverse === 7) {
                         // Update Jamie's popup content for the 7th popup
-                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        if (popupData && popupData.popups['7']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         nextPopupToOpenReverse = 6;
                     } else if (nextPopupToOpenReverse === 6) {
                         // Update Christina's popup content for the 6th popup
-                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        if (popupData && popupData.popups['6']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['6'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Show age-industry treemap
                         const treemapChart = document.getElementById('age-industry-treemap-container');
@@ -1702,7 +1747,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 5;
                     } else if (nextPopupToOpenReverse === 5) {
                         // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        if (popupData && popupData.popups['5']) {
+                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
+                        }
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenReverse = 4;
                     } else if (nextPopupToOpenReverse === 4) {
@@ -1719,7 +1766,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 3;
                     } else if (nextPopupToOpenReverse === 3) {
                         // Reset Christina's popup to original content
-                        window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                        if (popupData) {
+                            window.mapMarkers.christina.setPopupContent(popupData.initial.christina);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Hide treemap and rent chart
                         const treemapChart = document.getElementById('age-industry-treemap-container');
@@ -1733,12 +1782,16 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 2;
                     } else if (nextPopupToOpenReverse === 2) {
                         // Reset Cathy's popup to original content
-                        window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                        if (popupData) {
+                            window.mapMarkers.cathy.setPopupContent(popupData.initial.cathy);
+                        }
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenReverse = 1;
                     } else if (nextPopupToOpenReverse === 1) {
                         // Reset Jamie's popup to original content
-                        window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
+                        if (popupData) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Hide unemployment chart
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
@@ -1806,7 +1859,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 4;
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
-                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        if (popupData && popupData.popups['4']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
+                        }
                         // Configure popup to not auto-close so it stays open when other popups open
                         const jamiePopup = window.mapMarkers.jamie.getPopup();
                         if (jamiePopup) {
@@ -1824,7 +1879,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        if (popupData && popupData.popups['5']) {
+                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
+                        }
                         // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
@@ -1841,7 +1898,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
                         // Update Jamie's popup content for the 7th popup
-                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        if (popupData && popupData.popups['7']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Set higher z-index for this popup to appear above unemployment chart
                         setTimeout(() => {
@@ -1853,7 +1912,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
-                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        if (popupData && popupData.popups['8']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Set higher z-index for this popup to appear above other elements
                         setTimeout(() => {
@@ -1950,7 +2011,9 @@ function setupMapScrollPopups() {
                     nextPopupToOpenReverse = 3;
                 } else if (nextPopupToOpenReverse === 3) {
                     // Reset Christina's popup to original content
-                    window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
+                    if (popupData) {
+                        window.mapMarkers.christina.setPopupContent(popupData.initial.christina);
+                    }
                     window.mapMarkers.christina.openPopup();
                         // Hide age-industry treemap
                         const treemapChart = document.getElementById('age-industry-treemap-container');
@@ -1960,12 +2023,16 @@ function setupMapScrollPopups() {
                     nextPopupToOpenReverse = 2;
                 } else if (nextPopupToOpenReverse === 2) {
                     // Reset Cathy's popup to original content
-                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                    if (popupData) {
+                        window.mapMarkers.cathy.setPopupContent(popupData.initial.cathy);
+                    }
                     window.mapMarkers.cathy.openPopup();
                     nextPopupToOpenReverse = 1;
                 } else if (nextPopupToOpenReverse === 1) {
                     // Reset Jamie's popup to original content
-                    window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
+                    if (popupData) {
+                        window.mapMarkers.jamie.setPopupContent(popupData.initial.jamie);
+                    }
                     window.mapMarkers.jamie.openPopup();
                     // Hide unemployment chart
                     const unemploymentChart = document.getElementById('unemployment-chart-container');
@@ -2066,7 +2133,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 4;
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
-                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        if (popupData && popupData.popups['4']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['4'].content);
+                        }
                         // Configure popup to not auto-close so it stays open when other popups open
                         const jamiePopup = window.mapMarkers.jamie.getPopup();
                         if (jamiePopup) {
@@ -2084,7 +2153,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        if (popupData && popupData.popups['5']) {
+                            window.mapMarkers.cathy.setPopupContent(popupData.popups['5'].content);
+                        }
                         // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
@@ -2101,7 +2172,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 7;
                     } else if (nextPopupToOpenForward === 7) {
                         // Update Jamie's popup content for the 7th popup
-                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        if (popupData && popupData.popups['7']) {
+                            window.mapMarkers.jamie.setPopupContent(popupData.popups['7'].content);
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Set higher z-index for this popup to appear above unemployment chart
                         setTimeout(() => {
@@ -2113,7 +2186,9 @@ function setupMapScrollPopups() {
                         nextPopupToOpenForward = 8;
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
-                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        if (popupData && popupData.popups['8']) {
+                            window.mapMarkers.christina.setPopupContent(popupData.popups['8'].content);
+                        }
                         window.mapMarkers.christina.openPopup();
                         // Set higher z-index for this popup to appear above other elements
                         setTimeout(() => {
