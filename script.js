@@ -255,12 +255,18 @@ function randomIntFromInterval(min, max) { // min and max included
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 // Background section scroll-triggered animations
+// Global access to background animation functions
+window.backgroundAnimations = {
+    animatedParts: new Set(),
+    animatePart: null
+};
+
 function setupBackgroundScrollAnimations() {
     const backgroundSection = document.getElementById('background');
     if (!backgroundSection) return;
 
     // Track which parts have been animated
-    const animatedParts = new Set();
+    const animatedParts = window.backgroundAnimations.animatedParts;
 
     // Position graphs randomly with overlap
     const graph1 = document.querySelector('.background-graph-container[data-graph="1"]');
@@ -330,6 +336,9 @@ function setupBackgroundScrollAnimations() {
 
         animatedParts.add(partNumber);
     }
+    
+    // Expose animatePart globally
+    window.backgroundAnimations.animatePart = animatePart;
 
     // Handle scroll to trigger animations based on scroll position
     const handleScroll = () => {
@@ -2106,14 +2115,198 @@ function setupMapScrollPopups() {
         }
     };
 
+    // Handle spacebar to trigger section effects or scroll to next section
+    const handleSpacebar = (e) => {
+        if (e.code === 'Space' || e.key === ' ') {
+            e.preventDefault(); // Always prevent default to control behavior
+            
+            // Check which section we're in
+            const backgroundSection = document.getElementById('background');
+            const solutionSection = document.getElementById('solution');
+            const mapSection = document.getElementById('map');
+            
+            const backgroundRect = backgroundSection ? backgroundSection.getBoundingClientRect() : null;
+            const solutionRect = solutionSection ? solutionSection.getBoundingClientRect() : null;
+            const mapRect = mapSection ? mapSection.getBoundingClientRect() : null;
+            
+            const windowHeight = window.innerHeight;
+            const isInBackground = backgroundRect && backgroundRect.top < windowHeight && backgroundRect.bottom > 0;
+            const isInSolution = solutionRect && solutionRect.top < windowHeight && solutionRect.bottom > 0;
+            const isInMap = mapRect && mapRect.top < windowHeight && mapRect.bottom > 0;
+            
+            // Handle background section - trigger next text part animation
+            if (isInBackground && window.backgroundAnimations && window.backgroundAnimations.animatePart) {
+                const animatedParts = window.backgroundAnimations.animatedParts;
+                if (!animatedParts.has(1)) {
+                    window.backgroundAnimations.animatePart(1);
+                    return;
+                } else if (!animatedParts.has(2)) {
+                    window.backgroundAnimations.animatePart(2);
+                    return;
+                } else if (!animatedParts.has(3)) {
+                    window.backgroundAnimations.animatePart(3);
+                    return;
+                }
+            }
+            
+            // Handle solution section - trigger bubble chart transition
+            if (isInSolution && window.bubbleChart && window.bubbleChart.transitionToState) {
+                if (window.bubbleChart.currentState === 'most') {
+                    window.bubbleChart.transitionToState('least');
+                    return;
+                }
+            }
+            
+            // Check if we're in map section and should trigger popups
+            const shouldTriggerPopup = isMapInView && 
+                !allPopupsShownForward &&
+                ((nextPopupToOpenForward === 1 && isMap80PercentVisible()) || 
+                 (nextPopupToOpenForward > 1 && isMapInView));
+
+            if (shouldTriggerPopup) {
+                const currentTime = Date.now();
+                if (currentTime - lastScrollTime > scrollCooldown && !allPopupsShownForward) {
+                    lastScrollTime = currentTime;
+
+                    // Open next popup in forward sequence
+                    if (nextPopupToOpenForward === 1) {
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenForward = 2;
+                        // Reset reverse counter when starting forward
+                        nextPopupToOpenReverse = 8;
+                        allPopupsShownReverse = false;
+                    } else if (nextPopupToOpenForward === 2) {
+                        window.mapMarkers.cathy.openPopup();
+                        nextPopupToOpenForward = 3;
+                    } else if (nextPopupToOpenForward === 3) {
+                        window.mapMarkers.christina.openPopup();
+                        nextPopupToOpenForward = 4;
+                    } else if (nextPopupToOpenForward === 4) {
+                        // Update Jamie's popup content for the 4th popup
+                        window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        window.mapMarkers.jamie.openPopup();
+                        // Create and show unemployment chart
+                        createUnemploymentChart();
+                        const unemploymentChart = document.getElementById('unemployment-chart-container');
+                        if (unemploymentChart) {
+                            unemploymentChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 5;
+                    } else if (nextPopupToOpenForward === 5) {
+                        // Update Cathy's popup content for the 5th popup
+                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.cathy.openPopup();
+                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
+                        setTimeout(() => {
+                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
+                                window.mapMarkers.jamie.openPopup();
+                            }
+                        }, 100);
+                        nextPopupToOpenForward = 6;
+                    } else if (nextPopupToOpenForward === 6) {
+                        // Update Christina's popup content for the 6th popup
+                        window.mapMarkers.christina.setPopupContent('i can feel you guys, but I\'m glad that AI doesn\'t have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it\'s also hard for me to get a promotion or a high paid job because we also have AI competing with us now.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show age-industry treemap
+                        createAgeIndustryTreemap();
+                        const treemapChart = document.getElementById('age-industry-treemap-container');
+                        if (treemapChart) {
+                            treemapChart.classList.add('show');
+                        }
+                        nextPopupToOpenForward = 7;
+                    } else if (nextPopupToOpenForward === 7) {
+                        // Update Jamie's popup content for the 7th popup
+                        window.mapMarkers.jamie.setPopupContent('Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?');
+                        window.mapMarkers.jamie.openPopup();
+                        nextPopupToOpenForward = 8;
+                    } else if (nextPopupToOpenForward === 8) {
+                        // Update Christina's popup content for the 8th popup
+                        window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
+                        window.mapMarkers.christina.openPopup();
+                        // Create and show rent chart
+                        createRentChart();
+                        const rentChart = document.getElementById('rent-chart-container');
+                        if (rentChart) {
+                            rentChart.classList.add('show');
+                        }
+                        // All popups opened forward - remove sticky positioning
+                        allPopupsShownForward = true;
+                        nextPopupToOpenForward = 9; // Prevent further popup opening
+                        // Remove sticky positioning after a short delay
+                        setTimeout(() => {
+                            mapSection.style.position = 'relative';
+                            mapSection.classList.remove('sticky-active');
+                        }, 500);
+                    }
+                }
+            } else {
+                // Scroll to next section
+                const sections = ['intro', 'background', 'problem-statement', 'solution', 'map', 'conversation', 'conclusion'];
+                const currentScrollY = window.scrollY;
+                const windowHeight = window.innerHeight;
+                
+                // Find the current section
+                let currentSectionIndex = -1;
+                for (let i = 0; i < sections.length; i++) {
+                    const section = document.getElementById(sections[i]);
+                    if (section) {
+                        const rect = section.getBoundingClientRect();
+                        // Check if section is in viewport (at least 50% visible)
+                        if (rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5) {
+                            currentSectionIndex = i;
+                            break;
+                        }
+                    }
+                }
+                
+                // If no section found, find the closest one
+                if (currentSectionIndex === -1) {
+                    for (let i = 0; i < sections.length; i++) {
+                        const section = document.getElementById(sections[i]);
+                        if (section) {
+                            const rect = section.getBoundingClientRect();
+                            if (rect.top >= 0 && rect.top < windowHeight) {
+                                currentSectionIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // Scroll to next section
+                if (currentSectionIndex >= 0 && currentSectionIndex < sections.length - 1) {
+                    const nextSection = document.getElementById(sections[currentSectionIndex + 1]);
+                    if (nextSection) {
+                        nextSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } else if (currentSectionIndex === -1) {
+                    // If we're at the top, scroll to first section
+                    const firstSection = document.getElementById(sections[0]);
+                    if (firstSection) {
+                        firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        }
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('keydown', handleSpacebar);
 }
 
 // Create scroll-triggered bubble chart for Industry data
 function createBubbleChart() {
     const container = document.getElementById('bubble-chart-container');
     if (!container || typeof d3 === 'undefined') return;
+
+    // Initialize window.bubbleChart if it doesn't exist
+    if (!window.bubbleChart) {
+        window.bubbleChart = {
+            transitionToState: null,
+            currentState: 'most'
+        };
+    }
 
     // Clear any existing content
     container.innerHTML = '';
@@ -2140,6 +2333,7 @@ function createBubbleChart() {
         .text('Least Affected Industries');
 
     let currentState = 'most'; // 'most' or 'least'
+    window.bubbleChart.currentState = currentState;
     let allData = [];
 
     // Load and process data
@@ -2277,6 +2471,9 @@ function createBubbleChart() {
         const transitionToState = (newState, removeStickyCallback = null) => {
             if (newState === currentState) return;
             currentState = newState;
+            if (window.bubbleChart) {
+                window.bubbleChart.currentState = currentState;
+            }
 
             const sizeScale = newState === 'most' ? sizeScaleMost : sizeScaleLeast;
             const title = newState === 'most' ? 'Least Affected Industries' : 'Most Affected Industries';
@@ -2322,6 +2519,12 @@ function createBubbleChart() {
                 .attr('transform', d => `translate(${d.x || xScale(d.automationRisk)}, ${d.y || height / 2})`)
                 .on('end', onTransitionEnd);
         };
+        
+        // Expose transitionToState globally
+        if (!window.bubbleChart) {
+            window.bubbleChart = { currentState: 'most' };
+        }
+        window.bubbleChart.transitionToState = transitionToState;
 
         // Set up scroll observer for the solution section
         const solutionSection = document.getElementById('solution');
@@ -2400,6 +2603,9 @@ function createBubbleChart() {
                 }
             }, { passive: true });
         }
+        
+        // Expose transitionToState globally
+        window.bubbleChart.transitionToState = transitionToState;
     }).catch(error => {
         console.error('Error loading Industry.csv:', error);
         container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
@@ -2754,18 +2960,77 @@ function createAgeIndustryTreemap() {
 
     // Load and process data
     d3.csv('assets/csv/Age_Industry.csv').then(data => {
+        console.log('Loaded Age_Industry.csv data:', data);
+        console.log('Number of rows:', data.length);
+        
+        if (!data || data.length === 0) {
+            console.error('No data loaded from CSV');
+            container.innerHTML = '<p>Error: CSV file is empty or could not be parsed.</p>';
+            return;
+        }
+        
+        // Handle BOM (Byte Order Mark) in column names - normalize column names
+        const normalizeKey = (key) => {
+            if (!key) return key;
+            // Remove BOM and trim
+            return key.replace(/^\ufeff/, '').trim();
+        };
+        
+        // Normalize all keys in the data
+        const normalizedData = data.map(d => {
+            const normalized = {};
+            for (const key in d) {
+                const newKey = normalizeKey(key);
+                normalized[newKey] = d[key];
+            }
+            return normalized;
+        });
+        
         // Filter out empty rows and parse data
-        const processedData = data
-            .filter(d => d.Industry && d.Industry.trim() !== '' && d['Persons in thousands'])
-            .map(d => {
-                // Remove commas and parse numbers
-                const persons = d['Persons in thousands'].toString().replace(/,/g, '');
-                return {
-                    name: d.Industry,
-                    value: +persons
-                };
+        const processedData = normalizedData
+            .filter(d => {
+                // Check if row has valid data - skip header and empty rows
+                const industry = d.Industry || d['\ufeffIndustry'] || '';
+                if (!industry || industry.trim() === '' || industry.trim() === 'Industry') return false;
+                const personsValue = d['Persons in thousands'];
+                const hasPersons = personsValue !== undefined && personsValue !== null && String(personsValue).trim() !== '';
+                return hasPersons;
             })
-            .filter(d => !isNaN(d.value) && d.value > 0);
+            .map(d => {
+                try {
+                    // Get industry name (handle BOM)
+                    const industryName = (d.Industry || d['\ufeffIndustry'] || '').trim();
+                    if (!industryName) return null;
+                    
+                    // Remove commas and parse numbers
+                    const personsStr = String(d['Persons in thousands'] || '').replace(/,/g, '').trim();
+                    if (!personsStr) return null;
+                    
+                    const personsValue = parseFloat(personsStr);
+                    if (isNaN(personsValue) || personsValue <= 0) {
+                        console.warn('Invalid value for row:', industryName, personsStr);
+                        return null;
+                    }
+                    return {
+                        name: industryName,
+                        value: personsValue
+                    };
+                } catch (e) {
+                    console.warn('Error parsing row:', d, e);
+                    return null;
+                }
+            })
+            .filter(d => d !== null && d.name && !isNaN(d.value) && d.value > 0);
+
+        console.log('Processed data:', processedData);
+        console.log('Number of valid rows:', processedData.length);
+
+        // Check if we have valid data
+        if (!processedData || processedData.length === 0) {
+            console.error('No valid data found in Age_Industry.csv after processing');
+            container.innerHTML = '<p>Error: No valid data found in CSV file after processing.</p>';
+            return;
+        }
 
         // Create hierarchical data structure for treemap
         const root = d3.hierarchy({ children: processedData })
@@ -2861,7 +3126,8 @@ function createAgeIndustryTreemap() {
 
     }).catch(error => {
         console.error('Error loading Age_Industry.csv:', error);
-        container.innerHTML = '<p>Error loading data. Please check the CSV file.</p>';
+        console.error('Error details:', error.message, error.stack);
+        container.innerHTML = `<p>Error loading data: ${error.message || 'Please check the CSV file.'}</p>`;
     });
 }
 
