@@ -45,7 +45,7 @@ const observer = new IntersectionObserver((entries) => {
 document.addEventListener('DOMContentLoaded', async () => {
     // Load popup data first
     await loadPopupData();
-    
+
     const journeySteps = document.querySelectorAll('.journey-step');
     journeySteps.forEach(step => {
         observer.observe(step);
@@ -139,7 +139,7 @@ function setupBackgroundScrollAnimations() {
 
         animatedParts.add(partNumber);
     }
-    
+
     // Expose animatePart globally
     window.backgroundAnimations.animatePart = animatePart;
 
@@ -385,7 +385,7 @@ function setupPersonaScrollObserver() {
 
 function showPersonaJourney(persona, fromClick = true) {
     console.log('showPersonaJourney called with:', persona); // Debug log
-    
+
     // Conversation section removed
 
     // Collapse all persona details when journey starts
@@ -549,12 +549,12 @@ function getPersonaName(dialog) {
 async function speakText(text, personaName, bubbleElement) {
     // Initialize voices if not done yet
     initializeVoices();
-    
+
     // Stop any current speech
     if (currentSpeech) {
         window.speechSynthesis.cancel();
     }
-    
+
     if (!('speechSynthesis' in window)) {
         console.log('Speech synthesis not supported');
         // Still show bubble
@@ -564,7 +564,7 @@ async function speakText(text, personaName, bubbleElement) {
         }
         return Promise.resolve();
     }
-    
+
     // Ensure voices are loaded - wait longer if needed
     // Use the pre-loaded promise if available, otherwise wait
     if (voicesReadyPromise) {
@@ -572,7 +572,7 @@ async function speakText(text, personaName, bubbleElement) {
     } else {
         await ensureVoicesLoaded();
     }
-    
+
     // Double check voices are available
     let voices = window.speechSynthesis.getVoices();
     if (voices.length === 0) {
@@ -587,7 +587,7 @@ async function speakText(text, personaName, bubbleElement) {
             }
         }
     }
-    
+
     if (voices.length === 0) {
         console.warn('No voices available after retries');
         // Still show bubble even without voice
@@ -597,40 +597,40 @@ async function speakText(text, personaName, bubbleElement) {
         }
         return Promise.resolve();
     }
-    
+
     const utterance = new SpeechSynthesisUtterance(text);
     const voiceConfig = personaVoices[personaName] || personaVoices.jamie;
-    
+
     // Use the voices we already have
-    
+
     // Try to find the preferred voice, fallback to any female voice
-    let preferredVoice = voices.find(voice => 
+    let preferredVoice = voices.find(voice =>
         voice.name.includes(voiceConfig.voice)
     );
-    
+
     if (!preferredVoice) {
-        preferredVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('female') || 
+        preferredVoice = voices.find(voice =>
+            voice.name.toLowerCase().includes('female') ||
             voice.name.toLowerCase().includes('woman')
         );
     }
-    
+
     if (!preferredVoice && voices.length > 0) {
         // Fallback to any available voice
         preferredVoice = voices[0];
     }
-    
+
     if (preferredVoice) {
         utterance.voice = preferredVoice;
     }
-    
+
     utterance.pitch = voiceConfig.pitch;
     utterance.rate = voiceConfig.rate;
     utterance.volume = 0.9;
     utterance.lang = 'en-US';
-    
+
     currentSpeech = utterance;
-    
+
     // Show message bubble when voice starts
     utterance.onstart = () => {
         if (bubbleElement) {
@@ -638,7 +638,7 @@ async function speakText(text, personaName, bubbleElement) {
             bubbleElement.style.transform = 'scale(1)';
         }
     };
-    
+
     // Return a promise that resolves when speech finishes
     return new Promise((resolve, reject) => {
         utterance.onend = () => {
@@ -646,7 +646,7 @@ async function speakText(text, personaName, bubbleElement) {
             currentSpeech = null;
             resolve(); // Resolve when speech finishes
         };
-        
+
         utterance.onerror = (error) => {
             console.log('Speech error:', error);
             currentSpeech = null;
@@ -658,7 +658,7 @@ async function speakText(text, personaName, bubbleElement) {
             // Resolve anyway so next message can proceed
             resolve();
         };
-        
+
         // Speak the text - try to speak immediately
         try {
             // Cancel any ongoing speech first
@@ -695,7 +695,7 @@ const ensureVoicesLoaded = () => {
             resolve(false);
             return;
         }
-        
+
         const voices = window.speechSynthesis.getVoices();
         if (voices.length > 0) {
             voicesReady = true;
@@ -703,11 +703,11 @@ const ensureVoicesLoaded = () => {
             resolve(true);
             return;
         }
-        
+
         // Wait for voices to load with timeout
         let attempts = 0;
         const maxAttempts = 50; // 5 seconds max wait
-        
+
         const checkVoices = () => {
             attempts++;
             const loadedVoices = window.speechSynthesis.getVoices();
@@ -722,7 +722,7 @@ const ensureVoicesLoaded = () => {
                 resolve(false);
             }
         };
-        
+
         window.speechSynthesis.onvoiceschanged = checkVoices;
         setTimeout(checkVoices, 100);
     });
@@ -735,7 +735,7 @@ let voicesReadyPromise = null;
 const initializeVoices = () => {
     if (voicesInitialized) return;
     voicesInitialized = true;
-    
+
     if ('speechSynthesis' in window) {
         // Pre-load voices immediately
         voicesReadyPromise = ensureVoicesLoaded();
@@ -780,15 +780,15 @@ async function animateConversationScene(scene) {
     }
     scene.dataset.animated = 'true';
     console.log('Starting animation for scene:', scene.getAttribute('data-scene'));
-    
+
     // Hide all repeat buttons first
     const allRepeatButtons = document.querySelectorAll('.repeat-conversation-btn');
     allRepeatButtons.forEach(btn => btn.classList.remove('show'));
-    
+
     const dialogs = Array.from(scene.querySelectorAll('.persona-dialog'));
     const chatContainer = scene.querySelector('.chat-container');
     const repeatButton = chatContainer ? chatContainer.querySelector('.repeat-conversation-btn') : scene.querySelector('.repeat-conversation-btn');
-    
+
     // Hide repeat button initially
     if (repeatButton) {
         repeatButton.classList.remove('show');
@@ -798,7 +798,7 @@ async function animateConversationScene(scene) {
     } else {
         console.log('Repeat button NOT found for scene:', scene.getAttribute('data-scene'));
     }
-    
+
     // Reset all dialogs
     dialogs.forEach(dialog => {
         dialog.classList.remove('active', 'fade-out');
@@ -814,27 +814,27 @@ async function animateConversationScene(scene) {
             bubble.style.transform = 'scale(0.95)';
         }
     });
-    
+
     // Show messages sequentially with natural delays between conversations
     for (let index = 0; index < dialogs.length; index++) {
         const dialog = dialogs[index];
         const chatMessage = dialog.querySelector('.chat-message');
         const bubble = dialog.querySelector('.chat-bubble');
-        
+
         // Show dialog container
         dialog.classList.remove('fade-out');
         dialog.style.maxHeight = '200px';
         dialog.style.opacity = '1';
-        
+
         // Add typing indicator with "Speaking..." label
         let typingIndicator = chatMessage.querySelector('.typing-indicator');
         if (!typingIndicator) {
             typingIndicator = document.createElement('div');
             typingIndicator.className = 'typing-indicator';
             const personaName = getPersonaName(dialog);
-            const displayName = personaName === 'christina' ? 'Christina' : 
-                               personaName === 'jamie' ? 'Jamie' : 
-                               personaName === 'catherine' ? 'Catherine' : 'Someone';
+            const displayName = personaName === 'christina' ? 'Christina' :
+                personaName === 'jamie' ? 'Jamie' :
+                    personaName === 'catherine' ? 'Catherine' : 'Someone';
             typingIndicator.innerHTML = `
                 <span class="typing-label">${displayName} is speaking...</span>
                 <div class="typing-dots">
@@ -849,33 +849,33 @@ async function animateConversationScene(scene) {
             }
         }
         typingIndicator.classList.add('active');
-        
+
         // Hide bubble initially (keep it hidden)
         if (bubble) {
             bubble.style.opacity = '0';
             bubble.style.transform = 'scale(0.95)';
             bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
         }
-        
+
         // Show "Speaking..." indicator first (2.5 seconds)
         await new Promise(resolve => setTimeout(resolve, 2500));
-        
+
         // Remove typing indicator
         typingIndicator.classList.remove('active');
         await new Promise(resolve => setTimeout(resolve, 300));
         typingIndicator.remove();
-        
+
         // NOW show the message bubble after "speaking..." is done
         dialog.classList.add('active');
         if (bubble) {
             bubble.style.opacity = '1';
             bubble.style.transform = 'scale(1)';
         }
-        
+
         // Wait a few seconds before showing next message (natural conversation pace)
         const delayBetweenMessages = 3500; // 3.5 seconds between messages
         await new Promise(resolve => setTimeout(resolve, delayBetweenMessages));
-        
+
         // Show repeat button after last message
         if (index === dialogs.length - 1 && repeatButton) {
             setTimeout(() => {
@@ -893,7 +893,7 @@ async function animateConversationScene(scene) {
 function repeatConversationScene(button) {
     const sceneNumber = button.getAttribute('data-scene');
     const scene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
-    
+
     if (scene) {
         // Reset the scene
         delete scene.dataset.animated;
@@ -902,16 +902,16 @@ function repeatConversationScene(button) {
         if (sceneNumber === '1') {
             conversationHasStarted = false;
         }
-        
+
         // Hide repeat button
         button.classList.remove('show');
-        
+
         // Stop any ongoing speech (if any exists, though we're not using it anymore)
         if (currentSpeech && window.speechSynthesis) {
             window.speechSynthesis.cancel();
             currentSpeech = null;
         }
-        
+
         // Reset all dialogs in this scene
         const dialogs = scene.querySelectorAll('.persona-dialog');
         dialogs.forEach(dialog => {
@@ -926,7 +926,7 @@ function repeatConversationScene(button) {
                 bubble.style.transform = 'scale(0.95)';
             }
         });
-        
+
         // Restart animation
         setTimeout(() => {
             animateConversationScene(scene);
@@ -979,7 +979,7 @@ function goBackToPersonas() {
     document.getElementById('intro').style.display = 'flex';
     document.getElementById('background').style.display = 'flex';
     document.getElementById('personas').style.display = 'flex';
-    
+
     // Scroll to personas section
     setTimeout(() => {
         window.scrollTo({
@@ -1054,13 +1054,13 @@ window.addEventListener('wheel', (e) => {
 
 // Scene selection functionality
 // Make selectScene globally accessible
-window.selectScene = function(sceneNumber) {
+window.selectScene = function (sceneNumber) {
     // Stop any ongoing speech (if any exists, though we're not using it anymore)
     if (currentSpeech && window.speechSynthesis) {
         window.speechSynthesis.cancel();
         currentSpeech = null;
     }
-    
+
     // Update toggle buttons
     const toggleButtons = document.querySelectorAll('.scene-toggle-btn');
     toggleButtons.forEach(btn => {
@@ -1070,7 +1070,7 @@ window.selectScene = function(sceneNumber) {
             btn.classList.remove('active');
         }
     });
-    
+
     // Hide all scenes
     const allScenes = document.querySelectorAll('.conversation-scene');
     allScenes.forEach(scene => {
@@ -1078,7 +1078,7 @@ window.selectScene = function(sceneNumber) {
         // Reset scene state
         delete scene.dataset.animated;
         delete scene.dataset.animationComplete;
-        
+
         // Hide repeat buttons
         const repeatBtn = scene.querySelector('.repeat-conversation-btn');
         if (repeatBtn) {
@@ -1086,7 +1086,7 @@ window.selectScene = function(sceneNumber) {
             repeatBtn.style.opacity = '0';
             repeatBtn.style.visibility = 'hidden';
         }
-        
+
         // Reset all dialogs in this scene
         const dialogs = scene.querySelectorAll('.persona-dialog');
         dialogs.forEach(dialog => {
@@ -1102,7 +1102,7 @@ window.selectScene = function(sceneNumber) {
             }
         });
     });
-    
+
     // Show selected scene
     const selectedScene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
     if (selectedScene) {
@@ -1112,7 +1112,7 @@ window.selectScene = function(sceneNumber) {
         selectedScene.style.display = 'block';
         selectedScene.style.visibility = 'visible';
         selectedScene.style.opacity = '1';
-        
+
         // Start animation after a short delay to ensure scene is visible
         setTimeout(async () => {
             // Double check scene is visible before animating
@@ -1137,7 +1137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set up scroll animations for info blocks
     setupScrollAnimations();
-    
+
     // Conversation section removed - no longer needed
     // setupConversationAutoStart();
 });
@@ -1146,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
     const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in), .problem-item:not(.animate-in)');
-    
+
     if (animatedElements.length === 0) return;
 
     const animationObserver = new IntersectionObserver((entries) => {
@@ -1160,7 +1160,7 @@ function setupScrollAnimations() {
                     entry.target.classList.add('animate-in');
                     return; // Skip other processing for conversation scenes
                 }
-                
+
                 // Add small delay for staggered effect, especially for metric cards and point items
                 let delay = 0;
                 if (entry.target.classList.contains('metric-card')) {
@@ -1280,14 +1280,14 @@ function handleLocationMapZoom() {
         if (canadaChart) {
             canadaChart.classList.add('fade-out');
         }
-        
+
         // Zoom to Oshawa
         locationMap.flyTo([43.8971, -78.8658], 12, {
             duration: 1,
             easeLinearity: 0.25
         });
         locationMapZoomState = 2;
-        
+
         // After zoom animation completes, show chart_oshawa.jpeg
         setTimeout(() => {
             const oshawaChart = document.getElementById('chart-oshawa-container');
@@ -1381,11 +1381,11 @@ function initializeOshawaMap() {
     jamieMarker.on('click', () => {
         showPersonaBarCharts('jamie');
     });
-    
+
     cathyMarker.on('click', () => {
         showPersonaBarCharts('cathy');
     });
-    
+
     christinaMarker.on('click', () => {
         showPersonaBarCharts('christina');
     });
@@ -1512,24 +1512,24 @@ function setupMapScrollPopups() {
     const handleSpacebar = (e) => {
         if (e.code === 'Space' || e.key === ' ') {
             e.preventDefault(); // Always prevent default to control behavior
-            
+
             // Check which section we're in
             const backgroundSection = document.getElementById('background');
             const solutionSection = document.getElementById('solution');
             const mapSection = document.getElementById('map');
             const locationMapSection = document.getElementById('location-map');
-            
+
             const backgroundRect = backgroundSection ? backgroundSection.getBoundingClientRect() : null;
             const solutionRect = solutionSection ? solutionSection.getBoundingClientRect() : null;
             const mapRect = mapSection ? mapSection.getBoundingClientRect() : null;
             const locationMapRect = locationMapSection ? locationMapSection.getBoundingClientRect() : null;
-            
+
             const windowHeight = window.innerHeight;
             const isInBackground = backgroundRect && backgroundRect.top < windowHeight && backgroundRect.bottom > 0;
             const isInSolution = solutionRect && solutionRect.top < windowHeight && solutionRect.bottom > 0;
             const isInMap = mapRect && mapRect.top < windowHeight && mapRect.bottom > 0;
             const isInLocationMap = locationMapRect && locationMapRect.top < windowHeight && locationMapRect.bottom > 0;
-            
+
             // Handle background section - trigger next text part animation
             if (isInBackground && window.backgroundAnimations && window.backgroundAnimations.animatePart) {
                 const animatedParts = window.backgroundAnimations.animatedParts;
@@ -1544,7 +1544,7 @@ function setupMapScrollPopups() {
                     return;
                 }
             }
-            
+
             // Handle location map section - zoom in on spacebar, or scroll to next section if already at Oshawa
             if (isInLocationMap) {
                 // If already zoomed to Oshawa and chart shown, scroll to next section instead
@@ -1555,7 +1555,7 @@ function setupMapScrollPopups() {
                     return;
                 }
             }
-            
+
             // Handle solution section - trigger bubble chart transition
             if (isInSolution && window.bubbleChart && window.bubbleChart.transitionToState) {
                 if (window.bubbleChart.currentState === 'most') {
@@ -1563,17 +1563,17 @@ function setupMapScrollPopups() {
                     const removeStickyCallback = window.bubbleChart.removeSticky || null;
                     window.bubbleChart.transitionToState('least', removeStickyCallback);
                     return;
-                }   
+                }
             }
-            
+
             // Check if we're in map section and should trigger popups
             // Allow when not all popups shown, OR when nextPopupToOpenForward === 9 (cleanup phase)
             // Update isMapInView based on current viewport position
             if (mapRect) {
                 isMapInView = mapRect.top <= window.innerHeight && mapRect.bottom >= 0;
             }
-            
-            const shouldTriggerPopup = isMapInView && 
+
+            const shouldTriggerPopup = isMapInView &&
                 (!allPopupsShownForward || nextPopupToOpenForward === 9) &&
                 (isMap80PercentVisible() || nextPopupToOpenForward === 9);
 
@@ -1696,7 +1696,7 @@ function setupMapScrollPopups() {
                 const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
-                
+
                 // Find the current section
                 let currentSectionIndex = -1;
                 for (let i = 0; i < sections.length; i++) {
@@ -1710,7 +1710,7 @@ function setupMapScrollPopups() {
                         }
                     }
                 }
-                
+
                 // If no section found, find the closest one
                 if (currentSectionIndex === -1) {
                     for (let i = 0; i < sections.length; i++) {
@@ -1724,7 +1724,7 @@ function setupMapScrollPopups() {
                         }
                     }
                 }
-                
+
                 // Scroll to next section
                 if (currentSectionIndex >= 0 && currentSectionIndex < sections.length - 1) {
                     const nextSection = document.getElementById(sections[currentSectionIndex + 1]);
@@ -1743,7 +1743,7 @@ function setupMapScrollPopups() {
                 const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
-                
+
                 // Find the current section
                 let currentSectionIndex = -1;
                 for (let i = 0; i < sections.length; i++) {
@@ -1757,7 +1757,7 @@ function setupMapScrollPopups() {
                         }
                     }
                 }
-                
+
                 // If no section found, find the closest one
                 if (currentSectionIndex === -1) {
                     for (let i = 0; i < sections.length; i++) {
@@ -1771,7 +1771,7 @@ function setupMapScrollPopups() {
                         }
                     }
                 }
-                
+
                 // Scroll to next section
                 if (currentSectionIndex >= 0 && currentSectionIndex < sections.length - 1) {
                     const nextSection = document.getElementById(sections[currentSectionIndex + 1]);
@@ -1938,22 +1938,22 @@ function createBubbleChart() {
             .attr('opacity', 0.7)
             .attr('stroke', '#fff')
             .attr('stroke-width', 2)
-            .on('mouseover', function(event, d) {
+            .on('mouseover', function (event, d) {
                 d3.select(this)
                     .attr('opacity', 1)
                     .attr('stroke-width', 3);
-                
+
                 // Show tooltip
                 tooltip.style('opacity', 1)
                     .html(`<strong>${d.Industry}</strong><br>Automation Risk: ${d.automationRisk.toFixed(2)}%`)
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px');
             })
-            .on('mouseout', function() {
+            .on('mouseout', function () {
                 d3.select(this)
                     .attr('opacity', 0.7)
                     .attr('stroke-width', 2);
-                
+
                 tooltip.style('opacity', 0);
             });
 
@@ -2032,7 +2032,7 @@ function createBubbleChart() {
                 .attr('transform', d => `translate(${d.x || xScale(d.automationRisk)}, ${d.y || height / 2})`)
                 .on('end', onTransitionEnd);
         };
-        
+
         // Expose transitionToState globally
         if (!window.bubbleChart) {
             window.bubbleChart = { currentState: 'most' };
@@ -2044,7 +2044,7 @@ function createBubbleChart() {
         if (solutionSection) {
             let isSticky = false; // Track if section is sticky
             let stickyDisabled = false; // Track if sticky should be disabled after transition
-            
+
             // Function to remove sticky state
             const removeSticky = () => {
                 if (isSticky) {
@@ -2055,13 +2055,13 @@ function createBubbleChart() {
                     stickyDisabled = true; // Prevent re-adding sticky after transition
                 }
             };
-            
+
             // Expose removeSticky globally so it can be called from spacebar handler
             if (!window.bubbleChart) {
                 window.bubbleChart = {};
             }
             window.bubbleChart.removeSticky = removeSticky;
-            
+
             // Check if solution section top has reached the top of viewport
             const isSolutionAtTop = () => {
                 const sectionTop = solutionSection.getBoundingClientRect().top;
@@ -2096,7 +2096,7 @@ function createBubbleChart() {
                 }
             }, { passive: true });
         }
-        
+
         // Expose transitionToState globally
         window.bubbleChart.transitionToState = transitionToState;
     }).catch(error => {
@@ -2199,22 +2199,22 @@ function createAgeIndustryBubbleChart() {
             .attr('opacity', 0.7)
             .attr('stroke', '#fff')
             .attr('stroke-width', 2)
-            .on('mouseover', function(event, d) {
+            .on('mouseover', function (event, d) {
                 d3.select(this)
                     .attr('opacity', 1)
                     .attr('stroke-width', 3);
-                
+
                 // Show tooltip
                 tooltip.style('opacity', 1)
                     .html(`<strong>${d.Industry}</strong><br>Persons: ${d.persons.toFixed(1)} thousand`)
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px');
             })
-            .on('mouseout', function() {
+            .on('mouseout', function () {
                 d3.select(this)
                     .attr('opacity', 0.7)
                     .attr('stroke-width', 2);
-                
+
                 tooltip.style('opacity', 0);
             });
 
@@ -2252,7 +2252,7 @@ let unemploymentChartCreated = false;
 function createUnemploymentChart() {
     const container = document.getElementById('unemployment-chart-container');
     if (!container || typeof d3 === 'undefined') return;
-    
+
     // Only create chart once
     if (unemploymentChartCreated) return;
     unemploymentChartCreated = true;
@@ -2391,7 +2391,7 @@ function createUnemploymentChart() {
 
         // Add hover interactions
         svg.selectAll('circle')
-            .on('mouseover', function(event, d) {
+            .on('mouseover', function (event, d) {
                 d3.select(this)
                     .attr('r', 6)
                     .attr('fill', '#FFD700');
@@ -2402,7 +2402,7 @@ function createUnemploymentChart() {
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px');
             })
-            .on('mouseout', function() {
+            .on('mouseout', function () {
                 d3.select(this)
                     .attr('r', 4)
                     .attr('fill', '#4A90E2');
@@ -2422,7 +2422,7 @@ let ageIndustryTreemapCreated = false;
 function createAgeIndustryTreemap() {
     const container = document.getElementById('age-industry-treemap-container');
     if (!container || typeof d3 === 'undefined') return;
-    
+
     // Only create chart once
     if (ageIndustryTreemapCreated) return;
     ageIndustryTreemapCreated = true;
@@ -2455,20 +2455,20 @@ function createAgeIndustryTreemap() {
     d3.csv('assets/csv/Age_Industry.csv').then(data => {
         console.log('Loaded Age_Industry.csv data:', data);
         console.log('Number of rows:', data.length);
-        
+
         if (!data || data.length === 0) {
             console.error('No data loaded from CSV');
             container.innerHTML = '<p>Error: CSV file is empty or could not be parsed.</p>';
             return;
         }
-        
+
         // Handle BOM (Byte Order Mark) in column names - normalize column names
         const normalizeKey = (key) => {
             if (!key) return key;
             // Remove BOM and trim
             return key.replace(/^\ufeff/, '').trim();
         };
-        
+
         // Normalize all keys in the data
         const normalizedData = data.map(d => {
             const normalized = {};
@@ -2478,7 +2478,7 @@ function createAgeIndustryTreemap() {
             }
             return normalized;
         });
-        
+
         // Filter out empty rows and parse data
         const processedData = normalizedData
             .filter(d => {
@@ -2494,11 +2494,11 @@ function createAgeIndustryTreemap() {
                     // Get industry name (handle BOM)
                     const industryName = (d.Industry || d['\ufeffIndustry'] || '').trim();
                     if (!industryName) return null;
-                    
+
                     // Remove commas and parse numbers
                     const personsStr = String(d['Persons in thousands'] || '').replace(/,/g, '').trim();
                     if (!personsStr) return null;
-                    
+
                     const personsValue = parseFloat(personsStr);
                     if (isNaN(personsValue) || personsValue <= 0) {
                         console.warn('Invalid value for row:', industryName, personsStr);
@@ -2597,7 +2597,7 @@ function createAgeIndustryTreemap() {
 
         // Add hover interactions
         cells.select('rect')
-            .on('mouseover', function(event, d) {
+            .on('mouseover', function (event, d) {
                 d3.select(this)
                     .attr('stroke', '#FFD700')
                     .attr('stroke-width', 2);
@@ -2608,7 +2608,7 @@ function createAgeIndustryTreemap() {
                     .style('left', (event.pageX + 10) + 'px')
                     .style('top', (event.pageY - 10) + 'px');
             })
-            .on('mouseout', function() {
+            .on('mouseout', function () {
                 d3.select(this)
                     .attr('stroke', '#fff')
                     .attr('stroke-width', 1);
@@ -2629,7 +2629,7 @@ let rentChartCreated = false;
 function createRentChart() {
     const container = document.getElementById('rent-chart-container');
     if (!container || typeof d3 === 'undefined') return;
-    
+
     // Only create chart once
     if (rentChartCreated) return;
     rentChartCreated = true;
@@ -2829,19 +2829,15 @@ const personaIndustries = {
 // Create bar chart from Industry.csv
 function createIndustryBarChart() {
     const container = document.getElementById('industry-bar-chart-container');
-    // Ensure D3 and container exist
     if (!container || typeof d3 === 'undefined') return;
 
-    // Only create chart once
     if (industryChartCreated) {
         if (currentHighlightedPersona) {
             highlightIndustryBars(currentHighlightedPersona);
         }
         return;
     }
-    // Assuming these are defined in the outer scope
     industryChartCreated = true;
-    // container.innerHTML = ''; // Keep this line if you want to clear the container every time
 
     const width = 450;
     const height = 350;
@@ -2856,26 +2852,48 @@ function createIndustryBarChart() {
         data = data.filter(d => d.Industry !== 'Grand Total');
         
         const columnName = 'AVERAGE of Automation Risk (%)';
-        
+
         data.forEach(d => {
-            // Robustly find the correct value column, handling potential BOM (\ufeff) or missing exact name
-            const valueStr = d[columnName] || d['\ufeff' + columnName] || Object.keys(d).find(key => key.includes('Automation Risk')) && d[Object.keys(d).find(key => key.includes('Automation Risk'))];
+            const keys = Object.keys(d);
+            let valueStr = d[columnName] || d['\ufeff' + columnName];
+
+            // If not found, try the second column (value column)
+            if (!valueStr && keys.length > 1) {
+                valueStr = d[keys[1]];
+            }
+
+            // If still not found, try finding any column with numbers
+            if (!valueStr) {
+                for (let key of keys) {
+                    if (key !== 'Industry' && d[key] && !isNaN(+d[key])) {
+                        valueStr = d[key];
+                        break;
+                    }
+                }
+            }
+
             d.value = +valueStr;
+
+            // Debug if value is invalid
+            if (isNaN(d.value) || d.value === 0) {
+                console.warn('Invalid value for', d.Industry, ':', valueStr, 'Available keys:', keys, 'Full row:', d);
+            }
         });
 
         data = data.filter(d => !isNaN(d.value) && d.value > 0);
         data.sort((a, b) => b.value - a.value);
-        console.log(data);
-        // Assuming industryBarChartData is defined globally
-        industryBarChartData = data; 
+        console.log('Industry chart data:', data.map(d => ({ industry: d.Industry, value: d.value })));
+        industryBarChartData = data;
 
         const xScale = d3.scaleBand()
             .domain(data.map(d => d.Industry))
             .range([margin.left, width - margin.right])
             .padding(0.2);
 
+        // Use a proper D3 scale for Y axis - domain from 0 to max value
+        const maxValue = d3.max(data, d => d.value);
         const yScale = d3.scaleLinear()
-            .domain([0, 100])
+            .domain([0, maxValue * 1.1]) // Add 10% padding at top
             .range([height - margin.bottom, margin.top]);
 
         const bars = svg.selectAll('.bar')
@@ -2888,19 +2906,16 @@ function createIndustryBarChart() {
             .attr('fill', '#4A90E2')
             .attr('rx', 4)
             .attr('ry', 4)
-            
-            // --- FIX 1: Set initial Y position to the bottom of the chart ---
-            .attr('y', height - margin.bottom) 
-            // --- FIX 2: Set initial height to zero ---
-            .attr('height', 0); 
+            // Start with bars at baseline with 0 height for animation
+            .attr('y', d => (d.value))
+            .attr('height', d => d.value + 160);
 
+        // Animate bars growing from bottom
         bars.transition()
             .duration(800)
             .ease(d3.easeCubicOut)
-            // --- FIX 3: Transition Y position to the mapped data value ---
             .attr('y', d => yScale(d.value))
-            // --- FIX 4: Transition height to the calculated final height ---
-            .attr('height', d => height - margin.bottom - yScale(d.value));
+            .attr('height', d => (height - margin.bottom) - yScale(d.value) + 210);
 
         // X-Axis
         svg.append('g')
@@ -2919,12 +2934,12 @@ function createIndustryBarChart() {
             .attr('transform', `translate(${margin.left}, 0)`)
             .call(d3.axisLeft(yScale)
                 .ticks(6)
-                .tickFormat(d => d + '%'))
+                .tickFormat(d => d.toFixed(1) + '%'))
             .selectAll('text')
             .style('fill', '#fff')
             .style('font-size', '10px');
 
-        // Title
+        // Title and Labels (No changes needed here)
         svg.append('text')
             .attr('x', width / 2)
             .attr('y', 20)
@@ -2934,7 +2949,6 @@ function createIndustryBarChart() {
             .style('font-weight', 'bold')
             .text('Automation Risk by Industry');
 
-        // Y-Axis Label
         svg.append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', 15)
@@ -2945,9 +2959,9 @@ function createIndustryBarChart() {
             .style('font-weight', 'bold')
             .text('Automation Risk (%)');
 
-        // Highlight bars if a persona is set (assuming highlightIndustryBars exists)
+        
+        console.log('Industry chart created');
         if (currentHighlightedPersona) {
-            // Assuming highlightIndustryBars is defined elsewhere
             highlightIndustryBars(currentHighlightedPersona);
         }
 
@@ -3077,14 +3091,14 @@ function createAgeIndustryBarChart() {
 function industryMatches(industryName, dataIndustry) {
     const normalized = dataIndustry.toLowerCase().trim();
     const target = industryName.toLowerCase().trim();
-    
+
     if (normalized === target) return true;
     if (normalized.includes(target) || target.includes(normalized)) return true;
-    
+
     if (target === 'entertainment' && normalized.includes('entertainment')) return true;
     if (target === 'finance' && (normalized.includes('finance') || normalized.includes('insurance'))) return true;
     if (target === 'healthcare' && (normalized.includes('health') || normalized.includes('care'))) return true;
-    
+
     return false;
 }
 
@@ -3139,7 +3153,7 @@ function highlightIndustryBars(persona) {
         .attr('x', d => {
             const originalX = xScale(d.Industry);
             const originalWidth = xScale.bandwidth();
-            
+
             // 💡 FIX APPLIED: Robust comparison
             const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
             if (dataIndustry === targetIndustry) {
@@ -3149,7 +3163,7 @@ function highlightIndustryBars(persona) {
         })
         .attr('width', d => {
             const originalWidth = xScale.bandwidth();
-            
+
             // 💡 FIX APPLIED: Robust comparison
             const dataIndustry = d.Industry ? d.Industry.trim().toLowerCase() : '';
             if (dataIndustry === targetIndustry) {
@@ -3198,7 +3212,7 @@ function highlightAgeIndustryBars(persona) {
         .attr('x', d => {
             const originalX = xScale(d.Industry);
             const originalWidth = xScale.bandwidth();
-            
+
             if (industryMatches(industryName, d.Industry)) {
                 return originalX - (originalWidth * 0.1);
             }
@@ -3206,7 +3220,7 @@ function highlightAgeIndustryBars(persona) {
         })
         .attr('width', d => {
             const originalWidth = xScale.bandwidth();
-            
+
             if (industryMatches(industryName, d.Industry)) {
                 return originalWidth * 1.2;
             }
@@ -3229,7 +3243,7 @@ function showPersonaBarCharts(persona) {
     // Show chart containers
     const industryChart = document.getElementById('industry-bar-chart-container');
     const ageIndustryChart = document.getElementById('age-industry-bar-chart-container');
-    
+
     if (industryChart) {
         industryChart.classList.add('show');
     }
@@ -3247,9 +3261,46 @@ function showPersonaBarCharts(persona) {
             setTimeout(highlightCharts, 100);
         }
     };
-    
+
     setTimeout(highlightCharts, 200);
 }
+
+// Hide bar charts when clicking outside
+function hideBarCharts() {
+    const industryChart = document.getElementById('industry-bar-chart-container');
+    const ageIndustryChart = document.getElementById('age-industry-bar-chart-container');
+
+    if (industryChart) {
+        industryChart.classList.remove('show');
+    }
+    if (ageIndustryChart) {
+        ageIndustryChart.classList.remove('show');
+    }
+
+    currentHighlightedPersona = null;
+}
+
+// Add click-outside handler for bar charts
+document.addEventListener('click', (event) => {
+    const industryChart = document.getElementById('industry-bar-chart-container');
+    const ageIndustryChart = document.getElementById('age-industry-bar-chart-container');
+
+    // Check if charts are visible
+    if (!industryChart || !ageIndustryChart) return;
+    if (!industryChart.classList.contains('show') && !ageIndustryChart.classList.contains('show')) return;
+
+    // Check if click is inside either chart container
+    const clickedInsideIndustryChart = industryChart.contains(event.target);
+    const clickedInsideAgeIndustryChart = ageIndustryChart.contains(event.target);
+
+    // Check if click is on a persona marker (these should open charts, not close them)
+    const clickedOnPersonaMarker = event.target.closest('.leaflet-marker-icon') !== null;
+
+    // If clicked outside both charts and not on a persona marker, hide the charts
+    if (!clickedInsideIndustryChart && !clickedInsideAgeIndustryChart && !clickedOnPersonaMarker) {
+        hideBarCharts();
+    }
+});
 
 // Initialize map when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -3278,7 +3329,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
     }
-    
+
     updateLocationChartsVisibility();
 });
 
