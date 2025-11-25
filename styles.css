@@ -2627,6 +2627,10 @@ p {
     position: relative;
     margin-top: 2rem;
     left: -120px;
+    background-image: url('assets/images/square.b921ede8.jpg') !important;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .location-map-section {
@@ -2649,6 +2653,15 @@ p {
     height: 100%;
     width: 100%;
     border-radius: 15px;
+    background: transparent !important;
+}
+
+.map-container .leaflet-pane {
+    background: transparent !important;
+}
+
+.map-container .leaflet-tile-container {
+    display: none !important;
 }
 
 /* Custom markers for persona images */

@@ -1365,11 +1365,7 @@ function initializeOshawaMap() {
         touchZoom: false
     }).setView([oshawaLat, oshawaLng], 12);
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
+    // No tile layer - using background image instead
 
     // Create custom icon function
     function createPersonaIcon(imagePath, className, popupAnchor) {
