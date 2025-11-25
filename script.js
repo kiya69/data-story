@@ -115,6 +115,25 @@ function setupBackgroundScrollAnimations() {
         graph3.dataset.rotation = rotation3;
     }
 
+    // Typewriter effect function
+    function typewriterEffect(element, text, speed = 50) {
+        if (!element) return;
+        
+        element.textContent = '';
+        element.style.opacity = '1';
+        let i = 0;
+        
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        
+        type();
+    }
+
     // Function to animate a part
     function animatePart(partNumber) {
         if (animatedParts.has(partNumber)) return;
@@ -135,6 +154,17 @@ function setupBackgroundScrollAnimations() {
                 // Apply the stored rotation when showing
                 graphContainer.style.transform = `translateY(0) scale(1) rotate(${rotation}deg)`;
             }, 100);
+        }
+
+        // If this is part 3, trigger typewriter effect after slide-up animation completes
+        if (partNumber === 3) {
+            const typewriterElement = document.querySelector('.typewriter-text');
+            if (typewriterElement) {
+                // Wait for slide-up animation to complete (0.8s) before starting typewriter
+                setTimeout(() => {
+                    typewriterEffect(typewriterElement, 'are making it harder to live here', 50);
+                }, 800);
+            }
         }
 
         animatedParts.add(partNumber);
@@ -1840,7 +1870,7 @@ function createBubbleChart() {
         .attr('x', width / 2)
         .attr('y', 30)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'currentColor')
+        .attr('fill', '#334257')
         .style('font-size', '18px')
         .style('font-weight', 'bold')
         .text('Least Affected Industries');
@@ -1884,31 +1914,6 @@ function createBubbleChart() {
 
         const colorScale = d3.scaleSequential(d3.interpolateViridis)
             .domain(d3.extent(data, d => d.automationRisk));
-
-        // Add X axis
-        svg.append('g')
-            .attr('transform', `translate(0, ${height - margin.bottom})`)
-            .call(d3.axisBottom(xScale))
-            .append('text')
-            .attr('x', width / 2)
-            .attr('y', 35)
-            .attr('fill', 'currentColor')
-            .style('text-anchor', 'middle')
-            .style('font-size', '14px')
-            .text('Automation Risk (%)');
-
-        // Add Y axis
-        svg.append('g')
-            .attr('transform', `translate(${margin.left}, 0)`)
-            .call(d3.axisLeft(yScale))
-            .append('text')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', -30)
-            .attr('x', -height / 2)
-            .attr('fill', 'currentColor')
-            .style('text-anchor', 'middle')
-            .style('font-size', '14px')
-            .text('Automation Risk (%)');
 
         // Create initial force simulation for bubble positioning
         const createSimulation = (dataToSimulate, sizeScaleFunc) => {
@@ -1961,7 +1966,7 @@ function createBubbleChart() {
         const labels = bubbles.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
-            .attr('fill', '#fff')
+            .attr('fill', '#334257')
             .attr('font-size', d => Math.min(sizeScaleMost(d.automationRisk) / 3, 14))
             .attr('font-weight', 'bold')
             .text(d => d.Industry);
@@ -2156,7 +2161,7 @@ function createAgeIndustryBubbleChart() {
             .append('text')
             .attr('x', width / 2)
             .attr('y', 35)
-            .attr('fill', 'currentColor')
+            .attr('fill', '#334257')
             .style('text-anchor', 'middle')
             .style('font-size', '14px')
             .text('Persons (in thousands)');
@@ -2169,7 +2174,7 @@ function createAgeIndustryBubbleChart() {
             .attr('transform', 'rotate(-90)')
             .attr('y', -30)
             .attr('x', -height / 2)
-            .attr('fill', 'currentColor')
+            .attr('fill', '#334257')
             .style('text-anchor', 'middle')
             .style('font-size', '14px')
             .text('Persons (in thousands)');
@@ -2223,7 +2228,7 @@ function createAgeIndustryBubbleChart() {
             .append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '.35em')
-            .attr('fill', '#fff')
+            .attr('fill', '#334257')
             .attr('font-size', d => Math.min(sizeScale(d.persons) / 4, 12))
             .attr('font-weight', 'bold')
             .text(d => d.Industry.length > 20 ? d.Industry.substring(0, 20) + '...' : d.Industry);
@@ -2332,7 +2337,7 @@ function createUnemploymentChart() {
             .attr('dx', '-.8em')
             .attr('dy', '.15em')
             .attr('transform', 'rotate(-45)')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Add y-axis
@@ -2342,7 +2347,7 @@ function createUnemploymentChart() {
                 .ticks(6)
                 .tickFormat(d => d + '%'))
             .selectAll('text')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Add axis labels
@@ -2351,7 +2356,7 @@ function createUnemploymentChart() {
             .attr('y', 12)
             .attr('x', -height / 2)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Unemployment Rate (%)');
@@ -2360,7 +2365,7 @@ function createUnemploymentChart() {
             .attr('x', width / 2)
             .attr('y', height - 8)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Date');
@@ -2370,7 +2375,7 @@ function createUnemploymentChart() {
             .attr('x', width / 2)
             .attr('y', 15)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
             .text('Unemployment Rate Over Time');
@@ -2446,7 +2451,7 @@ function createAgeIndustryTreemap() {
         .attr('x', width / 2)
         .attr('y', 20)
         .style('text-anchor', 'middle')
-        .style('fill', '#fff')
+        .style('fill', '#334257')
         .style('font-size', '14px')
         .style('font-weight', 'bold')
         .text('Industries by Number of People (ON)');
@@ -2563,7 +2568,7 @@ function createAgeIndustryTreemap() {
             .attr('y', d => (d.y1 - d.y0) / 2)
             .attr('dy', '0.35em')
             .attr('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', d => Math.min((d.x1 - d.x0) / 10, 11))
             .style('font-weight', 'bold')
             .text(d => {
@@ -2577,7 +2582,7 @@ function createAgeIndustryTreemap() {
             .attr('x', d => (d.x1 - d.x0) / 2)
             .attr('y', d => (d.y1 - d.y0) / 2 + 15)
             .attr('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', d => Math.min((d.x1 - d.x0) / 12, 10))
             .text(d => d.data.value.toLocaleString() + 'K');
 
@@ -2724,7 +2729,7 @@ function createRentChart() {
             .attr('dx', '-.8em')
             .attr('dy', '.15em')
             .attr('transform', 'rotate(-45)')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Add y-axis
@@ -2734,7 +2739,7 @@ function createRentChart() {
                 .ticks(6)
                 .tickFormat(d => '$' + d))
             .selectAll('text')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Add axis labels
@@ -2743,7 +2748,7 @@ function createRentChart() {
             .attr('y', 12)
             .attr('x', -height / 2)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Rent ($)');
@@ -2752,7 +2757,7 @@ function createRentChart() {
             .attr('x', width / 2)
             .attr('y', height - 8)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Date');
@@ -2762,7 +2767,7 @@ function createRentChart() {
             .attr('x', width / 2)
             .attr('y', 15)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
             .text('Rent Prices Over Time');
@@ -2792,7 +2797,7 @@ function createRentChart() {
             legendRow.append('text')
                 .attr('x', 20)
                 .attr('y', 4)
-                .style('fill', '#fff')
+                .style('fill', '#334257')
                 .style('font-size', '10px')
                 .text(item.label);
         });
@@ -2926,7 +2931,7 @@ function createIndustryBarChart() {
             .attr('dx', '-.8em')
             .attr('dy', '.15em')
             .attr('transform', 'rotate(-45)')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Y-Axis
@@ -2936,7 +2941,7 @@ function createIndustryBarChart() {
                 .ticks(6)
                 .tickFormat(d => d.toFixed(1) + '%'))
             .selectAll('text')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         // Title and Labels (No changes needed here)
@@ -2944,7 +2949,7 @@ function createIndustryBarChart() {
             .attr('x', width / 2)
             .attr('y', 20)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
             .text('Automation Risk by Industry');
@@ -2954,7 +2959,7 @@ function createIndustryBarChart() {
             .attr('y', 15)
             .attr('x', -height / 2)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Automation Risk (%)');
@@ -3046,7 +3051,7 @@ function createAgeIndustryBarChart() {
             .attr('dx', '-.8em')
             .attr('dy', '.15em')
             .attr('transform', 'rotate(-45)')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '9px');
 
         svg.append('g')
@@ -3055,14 +3060,14 @@ function createAgeIndustryBarChart() {
                 .ticks(6)
                 .tickFormat(d => d + 'k'))
             .selectAll('text')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '10px');
 
         svg.append('text')
             .attr('x', width / 2)
             .attr('y', 20)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '14px')
             .style('font-weight', 'bold')
             .text('Employment by Industry');
@@ -3072,7 +3077,7 @@ function createAgeIndustryBarChart() {
             .attr('y', 15)
             .attr('x', -height / 2)
             .style('text-anchor', 'middle')
-            .style('fill', '#fff')
+            .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
             .text('Persons (thousands)');
