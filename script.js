@@ -1606,6 +1606,13 @@ function setupMapScrollPopups() {
                         // Update Christina's popup content for the 8th popup
                         window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                         window.mapMarkers.christina.openPopup();
+                        // Set higher z-index for this popup to appear above other elements
+                        setTimeout(() => {
+                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
+                            if (christinaPopupElement) {
+                                christinaPopupElement.style.zIndex = '1002';
+                            }
+                        }, 0);
                         // Create and show rent chart
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
@@ -1652,6 +1659,13 @@ function setupMapScrollPopups() {
                         // Update Christina's popup content for the 8th popup
                         window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                         window.mapMarkers.christina.openPopup();
+                        // Set higher z-index for this popup to appear above other elements
+                        setTimeout(() => {
+                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
+                            if (christinaPopupElement) {
+                                christinaPopupElement.style.zIndex = '1002';
+                            }
+                        }, 0);
                         // Show rent chart
                         const rentChart = document.getElementById('rent-chart-container');
                         if (rentChart) {
@@ -1831,6 +1845,13 @@ function setupMapScrollPopups() {
                         // Update Christina's popup content for the 8th popup
                         window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                         window.mapMarkers.christina.openPopup();
+                        // Set higher z-index for this popup to appear above other elements
+                        setTimeout(() => {
+                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
+                            if (christinaPopupElement) {
+                                christinaPopupElement.style.zIndex = '1002';
+                            }
+                        }, 0);
                         // Create and show rent chart
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
@@ -1869,6 +1890,13 @@ function setupMapScrollPopups() {
                     // Update Christina's popup content for the 8th popup
                     window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                     window.mapMarkers.christina.openPopup();
+                    // Set higher z-index for this popup to appear above other elements
+                    setTimeout(() => {
+                        const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
+                        if (christinaPopupElement) {
+                            christinaPopupElement.style.zIndex = '1002';
+                        }
+                    }, 0);
                     // Show rent chart
                     const rentChart = document.getElementById('rent-chart-container');
                     if (rentChart) {
@@ -2077,6 +2105,13 @@ function setupMapScrollPopups() {
                         // Update Christina's popup content for the 8th popup
                         window.mapMarkers.christina.setPopupContent('I\'ve been trying to take more AI workshops this year… but honestly, it\'s been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.');
                         window.mapMarkers.christina.openPopup();
+                        // Set higher z-index for this popup to appear above other elements
+                        setTimeout(() => {
+                            const christinaPopupElement = window.mapMarkers.christina.getPopup().getElement();
+                            if (christinaPopupElement) {
+                                christinaPopupElement.style.zIndex = '1002';
+                            }
+                        }, 0);
                         // Create and show rent chart
                         createRentChart();
                         const rentChart = document.getElementById('rent-chart-container');
