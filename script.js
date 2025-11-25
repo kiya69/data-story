@@ -1746,6 +1746,11 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
                         window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        // Configure popup to not auto-close so it stays open when other popups open
+                        const jamiePopup = window.mapMarkers.jamie.getPopup();
+                        if (jamiePopup) {
+                            jamiePopup.options.autoClose = false;
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Create and show unemployment chart
                         createUnemploymentChart();
@@ -1757,13 +1762,8 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
                         window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
-                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
-                        setTimeout(() => {
-                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
-                                window.mapMarkers.jamie.openPopup();
-                            }
-                        }, 100);
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -1962,6 +1962,11 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
                         window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        // Configure popup to not auto-close so it stays open when other popups open
+                        const jamiePopup = window.mapMarkers.jamie.getPopup();
+                        if (jamiePopup) {
+                            jamiePopup.options.autoClose = false;
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Create and show unemployment chart
                         createUnemploymentChart();
@@ -1973,13 +1978,8 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
                         window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
-                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
-                        setTimeout(() => {
-                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
-                                window.mapMarkers.jamie.openPopup();
-                            }
-                        }, 100);
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -2184,6 +2184,11 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
                         window.mapMarkers.jamie.setPopupContent('hey, i graduated a year ago but still can\'t find a job.');
+                        // Configure popup to not auto-close so it stays open when other popups open
+                        const jamiePopup = window.mapMarkers.jamie.getPopup();
+                        if (jamiePopup) {
+                            jamiePopup.options.autoClose = false;
+                        }
                         window.mapMarkers.jamie.openPopup();
                         // Create and show unemployment chart
                         createUnemploymentChart();
@@ -2195,13 +2200,8 @@ function setupMapScrollPopups() {
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
                         window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
-                        // Keep Jamie's 4th popup open (reopen it if Leaflet closed it)
-                        setTimeout(() => {
-                            if (window.mapMarkers && window.mapMarkers.jamie && !window.mapMarkers.jamie.isPopupOpen()) {
-                                window.mapMarkers.jamie.openPopup();
-                            }
-                        }, 100);
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
