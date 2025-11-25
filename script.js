@@ -1295,9 +1295,9 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Initialize Location Map (Canada -> Ontario -> Oshawa)
+// Initialize Location Map (Canada -> Oshawa)
 let locationMap = null;
-let locationMapZoomState = 0; // 0 = Canada, 1 = Ontario, 2 = Oshawa
+let locationMapZoomState = 0; // 0 = Canada (show chart), 1 = Zooming to Oshawa, 2 = Oshawa (show chart)
 
 function initializeLocationMap() {
     const mapContainer = document.getElementById('location-map-container');
@@ -1328,21 +1328,35 @@ function handleLocationMapZoom() {
     if (!locationMap) return;
 
     if (locationMapZoomState === 0) {
-        // Zoom to Ontario
-        locationMap.flyTo([50.0, -85.0], 6, {
-            duration: 1.5,
-            easeLinearity: 0.25
-        });
+        // First press: Show and slide up chart_canada.jpeg
+        const canadaChart = document.getElementById('chart-canada-container');
+        if (canadaChart) {
+            canadaChart.classList.add('show');
+        }
         locationMapZoomState = 1;
     } else if (locationMapZoomState === 1) {
+        // Second press: Slide up and fade out chart_canada.jpeg, then zoom to Oshawa
+        const canadaChart = document.getElementById('chart-canada-container');
+        if (canadaChart) {
+            canadaChart.classList.add('fade-out');
+        }
+        
         // Zoom to Oshawa
         locationMap.flyTo([43.8971, -78.8658], 12, {
-            duration: 1.5,
+            duration: 1,
             easeLinearity: 0.25
         });
         locationMapZoomState = 2;
+        
+        // After zoom animation completes, show chart_oshawa.jpeg
+        setTimeout(() => {
+            const oshawaChart = document.getElementById('chart-oshawa-container');
+            if (oshawaChart) {
+                oshawaChart.classList.add('show');
+            }
+        }, 1500); // Wait for flyTo animation to complete (1.5 seconds)
     }
-    // If already at Oshawa, do nothing (or could reset to Canada if needed)
+    // If already at Oshawa, do nothing (spacebar handler will scroll to next section)
 }
 
 // Initialize Oshawa Map with Persona Images
@@ -2010,7 +2024,7 @@ function setupMapScrollPopups() {
             
             // Handle location map section - zoom in on spacebar, or scroll to next section if already at Oshawa
             if (isInLocationMap) {
-                // If already zoomed to Oshawa, scroll to next section instead
+                // If already zoomed to Oshawa and chart shown, scroll to next section instead
                 if (locationMapZoomState === 2) {
                     // Continue to next section (fall through to section scrolling logic)
                 } else {

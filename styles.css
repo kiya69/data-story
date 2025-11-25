@@ -2636,17 +2636,63 @@ p {
 .location-map-section {
     background: var(--bg-dark);
     min-height: 100vh;
-    padding: 4rem 2rem;
+    padding: 0;
+    position: relative;
 }
 
 .location-map-container {
-    height: 600px;
-    width: 100%;
-    max-width: 1200px;
-    margin: 2rem auto;
-    border-radius: 15px;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    border-radius: 0;
     overflow: hidden;
+    box-shadow: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Location Chart Containers */
+.location-chart-container {
+    position: absolute;
+    right: 20px;
+    top: 100vh;
+    width: 520px;
+    max-width: 90%;
+    z-index: 1000;
+    transition: top 0.8s ease-out, opacity 0.8s ease-out, transform 0.8s ease-out;
+    pointer-events: none;
+    opacity: 1;
+}
+
+.location-chart-container.show {
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: auto;
+    opacity: 1;
+}
+
+.location-chart-container.fade-out {
+    top: -100px;
+    opacity: 0;
+    transform: translateY(-50%);
+}
+
+.location-chart-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+}
+
+.chart-canada-container {
+    z-index: 1001;
+}
+
+.chart-oshawa-container {
+    z-index: 1002;
 }
 
 .map-container .leaflet-container {
