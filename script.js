@@ -1437,23 +1437,10 @@ function setupMapScrollPopups() {
     let allPopupsShownForward = false; // Track if all 8 popups have been shown when scrolling down
     let allPopupsShownReverse = false; // Track if all 8 popups have been shown when scrolling up
 
-    // Check if map section is 80% visible
+    // Check if top of map section has reached the top of viewport
     const isMap80PercentVisible = () => {
         const rect = mapSection.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const windowWidth = window.innerWidth;
-        
-        // Calculate visible area
-        const visibleTop = Math.max(0, -rect.top);
-        const visibleBottom = Math.min(rect.height, windowHeight - rect.top);
-        const visibleHeight = Math.max(0, visibleBottom - visibleTop);
-        const visibleWidth = Math.min(rect.width, windowWidth - Math.max(0, rect.left));
-        
-        const visibleArea = visibleHeight * visibleWidth;
-        const totalArea = rect.height * rect.width;
-        
-        // Check if 80% or more is visible
-        return (visibleArea / totalArea) >= 0.8;
+        return rect.top <= 0;
     };
 
     // Check if a popup is currently open
@@ -1465,9 +1452,12 @@ function setupMapScrollPopups() {
     };
 
     // Use IntersectionObserver to detect when map section is in view
+    // Also check if top has reached viewport for better small screen support
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            isMapInView = entry.isIntersecting;
+            const rect = mapSection.getBoundingClientRect();
+            // Map is in view if intersecting OR if top has reached viewport
+            isMapInView = entry.isIntersecting || rect.top <= 0;
             // Reset when map leaves view
             if (!entry.isIntersecting) {
                 nextPopupToOpenForward = 1;
@@ -1513,6 +1503,10 @@ function setupMapScrollPopups() {
         const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
         lastScrollY = currentScrollY;
 
+        // Update isMapInView based on current viewport position (more reliable than IntersectionObserver alone)
+        const rect = mapSection.getBoundingClientRect();
+        isMapInView = rect.top <= window.innerHeight && rect.bottom >= 0;
+
         // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
         if (scrollDirection === 'down') {
             // If all popups are shown, close popup 4 when user scrolls down
@@ -1533,10 +1527,8 @@ function setupMapScrollPopups() {
                 return;
             }
 
-            // For the first popup, only proceed if map section is 80% visible
-            if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
-            // For subsequent popups, check if map is in view
-            if (nextPopupToOpenForward > 1 && !isMapInView) return;
+            // Check if top of map section has reached viewport (works for all screen sizes)
+            if (!isMap80PercentVisible()) return;
 
             const currentTime = Date.now();
 
@@ -1767,10 +1759,8 @@ function setupMapScrollPopups() {
                 return;
             }
 
-            // For the first popup, only proceed if map section is 80% visible
-            if (nextPopupToOpenForward === 1 && !isMap80PercentVisible()) return;
-            // For subsequent popups, check if map is in view
-            if (nextPopupToOpenForward > 1 && !isMapInView) return;
+            // Check if top of map section has reached viewport (works for all screen sizes)
+            if (!isMap80PercentVisible()) return;
 
             const currentTime = Date.now();
 
@@ -2016,8 +2006,7 @@ function setupMapScrollPopups() {
             // Check if we're in map section and should trigger popups
             const shouldTriggerPopup = isMapInView && 
                 !allPopupsShownForward &&
-                ((nextPopupToOpenForward === 1 && isMap80PercentVisible()) || 
-                 (nextPopupToOpenForward > 1 && isMapInView));
+                isMap80PercentVisible();
 
             if (shouldTriggerPopup) {
                 const currentTime = Date.now();
