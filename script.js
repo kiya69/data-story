@@ -12,217 +12,6 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Rough.js helper function to add hand-drawn borders
-function addRoughBorder(element, options = {}) {
-    if (!window.rough) return; // Check if Rough.js is loaded
-
-    // Skip if already has rough border
-    if (element.querySelector('.rough-border')) return;
-
-    const padding = options.padding || 0;
-
-    // Create SVG overlay
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'rough-border');
-    svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.height = '100%';
-    svg.style.pointerEvents = 'none';
-    svg.style.zIndex = '1';
-    svg.style.overflow = 'visible';
-
-    // Make parent relative if not already
-    const computedStyle = window.getComputedStyle(element);
-    if (computedStyle.position === 'static') {
-        element.style.position = 'relative';
-    }
-
-    element.appendChild(svg);
-
-    // Function to update border based on element size
-    const updateBorder = () => {
-        const rect = element.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-        svg.setAttribute('width', width);
-        svg.setAttribute('height', height);
-
-        // Clear previous content
-        svg.innerHTML = '';
-
-        // Use Rough.js to draw border
-        const rc = rough.svg(svg);
-        const strokeColor = options.stroke || getComputedStyle(element).getPropertyValue('--primary-color') || '#a8c5a0';
-        const strokeWidth = options.strokeWidth || 2;
-
-        const roughOptions = {
-            roughness: options.roughness || 1.5,
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-            fill: 'none',
-            bowing: options.bowing || 3,
-            ...options.roughOptions
-        };
-
-        const node = rc.rectangle(padding, padding, width - (padding * 2), height - (padding * 2), roughOptions);
-        svg.appendChild(node);
-    };
-
-    // Initial draw
-    updateBorder();
-
-    // Update on resize
-    const resizeObserver = new ResizeObserver(() => {
-        updateBorder();
-    });
-    resizeObserver.observe(element);
-
-    return svg;
-}
-
-// Apply rough.js styling to multiple elements
-function applyRoughStyling() {
-    if (!window.rough) {
-        console.warn('Rough.js not loaded');
-        return;
-    }
-
-    // Persona cards
-    document.querySelectorAll('.persona-card').forEach(card => {
-        if (!card.querySelector('.rough-border')) {
-            const color = card.classList.contains('jamie-card') ? '#7fb3b0' :
-                card.classList.contains('cathy-card') ? '#d4a5a5' :
-                    card.classList.contains('christina-card') ? '#c9a882' : '#a8c5a0';
-            addRoughBorder(card, {
-                padding: 2,
-                stroke: color,
-                strokeWidth: 2.5,
-                roughness: 1.8,
-                bowing: 4
-            });
-        }
-    });
-
-    // Problem items
-    document.querySelectorAll('.problem-item').forEach(item => {
-        if (!item.querySelector('.rough-border')) {
-            addRoughBorder(item, {
-                padding: 1,
-                stroke: '#a8c5a0',
-                strokeWidth: 2,
-                roughness: 2,
-                bowing: 3
-            });
-        }
-    });
-
-    // Point items
-    document.querySelectorAll('.point-item').forEach(item => {
-        if (!item.querySelector('.rough-border')) {
-            addRoughBorder(item, {
-                padding: 3,
-                stroke: '#a8c5a0',
-                strokeWidth: 3,
-                roughness: 2.5,
-                bowing: 5
-            });
-        }
-    });
-
-    // Background graph containers
-    document.querySelectorAll('.background-graph-container').forEach(container => {
-        if (!container.querySelector('.rough-border')) {
-            addRoughBorder(container, {
-                padding: 1,
-                stroke: 'rgba(168, 197, 160, 0.5)',
-                strokeWidth: 2,
-                roughness: 1.5,
-                bowing: 3
-            });
-        }
-    });
-
-    // Metric cards
-    document.querySelectorAll('.metric-card').forEach(card => {
-        if (!card.querySelector('.rough-border')) {
-            addRoughBorder(card, {
-                padding: 1,
-                stroke: '#a8c5a0',
-                strokeWidth: 2,
-                roughness: 1.8,
-                bowing: 3
-            });
-        }
-    });
-
-    // Timeline content
-    document.querySelectorAll('.timeline-content').forEach(content => {
-        if (!content.querySelector('.rough-border')) {
-            addRoughBorder(content, {
-                padding: 1,
-                stroke: '#a8c5a0',
-                strokeWidth: 1.5,
-                roughness: 1.5,
-                bowing: 2
-            });
-        }
-    });
-
-    // Conclusion points
-    document.querySelectorAll('.conclusion-point').forEach(point => {
-        if (!point.querySelector('.rough-border')) {
-            addRoughBorder(point, {
-                padding: 1,
-                stroke: '#a8c5a0',
-                strokeWidth: 2,
-                roughness: 2,
-                bowing: 3
-            });
-        }
-    });
-
-    // Background text content
-    const textContent = document.querySelector('#background .text-content');
-    if (textContent && !textContent.querySelector('.rough-border')) {
-        addRoughBorder(textContent, {
-            padding: 1,
-            stroke: 'rgba(168, 197, 160, 0.4)',
-            strokeWidth: 2,
-            roughness: 1.5,
-            bowing: 2
-        });
-    }
-
-    // Data visualization containers
-    document.querySelectorAll('.data-visualization').forEach(container => {
-        if (!container.querySelector('.rough-border')) {
-            addRoughBorder(container, {
-                padding: 1,
-                stroke: '#a8c5a0',
-                strokeWidth: 1.5,
-                roughness: 1.5,
-                bowing: 2
-            });
-        }
-    });
-
-    // Comparison content
-    document.querySelectorAll('.comparison-content').forEach(content => {
-        if (!content.querySelector('.rough-border')) {
-            addRoughBorder(content, {
-                padding: 1,
-                stroke: '#d4a5a5',
-                strokeWidth: 2,
-                roughness: 1.8,
-                bowing: 3
-            });
-        }
-    });
-}
 
 // Observe journey steps
 document.addEventListener('DOMContentLoaded', () => {
@@ -234,16 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up background section scroll animations
     setupBackgroundScrollAnimations();
 
-    // Apply rough.js styling after a short delay to ensure elements are rendered
-    setTimeout(() => {
-        applyRoughStyling();
-    }, 100);
-
     // Re-apply when new elements are added dynamically
     const mutationObserver = new MutationObserver(() => {
-        setTimeout(() => {
-            applyRoughStyling();
-        }, 100);
+        // Mutation observer for dynamic content
     });
 
     mutationObserver.observe(document.body, {
@@ -321,16 +103,6 @@ function setupBackgroundScrollAnimations() {
                 graphContainer.classList.add('show');
                 // Apply the stored rotation when showing
                 graphContainer.style.transform = `translateY(0) scale(1) rotate(${rotation}deg)`;
-                // Apply rough.js border after graph is shown
-                if (window.rough && !graphContainer.querySelector('.rough-border')) {
-                    addRoughBorder(graphContainer, {
-                        padding: 1,
-                        stroke: 'rgba(168, 197, 160, 0.5)',
-                        strokeWidth: 2,
-                        roughness: 1.5,
-                        bowing: 3
-                    });
-                }
             }, 100);
         }
 
@@ -517,7 +289,7 @@ function setupPersonaScrollObserver() {
                     if (!personaSelected && !scrollTriggered) {
                         scrollTriggered = true;
                         // Randomly select a persona
-                        const personas = ['jamie', 'cathy', 'christina'];
+                        const personas = ['jamie', 'catherine', 'christina'];
                         const randomPersona = personas[Math.floor(Math.random() * personas.length)];
                         personaSelected = true;
                         selectedPersona = randomPersona;
@@ -598,7 +370,7 @@ function showPersonaJourney(persona, fromClick = true) {
 
     // Hide all journey sections first
     document.getElementById('jamie-journey').style.display = 'none';
-    document.getElementById('cathy-journey').style.display = 'none';
+    document.getElementById('catherine-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
 
     // Show selected persona's journey and scroll to it
@@ -614,16 +386,16 @@ function showPersonaJourney(persona, fromClick = true) {
                 jamieJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
-    } else if (persona === 'cathy' || persona === 'catherine') {
-        const cathyJourney = document.getElementById('cathy-journey');
-        cathyJourney.style.display = 'flex';
-        animateJourneySteps('cathy-journey');
-        console.log('Cathy journey shown');
+    } else if (persona === 'catherine') {
+        const catherineJourney = document.getElementById('catherine-journey');
+        catherineJourney.style.display = 'flex';
+        animateJourneySteps('catherine-journey');
+        console.log('Catherine journey shown');
 
-        // Scroll to Cathy's journey
+        // Scroll to Catherine's journey
         if (fromClick) {
             setTimeout(() => {
-                cathyJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                catherineJourney.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
         }
     } else if (persona === 'christina') {
@@ -643,10 +415,10 @@ function showPersonaJourney(persona, fromClick = true) {
     }
 }
 
-function toggleCathyView() {
-    const pictureView = document.getElementById('cathy-picture-view');
-    const comparisonView = document.getElementById('cathy-comparison-view');
-    const toggleButton = document.getElementById('cathy-toggle');
+function toggleCatherineView() {
+    const pictureView = document.getElementById('catherine-picture-view');
+    const comparisonView = document.getElementById('catherine-comparison-view');
+    const toggleButton = document.getElementById('catherine-toggle');
 
     if (pictureView.classList.contains('active')) {
         pictureView.classList.remove('active');
@@ -1211,7 +983,7 @@ function goBackToPersonas() {
 
     // Hide all journey sections
     document.getElementById('jamie-journey').style.display = 'none';
-    document.getElementById('cathy-journey').style.display = 'none';
+    document.getElementById('catherine-journey').style.display = 'none';
     document.getElementById('christina-journey').style.display = 'none';
     document.getElementById('conversation').style.display = 'none';
     document.getElementById('conclusion').style.display = 'none';
@@ -1437,8 +1209,6 @@ function reinitializeScrollAnimations() {
     // Small delay to ensure DOM is updated
     setTimeout(() => {
         setupScrollAnimations();
-        // Re-apply rough.js styling to newly visible elements
-        applyRoughStyling();
     }, 100);
 }
 
@@ -1615,18 +1385,18 @@ function initializeOshawaMap() {
     // Place markers horizontally side by side
     // Jamie - leftmost, popup above and to the right
     const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [-80, -80]);
-    const jamieMarker = L.marker([oshawaLat, oshawaLng - 0.03], { icon: jamieIcon, draggable: true })
+    const jamieMarker = L.marker([oshawaLat, oshawaLng - 0.04], { icon: jamieIcon, draggable: true })
         .addTo(map)
         .bindPopup('<b>Jamie</b><br>University graduate looking for employment', {
             className: 'jamie-popup'
         });
 
-    // Cathy (Catherine) - middle, popup above center
-    const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
-    const cathyMarker = L.marker([oshawaLat, oshawaLng], { icon: cathyIcon, draggable: true })
+    // Catherine - middle, popup above center
+    const catherineIcon = createPersonaIcon('assets/images/1cathy.png', 'catherine-marker', [0, -80]);
+    const catherineMarker = L.marker([oshawaLat, oshawaLng], { icon: catherineIcon, draggable: true })
         .addTo(map)
-        .bindPopup('<b>Cathy</b><br>Experienced professional navigating career changes', {
-            className: 'cathy-popup'
+        .bindPopup('<b>Catherine</b><br>Experienced professional navigating career changes', {
+            className: 'catherine-popup'
         });
 
     // Christina - rightmost, popup above and to the left (90px left of marker)
@@ -1639,13 +1409,13 @@ function initializeOshawaMap() {
 
     // Disable click to open popup (we'll open on scroll instead)
     jamieMarker.off('click');
-    cathyMarker.off('click');
+    catherineMarker.off('click');
     christinaMarker.off('click');
 
     // Store markers for scroll-triggered popups
     window.mapMarkers = {
         jamie: jamieMarker,
-        cathy: cathyMarker,
+        catherine: catherineMarker,
         christina: christinaMarker
     };
 
@@ -1658,8 +1428,8 @@ function setupMapScrollPopups() {
     const mapSection = document.getElementById('map');
     if (!mapSection || !window.mapMarkers) return;
 
-    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=cathy, 3=christina, 4=jamie2, 5=cathy2, 6=christina2, 7=jamie3, 8=christina3)
-    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=cathy2, 4=jamie2, 3=christina, 2=cathy, 1=jamie)
+    let nextPopupToOpenForward = 1; // Track which popup to open next when scrolling down (1=jamie, 2=catherine, 3=christina, 4=jamie2, 5=catherine2, 6=christina2, 7=jamie3, 8=christina3)
+    let nextPopupToOpenReverse = 8; // Track which popup to open next when scrolling up (8=christina3, 7=jamie3, 6=christina2, 5=catherine2, 4=jamie2, 3=christina, 2=catherine, 1=jamie)
     let isMapInView = false;
     let lastScrollTime = 0;
     let lastScrollY = window.scrollY; // Track last scroll position to detect direction
@@ -1682,14 +1452,14 @@ function setupMapScrollPopups() {
         const visibleArea = visibleHeight * visibleWidth;
         const totalArea = rect.height * rect.width;
         
-        // Check if 80% or more is visible
-        return (visibleArea / totalArea) >= 0.8;
+        // Check if 50% or more is visible
+        return (visibleArea / totalArea) >= 0.5;
     };
 
     // Check if a popup is currently open
     const isPopupOpen = (popupNumber) => {
         if (popupNumber === 1) return window.mapMarkers.jamie.isPopupOpen();
-        if (popupNumber === 2) return window.mapMarkers.cathy.isPopupOpen();
+        if (popupNumber === 2) return window.mapMarkers.catherine.isPopupOpen();
         if (popupNumber === 3) return window.mapMarkers.christina.isPopupOpen();
         return false;
     };
@@ -1708,8 +1478,8 @@ function setupMapScrollPopups() {
                 if (window.mapMarkers && window.mapMarkers.jamie) {
                     window.mapMarkers.jamie.setPopupContent('<b>Jamie</b><br>University graduate looking for employment');
                 }
-                if (window.mapMarkers && window.mapMarkers.cathy) {
-                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
+                if (window.mapMarkers && window.mapMarkers.catherine) {
+                    window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
                 }
                 if (window.mapMarkers && window.mapMarkers.christina) {
                     window.mapMarkers.christina.setPopupContent('<b>Christina</b><br>Adapting to the changing job market');
@@ -1743,7 +1513,7 @@ function setupMapScrollPopups() {
         const scrollDirection = currentScrollY > lastScrollY ? 'down' : 'up';
         lastScrollY = currentScrollY;
 
-        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
+        // For scrolling down - open popups in forward order (Jamie → Catherine → Christina)
         if (scrollDirection === 'down') {
             // If all popups are shown, close popup 4 when user scrolls down
             if (allPopupsShownForward) {
@@ -1788,7 +1558,7 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 8;
                         allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.cathy.openPopup();
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -1806,14 +1576,16 @@ function setupMapScrollPopups() {
                         createUnemploymentChart();
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
                         if (unemploymentChart) {
-                            unemploymentChart.classList.add('show');
+                            setTimeout(() => {
+                                unemploymentChart.classList.add('show');
+                            }, 500);
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Catherine's popup content for the 5th popup
+                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.cathy.openPopup();
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -1853,7 +1625,7 @@ function setupMapScrollPopups() {
                 }
             });
         } 
-        // For scrolling up - open popups in reverse order (Christina → Cathy → Jamie)
+        // For scrolling up - open popups in reverse order (Christina → Catherine → Jamie)
         else if (scrollDirection === 'up') {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
@@ -1906,9 +1678,9 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenReverse = 5;
                     } else if (nextPopupToOpenReverse === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
-                        window.mapMarkers.cathy.openPopup();
+                        // Update Catherine's popup content for the 5th popup
+                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenReverse = 4;
                     } else if (nextPopupToOpenReverse === 4) {
                         // Update Jamie's popup content for the 4th popup
@@ -1935,9 +1707,9 @@ function setupMapScrollPopups() {
                         }
                         nextPopupToOpenReverse = 2;
                     } else if (nextPopupToOpenReverse === 2) {
-                        // Reset Cathy's popup to original content
-                        window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
-                        window.mapMarkers.cathy.openPopup();
+                        // Reset Catherine's popup to original content
+                        window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenReverse = 1;
                     } else if (nextPopupToOpenReverse === 1) {
                         // Reset Jamie's popup to original content
@@ -1966,7 +1738,7 @@ function setupMapScrollPopups() {
     const handleWheel = (e) => {
         const scrollDirection = e.deltaY > 0 ? 'down' : 'up';
 
-        // For scrolling down - open popups in forward order (Jamie → Cathy → Christina)
+        // For scrolling down - open popups in forward order (Jamie → Catherine → Christina)
         if (scrollDirection === 'down') {
             // If all popups are shown, close popup 4 when user scrolls down
             if (allPopupsShownForward) {
@@ -2004,7 +1776,7 @@ function setupMapScrollPopups() {
                     nextPopupToOpenReverse = 5;
                     allPopupsShownReverse = false;
                 } else if (nextPopupToOpenForward === 2) {
-                    window.mapMarkers.cathy.openPopup();
+                    window.mapMarkers.catherine.openPopup();
                     nextPopupToOpenForward = 3;
                 } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -2022,14 +1794,16 @@ function setupMapScrollPopups() {
                         createUnemploymentChart();
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
                         if (unemploymentChart) {
-                            unemploymentChart.classList.add('show');
+                            setTimeout(() => {
+                                unemploymentChart.classList.add('show');
+                            }, 500);
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Catherine's popup content for the 5th popup
+                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.cathy.openPopup();
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
@@ -2068,7 +1842,7 @@ function setupMapScrollPopups() {
                     }
             }
         }
-        // For scrolling up - open popups in reverse order (Cathy2 → Jamie2 → Christina → Cathy → Jamie)
+        // For scrolling up - open popups in reverse order (Catherine2 → Jamie2 → Christina → Catherine → Jamie)
         else if (scrollDirection === 'up') {
             if (!isMapInView) return;
             if (allPopupsShownReverse) return;
@@ -2114,9 +1888,9 @@ function setupMapScrollPopups() {
                     }
                     nextPopupToOpenReverse = 5;
                 } else if (nextPopupToOpenReverse === 5) {
-                    // Update Cathy's popup content for the 5th popup
-                    window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
-                    window.mapMarkers.cathy.openPopup();
+                    // Update Catherine's popup content for the 5th popup
+                    window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                    window.mapMarkers.catherine.openPopup();
                     nextPopupToOpenReverse = 4;
                 } else if (nextPopupToOpenReverse === 4) {
                     // Update Jamie's popup content for the 4th popup
@@ -2139,9 +1913,9 @@ function setupMapScrollPopups() {
                         }
                     nextPopupToOpenReverse = 2;
                 } else if (nextPopupToOpenReverse === 2) {
-                    // Reset Cathy's popup to original content
-                    window.mapMarkers.cathy.setPopupContent('<b>Cathy</b><br>Experienced professional navigating career changes');
-                    window.mapMarkers.cathy.openPopup();
+                        // Reset Catherine's popup to original content
+                        window.mapMarkers.catherine.setPopupContent('<b>Catherine</b><br>Experienced professional navigating career changes');
+                        window.mapMarkers.catherine.openPopup();
                     nextPopupToOpenReverse = 1;
                 } else if (nextPopupToOpenReverse === 1) {
                     // Reset Jamie's popup to original content
@@ -2240,7 +2014,7 @@ function setupMapScrollPopups() {
                         nextPopupToOpenReverse = 8;
                         allPopupsShownReverse = false;
                     } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.cathy.openPopup();
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
                         window.mapMarkers.christina.openPopup();
@@ -2258,14 +2032,16 @@ function setupMapScrollPopups() {
                         createUnemploymentChart();
                         const unemploymentChart = document.getElementById('unemployment-chart-container');
                         if (unemploymentChart) {
-                            unemploymentChart.classList.add('show');
+                            setTimeout(() => {
+                                unemploymentChart.classList.add('show');
+                            }, 500);
                         }
                         nextPopupToOpenForward = 5;
                     } else if (nextPopupToOpenForward === 5) {
-                        // Update Cathy's popup content for the 5th popup
-                        window.mapMarkers.cathy.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
+                        // Update Catherine's popup content for the 5th popup
+                        window.mapMarkers.catherine.setPopupContent('I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!');
                         // Jamie's popup is configured with autoClose: false, so it will stay open
-                        window.mapMarkers.cathy.openPopup();
+                        window.mapMarkers.catherine.openPopup();
                         nextPopupToOpenForward = 6;
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
