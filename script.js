@@ -1171,6 +1171,9 @@ function setupScrollAnimations() {
                 } else if (entry.target.classList.contains('problem-item')) {
                     const problemNumber = parseInt(entry.target.getAttribute('data-problem')) || 1;
                     delay = (problemNumber - 1) * 200; // 200ms delay between each problem item
+                } else if (entry.target.classList.contains('conclusion-point')) {
+                    const personaOrder = parseInt(entry.target.getAttribute('data-order')) || (index + 1);
+                    delay = (personaOrder - 1) * 350;
                 } else if (entry.target.classList.contains('persona-dialog')) {
                     delay = index * 150;
                 }
@@ -1294,6 +1297,26 @@ function handleLocationMapZoom() {
         }, 500); // Wait for flyTo animation to complete (1.5 seconds)
     }
     // If already at Oshawa, do nothing (spacebar handler will scroll to next section)
+}
+
+function updateLocationChartsVisibility() {
+    const locationMapSection = document.getElementById('location-map');
+    if (!locationMapSection) return;
+
+    const rect = locationMapSection.getBoundingClientRect();
+    const isSectionInView = rect.top < window.innerHeight && rect.bottom > 0;
+
+    const canadaChart = document.getElementById('chart-canada-container');
+    const oshawaChart = document.getElementById('chart-oshawa-container');
+
+    [canadaChart, oshawaChart].forEach(chart => {
+        if (!chart) return;
+        if (isSectionInView) {
+            chart.classList.remove('hidden-outside');
+        } else {
+            chart.classList.add('hidden-outside');
+        }
+    });
 }
 
 // Initialize Oshawa Map with Persona Images
@@ -1980,6 +2003,45 @@ function setupMapScrollPopups() {
         }
     };
 
+    const cleanupMapSectionAndScrollToConclusion = () => {
+        const mapSectionElement = document.getElementById('map');
+        const conclusionSection = document.getElementById('conclusion');
+
+        if (mapSectionElement) {
+            mapSectionElement.style.position = 'relative';
+            mapSectionElement.classList.remove('sticky-active');
+        }
+
+        const unemploymentChart = document.getElementById('unemployment-chart-container');
+        if (unemploymentChart) {
+            unemploymentChart.classList.remove('show');
+        }
+        const treemapChart = document.getElementById('age-industry-treemap-container');
+        if (treemapChart) {
+            treemapChart.classList.remove('show');
+        }
+        const rentChart = document.getElementById('rent-chart-container');
+        if (rentChart) {
+            rentChart.classList.remove('show');
+        }
+
+        if (window.mapMarkers) {
+            Object.values(window.mapMarkers).forEach(marker => {
+                if (marker && marker.closePopup) {
+                    marker.closePopup();
+                }
+            });
+        }
+
+        if (conclusionSection) {
+            const conclusionTop = conclusionSection.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({ top: conclusionTop, behavior: 'smooth' });
+        }
+
+        allPopupsShownForward = true;
+        nextPopupToOpenForward = 10;
+    };
+
     // Handle spacebar to trigger section effects or scroll to next section
     const handleSpacebar = (e) => {
         if (e.code === 'Space' || e.key === ' ') {
@@ -2143,79 +2205,7 @@ function setupMapScrollPopups() {
                         allPopupsShownForward = true;
                         nextPopupToOpenForward = 9; // Prevent further popup opening
                     } else if (nextPopupToOpenForward === 9) {
-                        // Remove sticky positioning when user presses spacebar after all popups are shown
-                        const mapSection = document.getElementById('map');
-                        if (mapSection) {
-                            mapSection.style.position = 'relative';
-                            mapSection.classList.remove('sticky-active');
-                        }
-                        // Hide all charts
-                        const unemploymentChart = document.getElementById('unemployment-chart-container');
-                        if (unemploymentChart) {
-                            unemploymentChart.classList.remove('show');
-                        }
-                        const treemapChart = document.getElementById('age-industry-treemap-container');
-                        if (treemapChart) {
-                            treemapChart.classList.remove('show');
-                        }
-                        const rentChart = document.getElementById('rent-chart-container');
-                        if (rentChart) {
-                            rentChart.classList.remove('show');
-                        }
-                        // Close all persona popups
-                        if (window.mapMarkers) {
-                            Object.values(window.mapMarkers).forEach(marker => {
-                                if (marker && marker.closePopup) {
-                                    marker.closePopup();
-                                }
-                            });
-                        }
-                        // Then scroll to next section
-                        const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
-                        const currentScrollY = window.scrollY;
-                        const windowHeight = window.innerHeight;
-                        
-                        // Find the current section
-                        let currentSectionIndex = -1;
-                        for (let i = 0; i < sections.length; i++) {
-                            const section = document.getElementById(sections[i]);
-                            if (section) {
-                                const rect = section.getBoundingClientRect();
-                                // Check if section is in viewport (at least 50% visible)
-                                if (rect.top < windowHeight * 0.5 && rect.bottom > windowHeight * 0.5) {
-                                    currentSectionIndex = i;
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        // If no section found, find the closest one
-                        if (currentSectionIndex === -1) {
-                            for (let i = 0; i < sections.length; i++) {
-                                const section = document.getElementById(sections[i]);
-                                if (section) {
-                                    const rect = section.getBoundingClientRect();
-                                    if (rect.top >= 0 && rect.top < windowHeight) {
-                                        currentSectionIndex = i;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        
-                        // Scroll smoothly to the conclusion section
-                        const conclusionSection = document.getElementById('conclusion');
-                        if (conclusionSection) {
-                            const conclusionTop = conclusionSection.getBoundingClientRect().top + window.scrollY;
-                            window.scrollTo({ top: conclusionTop, behavior: 'smooth' });
-                        } else if (currentSectionIndex === -1) {
-                            // If we're at the top, scroll to first section
-                            const firstSection = document.getElementById(sections[0]);
-                            if (firstSection) {
-                                firstSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                            }
-                        }
-                        nextPopupToOpenForward = 10; // Prevent repeated execution
+                        cleanupMapSectionAndScrollToConclusion();
                     }
                 }
             } else if (allPopupsShownForward && isInMap) {
@@ -2329,9 +2319,25 @@ function setupMapScrollPopups() {
         }
     };
 
+    const handleEnterKey = (e) => {
+        if (e.key !== 'Enter') return;
+
+        const mapSection = document.getElementById('map');
+        if (!mapSection) return;
+
+        const mapRect = mapSection.getBoundingClientRect();
+        const isInMap = mapRect.top < window.innerHeight && mapRect.bottom > 0;
+
+        if (isInMap) {
+            e.preventDefault();
+            cleanupMapSectionAndScrollToConclusion();
+        }
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: true });
     window.addEventListener('keydown', handleSpacebar);
+    window.addEventListener('keydown', handleEnterKey);
 }
 
 // Create scroll-triggered bubble chart for Industry data
@@ -3376,5 +3382,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 100);
     }
+    
+    updateLocationChartsVisibility();
 });
+
+window.addEventListener('scroll', updateLocationChartsVisibility, { passive: true });
+window.addEventListener('resize', updateLocationChartsVisibility);
 
