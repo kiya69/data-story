@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Story - Interactive Journey</title>
-    <!-- Google Fonts - Permanent Marker -->
+    <!-- Google Fonts - Permanent Marker and Albert Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -103,6 +103,15 @@
                     <p>Unemployment rates are climbing as traditional job roles become increasingly automated and displaced.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Location Map Section -->
+    <section class="story-section location-map-section" id="location-map">
+        <div class="content-wrapper">
+            <h2 class="fade-in">Location</h2>
+            <p class="subtitle fade-in delay-1">Press spacebar to zoom in</p>
+            <div id="location-map-container" class="location-map-container fade-in delay-2"></div>
         </div>
     </section>
 
@@ -319,10 +328,6 @@
                     <h3>Government Support Programs</h3>
                     <p>Explore and utilize available government support programs, training initiatives, and financial assistance. These resources can help bridge gaps during career transitions and provide essential support for those navigating the changing economy.</p>
                 </div>
-            </div>
-            
-            <div class="restart-container fade-in delay-5">
-                <button class="restart-button" onclick="restartStory()">Explore Another Journey</button>
             </div>
         </div>
     </section>

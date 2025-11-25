@@ -1525,6 +1525,56 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Initialize Location Map (Canada -> Ontario -> Oshawa)
+let locationMap = null;
+let locationMapZoomState = 0; // 0 = Canada, 1 = Ontario, 2 = Oshawa
+
+function initializeLocationMap() {
+    const mapContainer = document.getElementById('location-map-container');
+    if (!mapContainer || typeof L === 'undefined') return;
+
+    // Start at Canada view
+    locationMap = L.map('location-map-container', {
+        zoomControl: true,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
+        dragging: true,
+        touchZoom: false
+    }).setView([56.0, -95.0], 4); // Canada center, zoom level 4
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(locationMap);
+
+    locationMapZoomState = 0; // Start at Canada
+}
+
+// Function to handle location map zoom on spacebar
+function handleLocationMapZoom() {
+    if (!locationMap) return;
+
+    if (locationMapZoomState === 0) {
+        // Zoom to Ontario
+        locationMap.flyTo([50.0, -85.0], 6, {
+            duration: 1.5,
+            easeLinearity: 0.25
+        });
+        locationMapZoomState = 1;
+    } else if (locationMapZoomState === 1) {
+        // Zoom to Oshawa
+        locationMap.flyTo([43.8971, -78.8658], 12, {
+            duration: 1.5,
+            easeLinearity: 0.25
+        });
+        locationMapZoomState = 2;
+    }
+    // If already at Oshawa, do nothing (or could reset to Canada if needed)
+}
+
 // Initialize Oshawa Map with Persona Images
 function initializeOshawaMap() {
     const mapContainer = document.getElementById('map-container');
@@ -2124,15 +2174,18 @@ function setupMapScrollPopups() {
             const backgroundSection = document.getElementById('background');
             const solutionSection = document.getElementById('solution');
             const mapSection = document.getElementById('map');
+            const locationMapSection = document.getElementById('location-map');
             
             const backgroundRect = backgroundSection ? backgroundSection.getBoundingClientRect() : null;
             const solutionRect = solutionSection ? solutionSection.getBoundingClientRect() : null;
             const mapRect = mapSection ? mapSection.getBoundingClientRect() : null;
+            const locationMapRect = locationMapSection ? locationMapSection.getBoundingClientRect() : null;
             
             const windowHeight = window.innerHeight;
             const isInBackground = backgroundRect && backgroundRect.top < windowHeight && backgroundRect.bottom > 0;
             const isInSolution = solutionRect && solutionRect.top < windowHeight && solutionRect.bottom > 0;
             const isInMap = mapRect && mapRect.top < windowHeight && mapRect.bottom > 0;
+            const isInLocationMap = locationMapRect && locationMapRect.top < windowHeight && locationMapRect.bottom > 0;
             
             // Handle background section - trigger next text part animation
             if (isInBackground && window.backgroundAnimations && window.backgroundAnimations.animatePart) {
@@ -2145,6 +2198,17 @@ function setupMapScrollPopups() {
                     return;
                 } else if (!animatedParts.has(3)) {
                     window.backgroundAnimations.animatePart(3);
+                    return;
+                }
+            }
+            
+            // Handle location map section - zoom in on spacebar, or scroll to next section if already at Oshawa
+            if (isInLocationMap) {
+                // If already zoomed to Oshawa, scroll to next section instead
+                if (locationMapZoomState === 2) {
+                    // Continue to next section (fall through to section scrolling logic)
+                } else {
+                    handleLocationMapZoom();
                     return;
                 }
             }
@@ -2241,7 +2305,7 @@ function setupMapScrollPopups() {
                 }
             } else {
                 // Scroll to next section
-                const sections = ['intro', 'background', 'problem-statement', 'solution', 'map', 'conversation', 'conclusion'];
+                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conversation', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
                 
@@ -3314,11 +3378,13 @@ function createRentChart() {
 document.addEventListener('DOMContentLoaded', () => {
     // Wait a bit for Leaflet to be fully loaded
     if (typeof L !== 'undefined') {
+        initializeLocationMap();
         initializeOshawaMap();
     } else {
         // If Leaflet isn't loaded yet, wait a bit more
         setTimeout(() => {
             if (typeof L !== 'undefined') {
+                initializeLocationMap();
                 initializeOshawaMap();
             }
         }, 100);
