@@ -3080,6 +3080,7 @@ function createAgeIndustryBarChart() {
             .attr('transform', `translate(0, ${height - margin.bottom})`)
             .call(d3.axisBottom(xScale))
             .selectAll('text')
+            .text(d => d.length > 15 ? d.substring(0, 15) + '...' : d)
             .style('text-anchor', 'end')
             .attr('dx', '-.8em')
             .attr('dy', '.15em')
