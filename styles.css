@@ -315,7 +315,8 @@ html {
 }
 
 .problem-title {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     text-align: center;
     font-size: 2.8rem;
     color: var(--text-primary);
@@ -765,12 +766,12 @@ p {
 }
 
 .subtitle {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Albert Sans', sans-serif;
+    font-weight: 400;
     text-align: center;
     font-size: 1.5rem;
     margin-bottom: 3rem;
     color: var(--text-secondary);
-    font-weight: 400;
     letter-spacing: 0.5px;
 }
 
@@ -1874,7 +1875,8 @@ p {
 }
 
 .journey-header h2 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-weight: 400;
     letter-spacing: 1px;
 }
@@ -1934,7 +1936,8 @@ p {
 }
 
 .step-title {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-size: 2.5rem;
     margin-bottom: 1.5rem;
     color: var(--text-primary);
@@ -1961,7 +1964,8 @@ p {
 }
 
 .chart-container h4 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-size: 1.5rem;
     margin-bottom: 2rem;
     text-align: center;
@@ -2110,7 +2114,8 @@ p {
 }
 
 .timeline-content h4 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
     color: var(--text-primary);
@@ -2239,7 +2244,8 @@ p {
 }
 
 .conclusion-title {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     text-align: center;
     font-size: 3rem;
     margin-bottom: 3rem;
@@ -2327,7 +2333,8 @@ p {
 }
 
 .conclusion-bubble h3 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-size: 1.6rem;
     margin-bottom: 1.2rem;
     color: #1a1a1a;
@@ -2380,7 +2387,8 @@ p {
 }
 
 .message-title {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     font-size: 2.5rem;
     color: var(--text-primary);
     margin-bottom: 2rem;
@@ -2574,7 +2582,7 @@ p {
 
 .bubble-chart-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 960px;
     margin: 2rem auto;
     padding: 2rem;
     background: rgba(244, 237, 211, 0.8);
@@ -3140,7 +3148,8 @@ html {
 }
 
 .comparison-content h3 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 1rem;
     font-weight: 400;
@@ -3166,7 +3175,8 @@ html {
 }
 
 .comparison-item h4 {
-    font-family: 'Permanent Marker', cursive;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 0.5rem;
     font-size: 1.3rem;

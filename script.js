@@ -1855,9 +1855,9 @@ function createBubbleChart() {
     container.innerHTML = '';
 
     // Set up dimensions
-    const width = Math.min(800, window.innerWidth - 100);
+    const width = 860//Math.min(860, window.innerWidth - 100);
     const height = 600;
-    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    const margin = { top: 20, right: 80, bottom: 40, left: 40 };
 
     // Create SVG
     const svg = d3.select('#bubble-chart-container')
