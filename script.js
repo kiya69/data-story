@@ -89,8 +89,8 @@ function setupBackgroundScrollAnimations() {
     // Random positions and rotations for each graph (with overlap)
     // Position graphs in lower portion to avoid text area (text is in upper 40%)
     if (graph1) {
-        graph1.style.left = Math.random() * 30 + 12 + '%'; // 10-40%
-        graph1.style.top = randomIntFromInterval(50, 75) + '%'; // 50-75% (below text area)
+        graph1.style.left = '16.0691%'; // Fixed position
+        graph1.style.top = '53%'; // Fixed position
         graph1.style.zIndex = Math.floor(Math.random() * 3) + 1; // Random z-index 1-3
         const rotation1 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
         graph1.style.transform = `translateY(50px) scale(0.9) rotate(${rotation1}deg)`;
@@ -98,8 +98,8 @@ function setupBackgroundScrollAnimations() {
     }
 
     if (graph2) {
-        graph2.style.left = Math.random() * 30 + 50 + '%'; // 50-80%
-        graph2.style.top = randomIntFromInterval(55, 80) + '%'; // 55-80% (below text area)
+        graph2.style.left = '45.9964%'; // Fixed position
+        graph2.style.top = '46%'; // Fixed position
         graph2.style.zIndex = Math.floor(Math.random() * 3) + 1;
         const rotation2 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
         graph2.style.transform = `translateY(50px) scale(0.9) rotate(${rotation2}deg)`;
@@ -107,8 +107,8 @@ function setupBackgroundScrollAnimations() {
     }
 
     if (graph3) {
-        graph3.style.left = Math.random() * 30 + 30 + '%'; // 30-60%
-        graph3.style.top = randomIntFromInterval(60, 85) + '%'; // 60-85% (below text area)
+        graph3.style.left = '70.5026%'; // Fixed position
+        graph3.style.top = '55%'; // Fixed position
         graph3.style.zIndex = Math.floor(Math.random() * 3) + 1;
         const rotation3 = (Math.random() - 0.5) * 8; // -4 to +4 degrees
         graph3.style.transform = `translateY(50px) scale(0.9) rotate(${rotation3}deg)`;
@@ -116,7 +116,7 @@ function setupBackgroundScrollAnimations() {
     }
 
     // Typewriter effect function
-    function typewriterEffect(element, text, speed = 50) {
+    function typewriterEffect(element, text, speed = 30) {
         if (!element) return;
         
         element.textContent = '';
@@ -415,7 +415,7 @@ function setupPersonaScrollObserver() {
 
 function showPersonaJourney(persona, fromClick = true) {
     console.log('showPersonaJourney called with:', persona); // Debug log
-
+    
     // Conversation section removed
 
     // Collapse all persona details when journey starts
@@ -579,12 +579,12 @@ function getPersonaName(dialog) {
 async function speakText(text, personaName, bubbleElement) {
     // Initialize voices if not done yet
     initializeVoices();
-
+    
     // Stop any current speech
     if (currentSpeech) {
         window.speechSynthesis.cancel();
     }
-
+    
     if (!('speechSynthesis' in window)) {
         console.log('Speech synthesis not supported');
         // Still show bubble
@@ -594,7 +594,7 @@ async function speakText(text, personaName, bubbleElement) {
         }
         return Promise.resolve();
     }
-
+    
     // Ensure voices are loaded - wait longer if needed
     // Use the pre-loaded promise if available, otherwise wait
     if (voicesReadyPromise) {
@@ -602,7 +602,7 @@ async function speakText(text, personaName, bubbleElement) {
     } else {
         await ensureVoicesLoaded();
     }
-
+    
     // Double check voices are available
     let voices = window.speechSynthesis.getVoices();
     if (voices.length === 0) {
@@ -617,7 +617,7 @@ async function speakText(text, personaName, bubbleElement) {
             }
         }
     }
-
+    
     if (voices.length === 0) {
         console.warn('No voices available after retries');
         // Still show bubble even without voice
@@ -627,40 +627,40 @@ async function speakText(text, personaName, bubbleElement) {
         }
         return Promise.resolve();
     }
-
+    
     const utterance = new SpeechSynthesisUtterance(text);
     const voiceConfig = personaVoices[personaName] || personaVoices.jamie;
-
+    
     // Use the voices we already have
-
+    
     // Try to find the preferred voice, fallback to any female voice
-    let preferredVoice = voices.find(voice =>
+    let preferredVoice = voices.find(voice => 
         voice.name.includes(voiceConfig.voice)
     );
-
+    
     if (!preferredVoice) {
-        preferredVoice = voices.find(voice =>
-            voice.name.toLowerCase().includes('female') ||
+        preferredVoice = voices.find(voice => 
+            voice.name.toLowerCase().includes('female') || 
             voice.name.toLowerCase().includes('woman')
         );
     }
-
+    
     if (!preferredVoice && voices.length > 0) {
         // Fallback to any available voice
         preferredVoice = voices[0];
     }
-
+    
     if (preferredVoice) {
         utterance.voice = preferredVoice;
     }
-
+    
     utterance.pitch = voiceConfig.pitch;
     utterance.rate = voiceConfig.rate;
     utterance.volume = 0.9;
     utterance.lang = 'en-US';
-
+    
     currentSpeech = utterance;
-
+    
     // Show message bubble when voice starts
     utterance.onstart = () => {
         if (bubbleElement) {
@@ -668,7 +668,7 @@ async function speakText(text, personaName, bubbleElement) {
             bubbleElement.style.transform = 'scale(1)';
         }
     };
-
+    
     // Return a promise that resolves when speech finishes
     return new Promise((resolve, reject) => {
         utterance.onend = () => {
@@ -676,7 +676,7 @@ async function speakText(text, personaName, bubbleElement) {
             currentSpeech = null;
             resolve(); // Resolve when speech finishes
         };
-
+        
         utterance.onerror = (error) => {
             console.log('Speech error:', error);
             currentSpeech = null;
@@ -688,7 +688,7 @@ async function speakText(text, personaName, bubbleElement) {
             // Resolve anyway so next message can proceed
             resolve();
         };
-
+        
         // Speak the text - try to speak immediately
         try {
             // Cancel any ongoing speech first
@@ -725,7 +725,7 @@ const ensureVoicesLoaded = () => {
             resolve(false);
             return;
         }
-
+        
         const voices = window.speechSynthesis.getVoices();
         if (voices.length > 0) {
             voicesReady = true;
@@ -733,11 +733,11 @@ const ensureVoicesLoaded = () => {
             resolve(true);
             return;
         }
-
+        
         // Wait for voices to load with timeout
         let attempts = 0;
         const maxAttempts = 50; // 5 seconds max wait
-
+        
         const checkVoices = () => {
             attempts++;
             const loadedVoices = window.speechSynthesis.getVoices();
@@ -752,7 +752,7 @@ const ensureVoicesLoaded = () => {
                 resolve(false);
             }
         };
-
+        
         window.speechSynthesis.onvoiceschanged = checkVoices;
         setTimeout(checkVoices, 100);
     });
@@ -765,7 +765,7 @@ let voicesReadyPromise = null;
 const initializeVoices = () => {
     if (voicesInitialized) return;
     voicesInitialized = true;
-
+    
     if ('speechSynthesis' in window) {
         // Pre-load voices immediately
         voicesReadyPromise = ensureVoicesLoaded();
@@ -810,15 +810,15 @@ async function animateConversationScene(scene) {
     }
     scene.dataset.animated = 'true';
     console.log('Starting animation for scene:', scene.getAttribute('data-scene'));
-
+    
     // Hide all repeat buttons first
     const allRepeatButtons = document.querySelectorAll('.repeat-conversation-btn');
     allRepeatButtons.forEach(btn => btn.classList.remove('show'));
-
+    
     const dialogs = Array.from(scene.querySelectorAll('.persona-dialog'));
     const chatContainer = scene.querySelector('.chat-container');
     const repeatButton = chatContainer ? chatContainer.querySelector('.repeat-conversation-btn') : scene.querySelector('.repeat-conversation-btn');
-
+    
     // Hide repeat button initially
     if (repeatButton) {
         repeatButton.classList.remove('show');
@@ -828,7 +828,7 @@ async function animateConversationScene(scene) {
     } else {
         console.log('Repeat button NOT found for scene:', scene.getAttribute('data-scene'));
     }
-
+    
     // Reset all dialogs
     dialogs.forEach(dialog => {
         dialog.classList.remove('active', 'fade-out');
@@ -844,27 +844,27 @@ async function animateConversationScene(scene) {
             bubble.style.transform = 'scale(0.95)';
         }
     });
-
+    
     // Show messages sequentially with natural delays between conversations
     for (let index = 0; index < dialogs.length; index++) {
         const dialog = dialogs[index];
         const chatMessage = dialog.querySelector('.chat-message');
         const bubble = dialog.querySelector('.chat-bubble');
-
+        
         // Show dialog container
         dialog.classList.remove('fade-out');
         dialog.style.maxHeight = '200px';
         dialog.style.opacity = '1';
-
+        
         // Add typing indicator with "Speaking..." label
         let typingIndicator = chatMessage.querySelector('.typing-indicator');
         if (!typingIndicator) {
             typingIndicator = document.createElement('div');
             typingIndicator.className = 'typing-indicator';
             const personaName = getPersonaName(dialog);
-            const displayName = personaName === 'christina' ? 'Christina' :
-                personaName === 'jamie' ? 'Jamie' :
-                    personaName === 'catherine' ? 'Catherine' : 'Someone';
+            const displayName = personaName === 'christina' ? 'Christina' : 
+                               personaName === 'jamie' ? 'Jamie' : 
+                               personaName === 'catherine' ? 'Catherine' : 'Someone';
             typingIndicator.innerHTML = `
                 <span class="typing-label">${displayName} is speaking...</span>
                 <div class="typing-dots">
@@ -879,33 +879,33 @@ async function animateConversationScene(scene) {
             }
         }
         typingIndicator.classList.add('active');
-
+        
         // Hide bubble initially (keep it hidden)
         if (bubble) {
             bubble.style.opacity = '0';
             bubble.style.transform = 'scale(0.95)';
             bubble.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
         }
-
+        
         // Show "Speaking..." indicator first (2.5 seconds)
         await new Promise(resolve => setTimeout(resolve, 2500));
-
+        
         // Remove typing indicator
         typingIndicator.classList.remove('active');
         await new Promise(resolve => setTimeout(resolve, 300));
         typingIndicator.remove();
-
+        
         // NOW show the message bubble after "speaking..." is done
         dialog.classList.add('active');
         if (bubble) {
             bubble.style.opacity = '1';
             bubble.style.transform = 'scale(1)';
         }
-
+        
         // Wait a few seconds before showing next message (natural conversation pace)
         const delayBetweenMessages = 3500; // 3.5 seconds between messages
         await new Promise(resolve => setTimeout(resolve, delayBetweenMessages));
-
+        
         // Show repeat button after last message
         if (index === dialogs.length - 1 && repeatButton) {
             setTimeout(() => {
@@ -923,7 +923,7 @@ async function animateConversationScene(scene) {
 function repeatConversationScene(button) {
     const sceneNumber = button.getAttribute('data-scene');
     const scene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
-
+    
     if (scene) {
         // Reset the scene
         delete scene.dataset.animated;
@@ -932,16 +932,16 @@ function repeatConversationScene(button) {
         if (sceneNumber === '1') {
             conversationHasStarted = false;
         }
-
+        
         // Hide repeat button
         button.classList.remove('show');
-
+        
         // Stop any ongoing speech (if any exists, though we're not using it anymore)
         if (currentSpeech && window.speechSynthesis) {
             window.speechSynthesis.cancel();
             currentSpeech = null;
         }
-
+        
         // Reset all dialogs in this scene
         const dialogs = scene.querySelectorAll('.persona-dialog');
         dialogs.forEach(dialog => {
@@ -956,7 +956,7 @@ function repeatConversationScene(button) {
                 bubble.style.transform = 'scale(0.95)';
             }
         });
-
+        
         // Restart animation
         setTimeout(() => {
             animateConversationScene(scene);
@@ -1009,7 +1009,7 @@ function goBackToPersonas() {
     document.getElementById('intro').style.display = 'flex';
     document.getElementById('background').style.display = 'flex';
     document.getElementById('personas').style.display = 'flex';
-
+    
     // Scroll to personas section
     setTimeout(() => {
         window.scrollTo({
@@ -1090,7 +1090,7 @@ window.selectScene = function (sceneNumber) {
         window.speechSynthesis.cancel();
         currentSpeech = null;
     }
-
+    
     // Update toggle buttons
     const toggleButtons = document.querySelectorAll('.scene-toggle-btn');
     toggleButtons.forEach(btn => {
@@ -1100,7 +1100,7 @@ window.selectScene = function (sceneNumber) {
             btn.classList.remove('active');
         }
     });
-
+    
     // Hide all scenes
     const allScenes = document.querySelectorAll('.conversation-scene');
     allScenes.forEach(scene => {
@@ -1108,7 +1108,7 @@ window.selectScene = function (sceneNumber) {
         // Reset scene state
         delete scene.dataset.animated;
         delete scene.dataset.animationComplete;
-
+        
         // Hide repeat buttons
         const repeatBtn = scene.querySelector('.repeat-conversation-btn');
         if (repeatBtn) {
@@ -1116,7 +1116,7 @@ window.selectScene = function (sceneNumber) {
             repeatBtn.style.opacity = '0';
             repeatBtn.style.visibility = 'hidden';
         }
-
+        
         // Reset all dialogs in this scene
         const dialogs = scene.querySelectorAll('.persona-dialog');
         dialogs.forEach(dialog => {
@@ -1132,7 +1132,7 @@ window.selectScene = function (sceneNumber) {
             }
         });
     });
-
+    
     // Show selected scene
     const selectedScene = document.querySelector(`.conversation-scene[data-scene="${sceneNumber}"]`);
     if (selectedScene) {
@@ -1142,7 +1142,7 @@ window.selectScene = function (sceneNumber) {
         selectedScene.style.display = 'block';
         selectedScene.style.visibility = 'visible';
         selectedScene.style.opacity = '1';
-
+        
         // Start animation after a short delay to ensure scene is visible
         setTimeout(async () => {
             // Double check scene is visible before animating
@@ -1167,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Set up scroll animations for info blocks
     setupScrollAnimations();
-
+    
     // Conversation section removed - no longer needed
     // setupConversationAutoStart();
 });
@@ -1176,7 +1176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupScrollAnimations() {
     // Get all elements that need animation, but only those not already animated
     const animatedElements = document.querySelectorAll('.timeline-content:not(.animate-in), .metric-card:not(.animate-in), .conclusion-point:not(.animate-in), .point-item:not(.animate-in), .problem-item:not(.animate-in)');
-
+    
     if (animatedElements.length === 0) return;
 
     const animationObserver = new IntersectionObserver((entries) => {
@@ -1190,7 +1190,7 @@ function setupScrollAnimations() {
                     entry.target.classList.add('animate-in');
                     return; // Skip other processing for conversation scenes
                 }
-
+                
                 // Add small delay for staggered effect, especially for metric cards and point items
                 let delay = 0;
                 if (entry.target.classList.contains('metric-card')) {
@@ -1611,17 +1611,17 @@ function setupMapScrollPopups() {
                 const currentTime = Date.now();
                 // Allow execution if not all popups shown, OR if nextPopupToOpenForward === 9 (cleanup phase)
                 if (currentTime - lastScrollTime > scrollCooldown && (!allPopupsShownForward || nextPopupToOpenForward === 9)) {
-                    lastScrollTime = currentTime;
+                lastScrollTime = currentTime;
 
                     // Open next popup in forward sequence
                     if (nextPopupToOpenForward === 1) {
-                        window.mapMarkers.jamie.openPopup();
+                    window.mapMarkers.jamie.openPopup();
                         nextPopupToOpenForward = 2;
                     } else if (nextPopupToOpenForward === 2) {
-                        window.mapMarkers.cathy.openPopup();
+                    window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
                     } else if (nextPopupToOpenForward === 3) {
-                        window.mapMarkers.christina.openPopup();
+                    window.mapMarkers.christina.openPopup();
                         nextPopupToOpenForward = 4;
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup

@@ -2901,6 +2901,8 @@ p {
 }
 
 .chart-oshawa-container {
+    width: 676px; /* 30% bigger than 520px: 520 * 1.3 = 676 */
+    max-width: 90%;
     z-index: 1002;
 }
 
