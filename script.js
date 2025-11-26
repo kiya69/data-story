@@ -1579,7 +1579,12 @@ function setupMapScrollPopups() {
             if (isInLocationMap) {
                 // If already zoomed to Oshawa and chart shown, scroll to next section instead
                 if (locationMapZoomState === 2) {
-                    // Continue to next section (fall through to section scrolling logic)
+                    // Scroll to solution section (next section after location-map)
+                    const solutionSection = document.getElementById('solution');
+                    if (solutionSection) {
+                        solutionSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return;
+                    }
                 } else {
                     handleLocationMapZoom();
                     return;
@@ -1593,6 +1598,14 @@ function setupMapScrollPopups() {
                     const removeStickyCallback = window.bubbleChart.removeSticky || null;
                     window.bubbleChart.transitionToState('least', removeStickyCallback);
                     return;
+                }
+                // If bubble chart is already in 'least' state, scroll to next section (map)
+                if (window.bubbleChart.currentState === 'least') {
+                    const mapSection = document.getElementById('map');
+                    if (mapSection) {
+                        mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return;
+                    }
                 }
             }
 
@@ -1617,12 +1630,15 @@ function setupMapScrollPopups() {
                     if (nextPopupToOpenForward === 1) {
                     window.mapMarkers.jamie.openPopup();
                         nextPopupToOpenForward = 2;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 2) {
                     window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 3;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 3) {
                     window.mapMarkers.christina.openPopup();
                         nextPopupToOpenForward = 4;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 4) {
                         // Update Jamie's popup content for the 4th popup
                         if (popupData && popupData.popups['4']) {
@@ -1643,6 +1659,7 @@ function setupMapScrollPopups() {
                             }, 500);
                         }
                         nextPopupToOpenForward = 5;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 5) {
                         // Update Cathy's popup content for the 5th popup
                         if (popupData && popupData.popups['5']) {
@@ -1651,6 +1668,7 @@ function setupMapScrollPopups() {
                         // Jamie's popup is configured with autoClose: false, so it will stay open
                         window.mapMarkers.cathy.openPopup();
                         nextPopupToOpenForward = 6;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 6) {
                         // Update Christina's popup content for the 6th popup
                         if (popupData && popupData.popups['6']) {
@@ -1666,6 +1684,7 @@ function setupMapScrollPopups() {
                             }, 1000);
                         }
                         nextPopupToOpenForward = 7;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 7) {
                         // Update Jamie's popup content for the 7th popup
                         if (popupData && popupData.popups['7']) {
@@ -1680,6 +1699,7 @@ function setupMapScrollPopups() {
                             }
                         }, 0);
                         nextPopupToOpenForward = 8;
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 8) {
                         // Update Christina's popup content for the 8th popup
                         if (popupData && popupData.popups['8']) {
@@ -1704,8 +1724,10 @@ function setupMapScrollPopups() {
                         // All popups opened forward
                         allPopupsShownForward = true;
                         nextPopupToOpenForward = 9; // Prevent further popup opening
+                        return; // Return after opening popup to prevent section scrolling
                     } else if (nextPopupToOpenForward === 9) {
                         cleanupMapSectionAndScrollToConclusion();
+                        return; // Return after cleanup to prevent section scrolling
                     }
                 }
             } else if (allPopupsShownForward && isInMap) {
@@ -1723,7 +1745,7 @@ function setupMapScrollPopups() {
                     rentChart.classList.remove('show');
                 }
                 // Then scroll to next section
-                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
+                const sections = ['intro', 'background', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
 
@@ -1770,7 +1792,7 @@ function setupMapScrollPopups() {
                 }
             } else {
                 // Scroll to next section
-                const sections = ['intro', 'background', 'problem-statement', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
+                const sections = ['intro', 'background', 'location-map', 'solution', 'map', 'conclusion', 'final-message'];
                 const currentScrollY = window.scrollY;
                 const windowHeight = window.innerHeight;
 
