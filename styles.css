@@ -2333,7 +2333,7 @@ p {
 .age-industry-treemap-container {
     position: absolute;
     top: 60px;
-    right: -100px;
+    right: -50px;
     width: 540px;
     max-height: 440px;
     padding: 1.5rem;
