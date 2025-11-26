@@ -1949,16 +1949,28 @@ function createBubbleChart() {
 
         // Create initial force simulation for bubble positioning
         const createSimulation = (dataToSimulate, sizeScaleFunc) => {
-            return d3.forceSimulation(dataToSimulate)
+            const simulation = d3.forceSimulation(dataToSimulate)
                 .force('x', d3.forceX(d => xScale(d.automationRisk)).strength(0.8))
-                .force('y', d3.forceY(height / 2).strength(0.2))
-                .force('collision', d3.forceCollide().radius(d => sizeScaleFunc(d.automationRisk) + 10))
+                .force('y', d3.forceY(height / 2).strength(0.3))
+                .force('collision', d3.forceCollide().radius(d => sizeScaleFunc(d.automationRisk) + 5))
                 .stop();
+            
+            // Run simulation with boundary constraints
+            for (let i = 0; i < 150; ++i) {
+                simulation.tick();
+                // Constrain bubbles to stay within SVG bounds after each tick
+                dataToSimulate.forEach(d => {
+                    const radius = sizeScaleFunc(d.automationRisk);
+                    d.x = Math.max(margin.left + radius, Math.min(width - margin.right - radius, d.x));
+                    d.y = Math.max(margin.top + radius, Math.min(height - margin.bottom - radius, d.y));
+                });
+            }
+            
+            return simulation;
         };
 
         // Initial simulation with most affected (larger bubbles)
         let simulation = createSimulation([...allData], sizeScaleMost);
-        for (let i = 0; i < 150; ++i) simulation.tick();
 
         // Create bubbles
         const bubbles = svg.selectAll('.bubble')
@@ -2031,9 +2043,8 @@ function createBubbleChart() {
             // Update title
             titleText.text(title);
 
-            // Re-run simulation with new sizes first
+            // Re-run simulation with new sizes first (constraints already applied in createSimulation)
             simulation = createSimulation([...allData], sizeScale);
-            for (let i = 0; i < 150; ++i) simulation.tick();
 
             // Track transition completion
             let transitionCount = 0;
