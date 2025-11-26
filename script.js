@@ -1556,9 +1556,13 @@ function setupMapScrollPopups() {
 
             const windowHeight = window.innerHeight;
             const isInBackground = backgroundRect && backgroundRect.top < windowHeight && backgroundRect.bottom > 0;
-            const isInSolution = solutionRect && solutionRect.top < windowHeight && solutionRect.bottom > 0;
             const isInMap = mapRect && mapRect.top < windowHeight && mapRect.bottom > 0;
             const isInLocationMap = locationMapRect && locationMapRect.top < windowHeight && locationMapRect.bottom > 0;
+            
+            // Check if map section is at the top of viewport (prioritize map section over solution)
+            const mapSectionAtTop = mapRect && mapRect.top <= 5;
+            // Only check solution section if map section is not at the top
+            const isInSolution = !mapSectionAtTop && solutionRect && solutionRect.top < windowHeight && solutionRect.bottom > 0;
 
             // Handle background section - trigger next text part animation
             if (isInBackground && window.backgroundAnimations && window.backgroundAnimations.animatePart) {
@@ -1592,7 +1596,8 @@ function setupMapScrollPopups() {
             }
 
             // Handle solution section - trigger bubble chart transition
-            if (isInSolution && window.bubbleChart && window.bubbleChart.transitionToState) {
+            // Only check if map section is not at the top (prioritize map section)
+            if (isInSolution && !mapSectionAtTop && window.bubbleChart && window.bubbleChart.transitionToState) {
                 if (window.bubbleChart.currentState === 'most') {
                     // Pass removeSticky callback to remove sticky positioning after transition
                     const removeStickyCallback = window.bubbleChart.removeSticky || null;
@@ -1604,6 +1609,7 @@ function setupMapScrollPopups() {
                     const mapSection = document.getElementById('map');
                     if (mapSection) {
                         mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        isInSolution = false;
                         return;
                     }
                 }
