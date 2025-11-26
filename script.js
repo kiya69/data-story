@@ -2930,7 +2930,7 @@ function createIndustryBarChart() {
         // Use a proper D3 scale for Y axis - domain from 0 to max value
         const maxValue = d3.max(data, d => d.value);
         const yScale = d3.scaleLinear()
-            .domain([0, maxValue * 1.1]) // Add 10% padding at top
+            .domain([49, 51]) // Zoom in to 49% - 51% range
             .range([height - margin.bottom, margin.top]);
 
         const bars = svg.selectAll('.bar')
@@ -2945,7 +2945,7 @@ function createIndustryBarChart() {
             .attr('ry', 4)
             // Start with bars at baseline with 0 height for animation
             .attr('y', d => (d.value))
-            .attr('height', d => d.value + 160);
+            .attr('height', height - margin.bottom - margin.top);
 
         // Animate bars growing from bottom
         bars.transition()
