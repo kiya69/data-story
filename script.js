@@ -15,7 +15,7 @@ async function loadPopupData() {
         // Fallback to default data if JSON fails to load
         popupData = {
             initial: {
-                jamie: "Hi, I'm <b>Jamie</b>.I finished film school last year & still jobless.",
+                jamie: "Hi, I'm <b>Jamie</b>I finished film school last year & still jobless.",
                 cathy: "I'm <b>Catherine</b>I graduated with a Masters degree in Finances, has part-time job at a bank.",
                 christina: "Hi, I'm <b>Christina</b>I work fulltime in healthcare industry, but struggle to get a promotion & rent is too high."
             },
@@ -1391,7 +1391,7 @@ function initializeOshawaMap() {
     const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -80]);
     const jamieMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
         .addTo(map)
-        .bindPopup(popupData ? popupData.initial.jamie : "Hi, I'm <b>Jamie</b>.I finished film school last year & still jobless.", {
+        .bindPopup(popupData ? popupData.initial.jamie : "Hi, I'm <b>Jamie</b>I finished film school last year & still jobless.", {
             className: 'jamie-popup'
         });
 
