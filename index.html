@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Story - Interactive Journey</title>
+    <!-- Google Fonts - Permanent Marker and Albert Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+</head>
+<body>
+    <!-- Background Story Section -->
+    <section class="story-section" id="intro">
+        <div class="content-wrapper intro-content">
+            <div class="intro-left">
+                <img src="assets/images/Oshawa_map_1.png" alt="Oshawa Map" class="intro-map-image">
+            </div>
+            <div class="intro-right">
+                <h1 class="fade-in">Oshawa was affordable before AI</h1>
+                <p class="fade-in delay-1">As AI transforms industries, it's making it much harder for young professionals to find and keep jobs</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Questions Section -->
+    <section class="story-section questions-section" id="questions">
+        <div class="content-wrapper">
+            <p class="question-text fade-in">Before AI, Oshawa offered accessible entry-level jobs and affordable rent</p>
+            <p class="question-text fade-in delay-1">Now, rising rents, job disruption, and higher unemployment rate are making it harder to live here</p>
+        </div>
+    </section>
+
+    <!-- Problem Statement Section -->
+    <section class="story-section problem-statement" id="problem-statement">
+        <div class="content-wrapper">
+            <h2 class="problem-title fade-in">Problem Statement</h2>
+            <div class="problem-points">
+                <div class="problem-item fade-in delay-1" data-problem="1">
+                    <div class="problem-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            <path d="M2 12h20"/>
+                        </svg>
+                    </div>
+                    <p>Artificial intelligence is fundamentally transforming employment opportunities across Canada's job market.</p>
+                </div>
+                
+                <div class="problem-item fade-in delay-2" data-problem="2">
+                    <div class="problem-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        </svg>
+                    </div>
+                    <p>Key industries most impacted by AI disruption show significant variation when comparing national trends to Ontario's regional economy.</p>
+                </div>
+                
+                <div class="problem-item fade-in delay-3" data-problem="3">
+                    <div class="problem-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <p>Housing costs in Oshawa continue to rise, creating financial pressure for residents and newcomers.</p>
+                </div>
+                
+                <div class="problem-item fade-in delay-4" data-problem="4">
+                    <div class="problem-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            <line x1="3" y1="3" x2="21" y2="21"/>
+                        </svg>
+                    </div>
+                    <p>Unemployment rates are climbing as traditional job roles become increasingly automated and displaced.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Location Map Section -->
+    <section class="story-section location-map-section" id="location-map">
+        <div id="location-map-container" class="location-map-container"></div>
+        <!-- Chart containers -->
+        <div id="chart-canada-container" class="location-chart-container chart-canada-container">
+            <img src="assets/images/chart_canada.jpeg" alt="Canada Chart" />
+        </div>
+        <div id="chart-oshawa-container" class="location-chart-container chart-oshawa-container">
+            <img src="assets/images/chart_oshawa.jpeg" alt="Oshawa Chart" />
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="story-section solution-section" id="solution">
+        <div class="content-wrapper">
+            <h2 class="fade-in solution-title sticky-title">Our take on solution</h2>
+            <div class="solution-content">
+                <div class="bubble-chart-section">
+                    <p class="subtitle fade-in delay-1">Industries affected by AI in Canada</p>
+                    <div id="bubble-chart-container" class="bubble-chart-container fade-in delay-2"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="story-section map-section" id="map">
+        <div class="content-wrapper">
+            <h2 class="fade-in">Conversation between 3 young professionals</h2>
+            <p class="subtitle fade-in delay-1">Explore the data shared of three young professionals</p>
+            <div id="map-container" class="map-container fade-in delay-2"></div>
+            <!-- Unemployment Chart Container -->
+            <div id="unemployment-chart-container" class="unemployment-chart-container"></div>
+            <!-- Age Industry Treemap Container -->
+            <div id="age-industry-treemap-container" class="age-industry-treemap-container"></div>
+            <!-- Rent Chart Container -->
+            <div id="rent-chart-container" class="rent-chart-container"></div>
+            <!-- Industry Bar Chart Container -->
+            <div id="industry-bar-chart-container" class="industry-bar-chart-container"></div>
+            <!-- Age Industry Bar Chart Container -->
+            <div id="age-industry-bar-chart-container" class="age-industry-bar-chart-container"></div>
+        </div>
+    </section>
+
+    <!-- Conclusion Section -->
+    <section class="story-section conclusion-section" id="conclusion">
+        <div class="content-wrapper">
+            <h2 class="fade-in conclusion-title">Conclusion</h2>
+            
+            <!-- Three Key Points -->
+            <ul class="conclusion-points">
+                <li class="conclusion-point fade-in delay-1" data-persona="jamie" data-order="1">
+                    <div class="conclusion-character">
+                        <img src="assets/images/1jamie.png" alt="Jamie">
+                    </div>
+                    <div class="conclusion-bubble jamie-bubble">
+                        <h3>Use AI to Develop Your Skills</h3>
+                        <p>Embrace AI tools and technologies to enhance your professional capabilities. Like Catherine, who leveraged AI to advance her career, continuous learning and adaptation to new technologies is essential in today's job market.</p>
+                    </div>
+                </li>
+                
+                <li class="conclusion-point fade-in delay-2" data-persona="catherine" data-order="2">
+                    <div class="conclusion-character">
+                        <img src="assets/images/1cathy.png" alt="Catherine">
+                    </div>
+                    <div class="conclusion-bubble catherine-bubble">
+                        <h3>Adapt to the Changes</h3>
+                        <p>Be flexible and proactive in adapting to industry transformations. The stories of us show that success requires resilience and the ability to navigate economic shifts and technological disruptions.</p>
+                    </div>
+                </li>
+                
+                <li class="conclusion-point fade-in delay-3" data-persona="christina" data-order="3">
+                    <div class="conclusion-character">
+                        <img src="assets/images/1chris.png" alt="Christina">
+                    </div>
+                    <div class="conclusion-bubble christina-bubble">
+                        <h3>Government Support Programs</h3>
+                        <p>Explore and utilize available government support programs, training initiatives, and financial assistance. These resources can help bridge gaps during career transitions and provide essential support for those navigating the changing economy.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Final Message Section -->
+    <section class="story-section final-message-section" id="final-message">
+        <div class="content-wrapper">
+            <!-- Message to Audience -->
+            <div class="conclusion-message fade-in delay-4">
+                <div class="message-label">Final Message</div>
+                <h3 class="message-title">A Message to Young Professionals</h3>
+                <div class="message-content">
+                    <p>The future of work is changing rapidly. AI is transforming industries, housing costs are rising, and the job market is evolving. But remember—you're not alone in navigating these challenges.</p>
+                    <p>Success comes from adapting, learning, and building connections. Whether you're in tech, finance, healthcare, or any other field, the key is to stay informed, develop new skills, and support each other along the way.</p>
+                    <p class="message-quote">"Your journey matters. Your story matters.<br>Together, we can navigate the future."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scrollama.js for smooth scroll-triggered animations -->
+    <script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="script.js"></script>
+</body>
+</html>
