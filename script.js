@@ -3053,7 +3053,7 @@ function createAgeIndustryBarChart() {
 
         const maxValue = d3.max(data, d => d.value);
         const yScale = d3.scaleLinear()
-            .domain([0, maxValue * 1.1])
+            .domain([0, 40]) // Set y-axis maximum to 40k (40 thousands)
             .range([height - margin.bottom, margin.top]);
 
         const bars = svg.selectAll('.bar')
