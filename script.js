@@ -2400,7 +2400,7 @@ function createUnemploymentChart() {
             .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
-            .text('Date');
+            // .text('Date');
 
         // Add title
         svg.append('text')
@@ -2792,7 +2792,7 @@ function createRentChart() {
             .style('fill', '#334257')
             .style('font-size', '11px')
             .style('font-weight', 'bold')
-            .text('Date');
+            // .text('Date');
 
         // Add title
         svg.append('text')
@@ -3025,7 +3025,7 @@ function createAgeIndustryBarChart() {
     container.innerHTML = '';
 
     const width = 450;
-    const height = 350;
+    const height = 380;
     const margin = { top: 40, right: 20, bottom: 80, left: 60 };
 
     const svg = d3.select('#age-industry-bar-chart-container')
