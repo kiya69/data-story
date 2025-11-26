@@ -12,7 +12,7 @@ async function loadPopupData() {
         popupData = {
             initial: {
                 jamie: "<b>Jamie</b><br>University graduate looking for employment",
-                cathy: "<b>Catherine</b><br>Experienced professional navigating career changes",
+                catherine: "<b>Catherine</b><br>Experienced professional navigating career changes",
                 christina: "<b>Christina</b><br>Adapting to the changing job market"
             },
             popups: {
@@ -162,7 +162,7 @@ function setupBackgroundScrollAnimations() {
             if (typewriterElement) {
                 // Wait for slide-up animation to complete (0.8s) before starting typewriter
                 setTimeout(() => {
-                    typewriterEffect(typewriterElement, 'are making it harder to live here', 50);
+                    typewriterEffect(typewriterElement, 'are making it harder to live here.', 50);
                 }, 800);
             }
         }
