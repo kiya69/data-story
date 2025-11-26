@@ -2103,7 +2103,7 @@ p {
     border-radius: 15px;
     padding: 2.5rem;
     backdrop-filter: blur(10px);
-    border-left: 4px solid #9b59b6;
+    border-left: 4px solid #476072;
     text-align: center;
     position: relative;
 }
@@ -2119,16 +2119,26 @@ p {
     margin-bottom: 0;
 }
 
+.message-content .message-cannot {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--color-dark);
+    line-height: 1.8;
+    margin: 2rem auto 1rem;
+    text-align: center;
+    display: block;
+}
+
 .message-content .message-quote {
-    font-family: 'Georgia', 'Times New Roman', serif;
-    font-style: italic;
-    font-size: 1.6rem;
+    font-family: 'Nanum Pen Script', cursive;
+    font-style: normal;
+    font-size: 2.2rem;
     font-weight: 400;
     color: #f5f1e8;
     line-height: 1.8;
     margin: 2rem auto 0;
     padding: 3rem 2.5rem;
-    background: #4a3d5a;
+    background: var(--color-medium);
     border-radius: 12px;
     text-align: center;
     display: block;
@@ -2640,12 +2650,12 @@ p {
     background: rgba(244, 237, 211, 0.98) !important;
     border: 4px solid #4c585b !important;
     /* Uneven oval shape - different border radius values create hand-drawn look */
-    border-radius: 60% 40% 50% 45% / 55% 35% 65% 45% !important;
+    border-radius: 47% 53% 59% 41% / 66% 52% 48% 34% !important;
     box-shadow:
         0 5px 10px rgba(0, 0, 0, 0.4),
         inset 0 2px 4px rgba(255, 255, 255, 0.6),
         inset 0 -2px 4px rgba(0, 0, 0, 0.1) !important;
-    padding: 18px 24px !important;
+    padding: 38px 45px !important;
     margin: 0 !important;
     position: relative !important;
     font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive, sans-serif !important;
@@ -2733,8 +2743,8 @@ p {
     left: -3px !important;
     right: -3px !important;
     bottom: -3px !important;
-    border: 2px solid rgba(0, 0, 0, 0.15) !important;
-    border-radius: 50% 40% 50% 40% / 60% 30% 70% 40% !important;
+    /* border: 2px solid rgba(0, 0, 0, 0.15) !important; */
+    /* border-radius: 50% 40% 50% 40% / 60% 30% 70% 40% !important; */
     pointer-events: none !important;
     z-index: -1 !important;
     animation: borderPulse 3s ease-in-out infinite !important;

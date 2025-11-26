@@ -6,21 +6,25 @@ async function loadPopupData() {
     try {
         const response = await fetch('assets/data/popups.json');
         popupData = await response.json();
+        // Map "catherine" key to "cathy" for compatibility
+        if (popupData.initial && popupData.initial.catherine && !popupData.initial.cathy) {
+            popupData.initial.cathy = popupData.initial.catherine;
+        }
     } catch (error) {
         console.error('Error loading popup data:', error);
         // Fallback to default data if JSON fails to load
         popupData = {
             initial: {
-                jamie: "<b>Jamie</b><br>University graduate looking for employment",
-                catherine: "<b>Catherine</b><br>Experienced professional navigating career changes",
-                christina: "<b>Christina</b><br>Adapting to the changing job market"
+                jamie: "Hi, I'm <b>Jamie</b>.I finished film school last year & still jobless.",
+                cathy: "I'm <b>Catherine</b>I graduated with a Masters degree in Finances, has part-time job at a bank.",
+                christina: "Hi, I'm <b>Christina</b>I work fulltime in healthcare industry, but struggle to get a promotion & rent is too high."
             },
             popups: {
-                "4": { persona: "jamie", content: "hey, i graduated a year ago but still can't find a job." },
-                "5": { persona: "catherine", content: "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!" },
-                "6": { persona: "christina", content: "i can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and also I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we also have AI competing with us." },
-                "7": { persona: "jamie", content: "Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?" },
-                "8": { persona: "christina", content: "I've been trying to take more AI workshops this year… but honestly, it's been tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation." }
+                "4": { persona: "jamie", content: "I graduated a year ago but still can't find a job." },
+                "5": { persona: "catherine", content: "I know...it's really frustrating. I also learned AI thinking it would upskill my resume, but I could only land a pert-time job!" },
+                "6": { persona: "christina", content: "I get you guys. I'm glad AI hasn't affected my healthcare field as much, and learning how to work with it actually helped me land a job. But it's still tough to get promoted or find a higher-paying role now that we're basically competing with AI too." },
+                "7": { persona: "jamie", content: "Christina, you have a job. It must be easier for you to pay the rent and other expenses, right?" },
+                "8": { persona: "christina", content: "I've been trying to take more AI workshops but honestly, it's tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.I've been wanting to take more AI workshops, but it's honestly hard. Rent keeps rising, and every time I see a new certification, it feels like I have to pick between growing professionally and just maintaining my living situation." }
             }
         };
     }
@@ -1387,7 +1391,7 @@ function initializeOshawaMap() {
     const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -80]);
     const jamieMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
         .addTo(map)
-        .bindPopup(popupData ? popupData.initial.jamie : '<b>Jamie</b><br>University graduate looking for employment', {
+        .bindPopup(popupData ? popupData.initial.jamie : "Hi, I'm <b>Jamie</b>.I finished film school last year & still jobless.", {
             className: 'jamie-popup'
         });
 
@@ -1395,7 +1399,7 @@ function initializeOshawaMap() {
     const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
     const cathyMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
         .addTo(map)
-        .bindPopup(popupData ? popupData.initial.cathy : '<b>Catherine</b><br>Experienced professional navigating career changes', {
+        .bindPopup(popupData ? popupData.initial.cathy : "I'm <b>Catherine</b>I graduated with a Masters degree in Finances, has part-time job at a bank.", {
             className: 'cathy-popup'
         });
 
@@ -1403,7 +1407,7 @@ function initializeOshawaMap() {
     const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker', [-10, -80]);
     const christinaMarker = L.marker([oshawaLat - 0.015, oshawaLng], { icon: christinaIcon, draggable: true })
         .addTo(map)
-        .bindPopup(popupData ? popupData.initial.christina : '<b>Christina</b><br>Adapting to the changing job market', {
+        .bindPopup(popupData ? popupData.initial.christina : "Hi, I'm <b>Christina</b>I work fulltime in healthcare industry, but struggle to get a promotion & rent is too high.", {
             className: 'christina-popup'
         });
 

@@ -1,29 +1,29 @@
 {
   "initial": {
-    "jamie": "<b>Jamie</b><br>University graduate looking for employment",
-    "catherine": "<b>Catherine</b><br>Experienced professional navigating career changes",
-    "christina": "<b>Christina</b><br>Adapting to the changing job market"
+    "jamie": "Hi, I'm <b>Jamie</b>I finished film school last year & still jobless.",
+    "catherine": "I'm <b>Catherine</b>I graduated with a Masters degree in Finances, has part-time job at a bank.",
+    "christina": "Hi, I'm <b>Christina</b>I work fulltime in healthcare industry, but struggle to get a promotion & rent is too high."
   },
   "popups": {
     "4": {
       "persona": "jamie",
-      "content": "hey, i graduated a year ago but still can't find a job."
+      "content": "I graduated a year ago but still can't find a job."
     },
     "5": {
       "persona": "catherine",
-      "content": "I know...its really frustrating. i also learned AI thinking it would upskill my resume, but I could only land a pert-time job!"
+      "content": "I know...it's really frustrating. I also learned AI thinking it would upskill my resume, but I could only land a pert-time job!"
     },
     "6": {
       "persona": "christina",
-      "content": "I can feel you guys, but I'm glad that AI doesn't have as much affect in my healthcare industry and I learned how to work with AI which helped me find a job. But it's also hard for me to get a promotion or a high paid job because we have AI competing with us."
+      "content": "I get you guys. I’m glad AI hasn’t affected my healthcare field as much, and learning how to work with it actually helped me land a job. But it’s still tough to get promoted or find a higher-paying role now that we’re basically competing with AI too."
     },
     "7": {
       "persona": "jamie",
-      "content": "Christina, you have a job. It must be easy for you to pay the rent and other expenses, right?"
+      "content": "Christina, you have a job. It must be easier for you to pay the rent and other expenses, right?"
     },
     "8": {
       "persona": "christina",
-      "content": "I've been trying to take more AI workshops but honestly, it's tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation."
+      "content": "I've been trying to take more AI workshops but honestly, it's tough. Rent keeps going up, and every time I look at a new certification, I feel like I have to choose between paying for professional growth or just maintaining my living situation.I’ve been wanting to take more AI workshops, but it’s honestly hard. Rent keeps rising, and every time I see a new certification, it feels like I have to pick between growing professionally and just maintaining my living situation."
     }
   }
 }
