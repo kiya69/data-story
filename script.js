@@ -1388,8 +1388,8 @@ function initializeOshawaMap() {
 
     // Place markers horizontally side by side
     // Jamie - leftmost, popup above and to the right
-    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -80]);
-    const jamieMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
+    const jamieIcon = createPersonaIcon('assets/images/1jamie.png', 'jamie-marker', [0, -69]);
+    const jamieMarker = L.marker([oshawaLat - 0.035, oshawaLng - 0.08], { icon: jamieIcon, draggable: true })
         .addTo(map)
         .bindPopup(popupData ? popupData.initial.jamie : "Hi, I'm <b>Jamie</b>I finished film school last year & still jobless.", {
             className: 'jamie-popup'
@@ -1397,7 +1397,7 @@ function initializeOshawaMap() {
 
     // Cathy (Catherine) - middle, popup above center
     const cathyIcon = createPersonaIcon('assets/images/1cathy.png', 'cathy-marker', [0, -80]);
-    const cathyMarker = L.marker([oshawaLat - 0.015, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
+    const cathyMarker = L.marker([oshawaLat - 0.035, oshawaLng - 0.04], { icon: cathyIcon, draggable: true })
         .addTo(map)
         .bindPopup(popupData ? popupData.initial.cathy : "I'm <b>Catherine</b>I graduated with a Masters degree in Finances, has part-time job at a bank.", {
             className: 'cathy-popup'
@@ -1405,7 +1405,7 @@ function initializeOshawaMap() {
 
     // Christina - rightmost, popup above and to the left (90px left of marker)
     const christinaIcon = createPersonaIcon('assets/images/1chris.png', 'christina-marker', [-10, -80]);
-    const christinaMarker = L.marker([oshawaLat - 0.015, oshawaLng], { icon: christinaIcon, draggable: true })
+    const christinaMarker = L.marker([oshawaLat - 0.035, oshawaLng], { icon: christinaIcon, draggable: true })
         .addTo(map)
         .bindPopup(popupData ? popupData.initial.christina : "Hi, I'm <b>Christina</b>I work fulltime in healthcare industry, but struggle to get a promotion & rent is too high.", {
             className: 'christina-popup'
@@ -2927,11 +2927,12 @@ function createIndustryBarChart() {
             .range([margin.left, width - margin.right])
             .padding(0.2);
 
-        // Use a proper D3 scale for Y axis - domain from 0 to max value
-        const maxValue = d3.max(data, d => d.value);
+        // Use a proper D3 scale for Y axis - domain from 49% to 55%
         const yScale = d3.scaleLinear()
-            .domain([49, 51]) // Zoom in to 49% - 51% range
+            .domain([49, 55]) // Zoom in to 49% - 55% range
             .range([height - margin.bottom, margin.top]);
+
+        const baseLineY = height - margin.bottom; // Baseline for bars (bottom of chart)
 
         const bars = svg.selectAll('.bar')
             .data(data)
@@ -2944,15 +2945,15 @@ function createIndustryBarChart() {
             .attr('rx', 4)
             .attr('ry', 4)
             // Start with bars at baseline with 0 height for animation
-            .attr('y', d => (d.value))
-            .attr('height', height - margin.bottom - margin.top);
+            .attr('y', baseLineY)
+            .attr('height', 0);
 
         // Animate bars growing from bottom
         bars.transition()
             .duration(800)
             .ease(d3.easeCubicOut)
             .attr('y', d => yScale(d.value))
-            .attr('height', d => (height - margin.bottom) - yScale(d.value) + 210);
+            .attr('height', d => baseLineY - yScale(d.value));
 
         // X-Axis
         svg.append('g')
@@ -3053,7 +3054,7 @@ function createAgeIndustryBarChart() {
 
         const maxValue = d3.max(data, d => d.value);
         const yScale = d3.scaleLinear()
-            .domain([0, 40]) // Set y-axis maximum to 40k (40 thousands)
+            .domain([0, 60]) // Set y-axis maximum to 40k (40 thousands)
             .range([height - margin.bottom, margin.top]);
 
         const bars = svg.selectAll('.bar')
